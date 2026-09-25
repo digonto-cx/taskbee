@@ -1,3 +1,6 @@
+// public/assets/js/layout.js - TaskBee Ultimate Base Layout
+
+const BEE_LOGO = "https://cdn-icons-png.flaticon.com/512/1888/1888375.png";
 
 document.addEventListener("DOMContentLoaded", () => {
     // FontAwesome 6 CDN ইনজেকশন
@@ -19,20 +22,21 @@ document.addEventListener("DOMContentLoaded", () => {
         renderTopNavbar(user);
         renderSlideToggleMenu(user);
         renderModernBottomNav(user);
+        renderSupportWidget(user); // হেডফোন সাপোর্ট উইজেট
     }
 });
 
-// ১. মৌমাছির (Bee) লোগো সহ টপবার
+// ১. মৌমাছির নতুন লোগো সহ টপবার
 function renderTopNavbar(user) {
     const header = document.createElement("header");
     header.className = "bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-40 shadow-xs";
     header.innerHTML = `
-        <div class="max-w-5xl mx-auto px-4 py-2.5 flex justify-between items-center">
+        <div class="max-w-5xl mx-auto px-4 py-2 flex justify-between items-center">
             
-            <!-- মৌমাছি (Bee) লোগো -->
+            <!-- মৌমাছি লোগো -->
             <a href="/dashboard" class="flex items-center gap-2 group">
-                <div class="w-10 h-10 rounded-2xl bg-yellow-400/20 border border-yellow-400/50 flex items-center justify-center p-1.5 shadow-xs group-hover:rotate-12 transition duration-200">
-                    <img src="https://cdn-icons-png.flaticon.com/512/826/826963.png" alt="TaskBee Logo" class="w-full h-full object-contain">
+                <div class="w-10 h-10 rounded-2xl bg-yellow-400/20 border border-yellow-400/50 flex items-center justify-center p-1 shadow-xs group-hover:scale-105 transition duration-200">
+                    <img src="${BEE_LOGO}" alt="TaskBee" class="w-full h-full object-contain">
                 </div>
                 <div class="leading-none">
                     <span class="text-xl font-black text-gray-900 tracking-tight flex items-center gap-1">
@@ -42,10 +46,8 @@ function renderTopNavbar(user) {
                 </div>
             </a>
 
-            <!-- ব্যালেন্স এবং মেনু বাটন -->
+            <!-- ব্যালেন্স এবং টগল বাটন -->
             <div class="flex items-center gap-2 sm:gap-3">
-                
-                <!-- ব্যালেন্স পিল (ক্লিক করলে উইথড্র পেজে যাবে) -->
                 <a href="/withdraw" class="bg-yellow-50 border border-yellow-200/80 hover:bg-yellow-100 px-3 py-1.5 rounded-2xl flex items-center gap-2 transition shadow-2xs">
                     <span class="w-6 h-6 rounded-full bg-yellow-400 text-gray-950 flex items-center justify-center text-xs shadow-xs">
                         <i class="fa-solid fa-wallet text-[11px]"></i>
@@ -53,7 +55,6 @@ function renderTopNavbar(user) {
                     <span class="text-xs font-black text-green-700">৳ ${parseFloat(user.balance || 0).toFixed(2)}</span>
                 </a>
 
-                <!-- টগল মেনু বাটন (Hamburger) -->
                 <button onclick="toggleSideMenu()" class="w-10 h-10 rounded-2xl bg-gray-100 hover:bg-yellow-400 text-gray-800 hover:text-black flex items-center justify-center transition border border-gray-200 shadow-2xs">
                     <i class="fa-solid fa-bars-staggered text-sm"></i>
                 </button>
@@ -63,7 +64,51 @@ function renderTopNavbar(user) {
     document.body.prepend(header);
 }
 
-// ২. স্লাইড টগল মেনু (Drawer Menu)
+// ২. হেডফোন আইকন সহ সাপোর্ট উইজেট (সোশ্যাল আইকন ছাড়া)
+function renderSupportWidget(user) {
+    const supportContainer = document.createElement("div");
+    supportContainer.innerHTML = `
+        <!-- ফ্লোটিং হেডফোন বাটন (মোবাইলে বটম বারের একটু উপরে থাকবে) -->
+        <div class="fixed bottom-20 sm:bottom-6 right-4 z-40">
+            <button onclick="toggleSupportModal()" title="কাস্টমার সাপোর্ট" class="w-12 h-12 rounded-full bg-yellow-400 hover:bg-yellow-500 text-gray-950 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 transition border-2 border-white">
+                <i class="fa-solid fa-headset text-xl"></i>
+            </button>
+        </div>
+
+        <!-- সাপোর্ট পপআপ মডাল -->
+        <div id="supportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-3xl max-w-xs w-full p-6 text-center space-y-4 shadow-2xl relative border border-gray-100">
+                
+                <button onclick="toggleSupportModal()" class="absolute top-4 right-4 w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-xs transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <!-- হেডফোন আইকন -->
+                <div class="w-14 h-14 bg-yellow-100 text-yellow-700 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-xs">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+
+                <h3 class="text-lg font-black text-gray-900">হেল্প ও সাপোর্ট</h3>
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    অ্যাকাউন্ট, টাস্ক বা উইথড্র সংক্রান্ত যেকোনো সহায়তার জন্য সরাসরি সাপোর্ট এজেন্টের সাথে যোগাযোগ করুন।
+                </p>
+
+                <!-- হেডফোন আইকন অ্যাকশন বাটন -->
+                <a href="https://t.me/your_support_username" target="_blank" class="w-full py-3 bg-gray-950 hover:bg-black text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-headphones"></i> কাস্টমার সাপোর্টে কথা বলুন
+                </a>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(supportContainer);
+}
+
+function toggleSupportModal() {
+    const modal = document.getElementById("supportModal");
+    modal.classList.toggle("hidden");
+}
+
+// ৩. স্লাইড টগল মেনু (Drawer)
 function renderSlideToggleMenu(user) {
     const menuContainer = document.createElement("div");
     menuContainer.id = "sideMenuContainer";
@@ -75,10 +120,10 @@ function renderSlideToggleMenu(user) {
         <div id="sideMenuDrawer" class="fixed top-0 right-0 bottom-0 w-72 sm:w-80 bg-white shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 pointer-events-auto">
             
             <div class="space-y-6">
-                <!-- হেডার ও ক্লোজ -->
+                <!-- হেডার ও লোগো -->
                 <div class="flex justify-between items-center pb-4 border-b border-gray-100">
                     <div class="flex items-center gap-2.5">
-                        <img src="https://cdn-icons-png.flaticon.com/512/826/826963.png" alt="Bee" class="w-7 h-7 object-contain">
+                        <img src="${BEE_LOGO}" alt="Bee" class="w-7 h-7 object-contain">
                         <span class="font-black text-lg text-gray-900">TaskBee মেনু</span>
                     </div>
                     <button onclick="toggleSideMenu()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center">
@@ -109,7 +154,7 @@ function renderSlideToggleMenu(user) {
                         <i class="fa-brands fa-google text-blue-500 w-5"></i> গুগল সার্চ টাস্ক
                     </a>
                     <a href="/refer" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-yellow-50 hover:text-yellow-800 transition">
-                        <i class="fa-solid fa-gift text-green-500 w-5"></i> রেফার ও আর্ন (৳২০)
+                        <i class="fa-solid fa-gift text-green-500 w-5"></i> রেফার ও আয় (৳২০)
                     </a>
                     <a href="/withdraw" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-yellow-50 hover:text-yellow-800 transition">
                         <i class="fa-solid fa-money-bill-transfer text-emerald-600 w-5"></i> টাকা উত্তোলন (Withdraw)
@@ -124,7 +169,6 @@ function renderSlideToggleMenu(user) {
                 </nav>
             </div>
 
-            <!-- লগআউট বাটন -->
             <button onclick="logout()" class="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 border border-red-200 transition">
                 <i class="fa-solid fa-power-off"></i> লগআউট করুন
             </button>
@@ -148,7 +192,7 @@ function toggleSideMenu() {
     }
 }
 
-// ৩. টাস্ক সেন্টার হাইলাইটেড ও উইথড্র সহ আধুনিক বটম বার
+// ৪. সেন্টার টাস্ক ও উইথড্র সহ আধুনিক বটম বার
 function renderModernBottomNav(user) {
     const path = window.location.pathname;
     const isHome = path === "/dashboard";
@@ -161,7 +205,6 @@ function renderModernBottomNav(user) {
     nav.className = "sm:hidden fixed bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-gray-100 rounded-3xl px-2 py-1.5 flex justify-between items-center z-40 shadow-xl shadow-gray-200/80";
     
     nav.innerHTML = `
-        <!-- ১. হোম -->
         <a href="/dashboard" class="flex flex-col items-center py-1 flex-1 transition ${isHome ? 'text-yellow-600 font-black' : 'text-gray-400 font-medium'}">
             <span class="text-base mb-0.5 ${isHome ? 'scale-110 text-yellow-500' : ''} transition">
                 <i class="fa-solid fa-house"></i>
@@ -169,7 +212,6 @@ function renderModernBottomNav(user) {
             <span class="text-[10px]">হোম</span>
         </a>
 
-        <!-- ২. রেফার -->
         <a href="/refer" class="flex flex-col items-center py-1 flex-1 transition ${isRefer ? 'text-yellow-600 font-black' : 'text-gray-400 font-medium'}">
             <span class="text-base mb-0.5 ${isRefer ? 'scale-110 text-yellow-500' : ''} transition">
                 <i class="fa-solid fa-gift"></i>
@@ -177,7 +219,7 @@ function renderModernBottomNav(user) {
             <span class="text-[10px]">রেফার</span>
         </a>
 
-        <!-- ৩. টাস্ক (মাঝখানে হাইলাইটেড ও বড় ফ্লোটিং বাটন) -->
+        <!-- সেন্টারে হাইলাইটেড টাস্ক বাটন -->
         <a href="/tasks" class="flex flex-col items-center -mt-6 flex-1 group">
             <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 to-amber-300 text-gray-950 flex items-center justify-center text-xl shadow-lg shadow-yellow-400/50 border-4 border-white group-hover:scale-105 transition">
                 <i class="fa-solid fa-list-check"></i>
@@ -185,7 +227,6 @@ function renderModernBottomNav(user) {
             <span class="text-[10px] font-black text-gray-900 mt-0.5">টাস্ক</span>
         </a>
 
-        <!-- ৪. উইথড্র (টাকা উত্তোলন) -->
         <a href="/withdraw" class="flex flex-col items-center py-1 flex-1 transition ${isWithdraw ? 'text-yellow-600 font-black' : 'text-gray-400 font-medium'}">
             <span class="text-base mb-0.5 ${isWithdraw ? 'scale-110 text-yellow-500' : ''} transition">
                 <i class="fa-solid fa-money-bill-transfer"></i>
@@ -193,7 +234,6 @@ function renderModernBottomNav(user) {
             <span class="text-[10px]">উইথড্র</span>
         </a>
 
-        <!-- ৫. অ্যাকাউন্ট (প্রোফাইল) -->
         <a href="/account" class="flex flex-col items-center py-1 flex-1 transition ${isAccount ? 'text-yellow-600 font-black' : 'text-gray-400 font-medium'}">
             <span class="text-base mb-0.5 ${isAccount ? 'scale-110 text-yellow-500' : ''} transition">
                 <i class="fa-solid fa-user-gear"></i>
