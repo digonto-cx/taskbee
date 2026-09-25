@@ -5,96 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskBee - ড্যাশবোর্ড</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
 </head>
-<body class="bg-gray-50 min-h-screen text-gray-800">
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
     <script>checkAuth();</script>
 
-    <!-- Topbar -->
-    <header class="bg-yellow-400 px-6 py-4 flex justify-between items-center shadow">
-        <h1 class="text-2xl font-black text-gray-900">TaskBee</h1>
-        <button onclick="logout()" class="text-xs font-bold bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800 transition">লগআউট</button>
-    </header>
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
 
-    <main class="max-w-4xl mx-auto p-4 space-y-6 mt-4">
-        <!-- ইউজার স্ট্যাটাস কার্ড -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <!-- ১. Welcome & Balance Card -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h2 id="userName" class="text-2xl font-black text-gray-900">স্বাগতম!</h2>
-                <div class="flex items-center gap-2 mt-1">
-                    <p class="text-sm text-gray-500">আপনার রেফারেল কোড: <span id="userId" class="font-black text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded tracking-widest">...</span></p>
-                    <button onclick="copyRefer()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold border">কপি</button>
+                <p class="text-xs uppercase font-extrabold text-gray-400 tracking-wider">Welcome,</p>
+                <h1 id="userName" class="text-2xl sm:text-3xl font-black text-gray-900 mt-0.5">লোড হচ্ছে...</h1>
+                <div class="flex items-center gap-2 mt-1.5">
+                    <span class="text-xs text-gray-500">রেফার কোড: <b id="userId" class="text-yellow-600 font-mono tracking-widest bg-yellow-50 px-2 py-0.5 rounded border border-yellow-200">-----</b></span>
+                    <button onclick="copyReferCode(getUser().user_id)" class="text-xs text-gray-400 hover:text-black">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
                 </div>
             </div>
-            <div class="bg-yellow-50 px-5 py-3 rounded-xl border border-yellow-200">
-                <span class="text-xs text-yellow-700 font-bold uppercase tracking-wider block">বর্তমান ব্যালেন্স</span>
-                <span class="text-3xl font-black text-green-600">৳ <span id="userBalance">0.00</span></span>
+
+            <!-- ব্যালেন্স বক্স -->
+            <div class="bg-gradient-to-tr from-yellow-500 to-amber-400 text-gray-950 p-4 sm:p-5 rounded-2xl shadow-sm min-w-[160px] text-right sm:text-left flex sm:flex-col justify-between items-center sm:items-start w-full sm:w-auto">
+                <span class="text-[11px] font-black uppercase tracking-wider text-black/70">মোট ব্যালেন্স</span>
+                <span class="text-2xl sm:text-3xl font-black">৳ <span id="userBalance">0.00</span></span>
             </div>
         </div>
 
-        <!-- টাস্ক গ্রিড -->
+        <!-- ২. কুইক নেভিগেশন (Quick Navs) -->
         <div>
-            <h3 class="text-lg font-black text-gray-800 mb-3">উপলব্ধ কাজসমূহ (Tasks)</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                
-                <!-- ১. Google Search (সক্রিয়) -->
-                <a href="/tasks/google-search.html" class="bg-white p-5 rounded-2xl border-2 border-yellow-400 shadow-sm hover:shadow-md transition block relative">
-                    <span class="bg-green-100 text-green-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">সক্রিয় (Active)</span>
-                    <h4 class="font-bold text-gray-900 text-lg mt-2">গুগল সার্চ টাস্ক</h4>
-                    <p class="text-xs text-gray-500 mt-1">কীওয়ার্ড সার্চ করে স্ক্রিনশট দিন এবং টাকা আয় করুন।</p>
+            <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider mb-2.5">কুইক মেনু</h3>
+            <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center">
+                <a href="/tasks" class="bg-white p-3 sm:p-4 rounded-2xl border border-gray-100 shadow-2xs hover:shadow-sm transition flex flex-col items-center">
+                    <span class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-base mb-1.5 shadow-2xs">
+                        <i class="fa-solid fa-list-check"></i>
+                    </span>
+                    <span class="text-xs font-bold text-gray-700">টাস্ক হাব</span>
                 </a>
-
-                <!-- ২. Google Review (Maintenance) -->
-                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
-                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
-                    <h4 class="font-bold text-gray-800 text-lg mt-2">Google Review</h4>
-                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                <a href="/tasks/google-search" class="bg-white p-3 sm:p-4 rounded-2xl border border-gray-100 shadow-2xs hover:shadow-sm transition flex flex-col items-center">
+                    <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-base mb-1.5 shadow-2xs">
+                        <i class="fa-brands fa-google"></i>
+                    </span>
+                    <span class="text-xs font-bold text-gray-700">গুগল সার্চ</span>
                 </a>
-
-                <!-- ৩. AI Image Generator (Maintenance) -->
-                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
-                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
-                    <h4 class="font-bold text-gray-800 text-lg mt-2">AI Image Generator</h4>
-                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                <a href="/refer" class="bg-white p-3 sm:p-4 rounded-2xl border border-gray-100 shadow-2xs hover:shadow-sm transition flex flex-col items-center">
+                    <span class="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center text-base mb-1.5 shadow-2xs">
+                        <i class="fa-solid fa-gift"></i>
+                    </span>
+                    <span class="text-xs font-bold text-gray-700">রেফার ২০৳</span>
                 </a>
-
-                <!-- ৪. Gmail Creat (Maintenance) -->
-                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
-                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
-                    <h4 class="font-bold text-gray-800 text-lg mt-2">Gmail Create</h4>
-                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                <a href="/account" class="bg-white p-3 sm:p-4 rounded-2xl border border-gray-100 shadow-2xs hover:shadow-sm transition flex flex-col items-center">
+                    <span class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-base mb-1.5 shadow-2xs">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </span>
+                    <span class="text-xs font-bold text-gray-700">প্রোফাইল</span>
                 </a>
-
-                <!-- ৫. Email Send (Maintenance) -->
-                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
-                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
-                    <h4 class="font-bold text-gray-800 text-lg mt-2">Email Send</h4>
-                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
-                </a>
-
-                <!-- ৬. Job Post (Maintenance) -->
-                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
-                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
-                    <h4 class="font-bold text-gray-800 text-lg mt-2">Job Post</h4>
-                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
-                </a>
-
             </div>
         </div>
+
+        <!-- ৩. Telegram Channel & Support CTA -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <!-- Telegram CTA -->
+            <a href="https://t.me/your_telegram_channel" target="_blank" class="bg-gradient-to-r from-sky-500 to-blue-600 text-white p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-between group">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl group-hover:scale-105 transition">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-sm sm:text-base">টেলিগ্রাম চ্যানেলে জয়েন করুন</h4>
+                        <p class="text-[11px] text-white/80">নতুন টাস্ক ও পেমেন্ট প্রুফের আপডেট পেতে</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs opacity-75"></i>
+            </a>
+
+            <!-- Support CTA -->
+            <a href="https://t.me/your_support_username" target="_blank" class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-4 sm:p-5 rounded-2xl shadow-sm hover:shadow-md transition flex items-center justify-between group">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-black text-sm sm:text-base">২৪/৭ কাস্টমার সাপোর্ট</h4>
+                        <p class="text-[11px] text-white/80">যেকোনো সহায়তায় সরাসরি মেসেজ দিন</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-comment-dots text-xs opacity-75"></i>
+            </a>
+        </div>
+
+        <!-- ৪. টাস্ক লিস্ট সেকশন -->
+        <div>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-base font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-yellow-500"></i> জনপ্রিয় কাজসমূহ
+                </h3>
+                <a href="/tasks" class="text-xs font-bold text-yellow-600 hover:underline">সবগুলো দেখুন &rarr;</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Google Search Task (Active) -->
+                <div class="bg-white p-5 rounded-2xl border-2 border-yellow-400 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="w-10 h-10 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-lg">
+                                <i class="fa-brands fa-google"></i>
+                            </span>
+                            <span class="bg-green-100 text-green-700 text-[11px] font-black px-2 py-0.5 rounded-md">Active</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900">গুগল সার্চ টাস্ক</h4>
+                        <p class="text-xs text-gray-500 mt-1">নির্দিষ্ট কীওয়ার্ড সার্চ করে স্ক্রিনশট দিয়ে আয় করুন।</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-gray-400">পুরস্কার: <b class="text-green-600">৳ ১ - ৳ ১০</b></span>
+                        <a href="/tasks/google-search" class="px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-xl text-xs transition">কাজ করুন</a>
+                    </div>
+                </div>
+
+                <!-- Refer Task (Active) -->
+                <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-gift"></i>
+                            </span>
+                            <span class="bg-green-100 text-green-700 text-[11px] font-black px-2 py-0.5 rounded-md">বোনাস</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900">বন্ধুদের রেফার করুন</h4>
+                        <p class="text-xs text-gray-500 mt-1">রেফার করলেই আপনি এবং আপনার বন্ধু পাবেন ২০ টাকা।</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-gray-400">প্রতি রেফারে: <b class="text-green-600">৳ ২০.০০</b></span>
+                        <a href="/refer" class="px-3.5 py-1.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl text-xs transition">ইনভাইট</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
+    <!-- ৫. পেজে ঢোকার সাথে সাথে ওয়েলকাম নোটিশ পপআপ (Modal) -->
+    <div id="welcomeNoticeModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl relative border border-yellow-200 animate-popIn">
+            
+            <!-- ক্লোজ বাটন -->
+            <button onclick="closeNoticeModal()" class="absolute top-4 right-4 w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+
+            <!-- আইকন -->
+            <div class="w-14 h-14 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-xs">
+                <i class="fa-solid fa-bullhorn animate-bounce"></i>
+            </div>
+
+            <!-- হেডার (No Name) -->
+            <h3 class="text-xl font-black text-gray-900">Welcome!</h3>
+
+            <!-- গ্লোবাল নোটিশ টেক্সট -->
+            <div class="bg-yellow-50/60 border border-yellow-200/70 p-3.5 rounded-2xl">
+                <p id="modalNoticeText" class="text-xs sm:text-sm font-semibold text-gray-800 leading-relaxed">
+                    লোড হচ্ছে...
+                </p>
+            </div>
+
+            <!-- ভিডিও দেখুন অ্যাকশন বাটন -->
+            <div class="space-y-2 pt-1">
+                <a href="https://youtube.com" target="_blank" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                    <i class="fa-brands fa-youtube text-base"></i> ভিডিও দেখুন কীভাবে কাজ করবেন
+                </a>
+
+                <button onclick="closeNoticeModal()" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition">
+                    বুঝেছি, কাজ শুরু করুন
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- স্ক্রিপ্ট লজিক -->
     <script>
         const user = getUser();
         if (user) {
-            document.getElementById('userName').innerText = `স্বাগতম, ${user.name}!`;
+            document.getElementById('userName').innerText = user.name;
             document.getElementById('userId').innerText = user.user_id;
-            document.getElementById('userBalance').innerText = parseFloat(user.balance).toFixed(2);
+            document.getElementById('userBalance').innerText = parseFloat(user.balance || 0).toFixed(2);
         }
 
-        function copyRefer() {
-            navigator.clipboard.writeText(user.user_id);
-            alert("রেফারেল কোড কপি করা হয়েছে: " + user.user_id);
+        // পেজে ঢোকার সাথে সাথে পপআপ ওপেন ও নোটিশ ফেচ
+        async function checkAndShowWelcomePopup() {
+            try {
+                const res = await fetch(`${API_URL}/notice`);
+                const data = await res.json();
+                
+                if (data.is_active && data.content) {
+                    document.getElementById('modalNoticeText').innerText = data.content;
+                } else {
+                    document.getElementById('modalNoticeText').innerText = "TaskBee প্ল্যাটফর্মে আপনাকে স্বাগতম! নিয়মিত মাইক্রো টাস্ক সম্পন্ন করুন এবং রেফার করে আনলিমিটেড বোনাস জিতে নিন।";
+                }
+                
+                // পপআপ শো করা
+                document.getElementById('welcomeNoticeModal').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+            }
         }
+
+        function closeNoticeModal() {
+            document.getElementById('welcomeNoticeModal').classList.add('hidden');
+        }
+
+        // পেজ লোড হলেই স্বয়ংক্রিয়ভাবে পপআপ চালু হবে
+        window.addEventListener('DOMContentLoaded', checkAndShowWelcomePopup);
     </script>
 </body>
 </html>
