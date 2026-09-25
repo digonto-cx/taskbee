@@ -3,122 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBee - একাউন্ট খুলুন</title>
+    <title>TaskBee - একাউন্ট তৈরি করুন</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4 text-gray-800">
+<body class="bg-gradient-to-br from-yellow-50 via-white to-amber-50/40 min-h-screen flex items-center justify-center p-4 text-gray-800">
 
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 space-y-5">
-        
-        <!-- ব্র্যান্ড লোগো ও হেডার -->
-        <div class="text-center space-y-2">
-            <div class="w-16 h-16 rounded-3xl bg-yellow-400/20 border border-yellow-400/40 p-2 mx-auto flex items-center justify-center shadow-xs">
-                <img src="https://cdn-icons-png.flaticon.com/512/1888/1888375.png" alt="TaskBee" class="w-full h-full object-contain">
+    <div class="max-w-md w-full my-6">
+
+        <!-- মেইন গ্লাস-স্টাইল কার্ড -->
+        <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-xl shadow-yellow-500/5 border border-yellow-200/60 space-y-6 relative overflow-hidden">
+            
+            <!-- টপ ব্যাকগ্রাউন্ড গ্লো ইফেক্ট -->
+            <div class="w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl absolute -top-10 -right-10 pointer-events-none"></div>
+
+            <!-- ১. ব্র্যান্ড লোগো ও ওয়েলকাম হেডার -->
+            <div class="text-center space-y-2 relative z-10">
+                <div class="w-16 h-16 rounded-2xl bg-yellow-400/20 border border-yellow-400/50 p-1.5 mx-auto flex items-center justify-center shadow-xs">
+                    <img src="https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png" alt="TaskBee Logo" class="w-full h-full object-contain">
+                </div>
+                
+                <div>
+                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span>-তে স্বাগতম</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">সহজ মাইক্রো কাজ করে প্রতিদিন নিশ্চিত আয় করুন</p>
+                </div>
+
+                <!-- রেফারেল বোনাস ব্যাজ -->
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-yellow-50 border border-yellow-200 rounded-full text-xs font-bold text-yellow-800 shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
+                    <i class="fa-solid fa-gift text-yellow-600"></i> রেফার কোড দিলে আপনিও পাবেন ২০৳ বোনাস!
+                </div>
             </div>
-            <h2 class="text-2xl font-black text-gray-900 tracking-tight">নতুন একাউন্ট খুলুন</h2>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-200 rounded-full text-[11px] font-bold text-yellow-800">
-                <i class="fa-solid fa-gift text-yellow-600"></i> রেফার কোড দিলে আপনিও পাবেন ২০৳ বোনাস!
-            </div>
+
+            <!-- ২. রেজিস্ট্রেশন ফর্ম -->
+            <form id="regForm" class="space-y-4 relative z-10">
+                
+                <!-- পুরো নাম -->
+                <div>
+                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">আপনার পুরো নাম</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="name" placeholder="যেমন: মোঃ সাকিব হাসান" required 
+                               class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- ইমেইল এড্রেস -->
+                <div>
+                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">ইমেইল এড্রেস</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="email" placeholder="example@mail.com" required 
+                               class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- পাসওয়ার্ড (Show/Hide টগল সহ) -->
+                <div>
+                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">গোপন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" minlength="6" placeholder="••••••••" required 
+                               class="w-full text-xs pl-9 pr-10 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
+                        <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black">
+                            <i id="eyeIcon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ৫ ডিজিট রেফার কোড (ঐচ্ছিক) -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider">রেফারেল কোড (৫ ডিজিট আইডি)</label>
+                        <span class="text-[10px] text-gray-400 font-bold">ঐচ্ছিক</span>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-gift"></i>
+                        </span>
+                        <input type="text" id="referred_by" maxlength="5" placeholder="যেমন: 54128" 
+                               class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition font-mono tracking-widest">
+                    </div>
+                </div>
+
+                <!-- সিকিউরিটি ট্রাস্ট নোট -->
+                <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-2.5 text-[11px] text-gray-500">
+                    <i class="fa-solid fa-shield-halved text-yellow-600 text-sm flex-shrink-0"></i>
+                    <span>সুরক্ষার স্বার্থে একটি ডিভাইস থেকে কেবলমাত্র একটি একাউন্টই খোলার নিয়ম কার্যকর।</span>
+                </div>
+
+                <!-- সাবমিট বাটন -->
+                <button type="submit" id="regBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 font-extrabold rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-sm shadow-yellow-500/20 hover:scale-[1.01] active:scale-[0.99] transition duration-200">
+                    একাউন্ট তৈরি করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+            </form>
+
+            <!-- ৩. লগইন রিডাইরেক্ট ফুটার -->
+            <p class="text-xs text-center text-gray-500 pt-3 border-t border-gray-100 relative z-10">
+                ইতিমধ্যে একটি একাউন্ট রয়েছে? <a href="/login" class="text-yellow-600 font-black hover:underline ml-1">লগইন করুন</a>
+            </p>
+
         </div>
-
-        <!-- রেজিস্ট্রেশন ফর্ম -->
-        <form id="regForm" class="space-y-3.5">
-            <!-- নাম -->
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">আপনার পুরো নাম</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                        <i class="fa-solid fa-user"></i>
-                    </span>
-                    <input type="text" id="name" placeholder="যেমন: মোঃ সাকিব হাসান" required 
-                           class="w-full text-xs pl-9 pr-3 py-2.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
-                </div>
-            </div>
-
-            <!-- ইমেইল -->
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ইমেইল এড্রেস</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                        <i class="fa-solid fa-envelope"></i>
-                    </span>
-                    <input type="email" id="email" placeholder="example@mail.com" required 
-                           class="w-full text-xs pl-9 pr-3 py-2.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
-                </div>
-            </div>
-
-            <!-- পাসওয়ার্ড -->
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                        <i class="fa-solid fa-lock"></i>
-                    </span>
-                    <input type="password" id="password" minlength="6" placeholder="••••••••" required 
-                           class="w-full text-xs pl-9 pr-10 py-2.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
-                    <button type="button" onclick="togglePasswordVisibility('password', 'regEyeIcon')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black">
-                        <i id="regEyeIcon" class="fa-solid fa-eye text-xs"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- ৫ ডিজিট রেফার কোড -->
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">রেফারেল কোড (৫ ডিজিট আইডি) - ঐচ্ছিক</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                        <i class="fa-solid fa-gift"></i>
-                    </span>
-                    <input type="text" id="referred_by" maxlength="5" placeholder="যেমন: 45892" 
-                           class="w-full text-xs pl-9 pr-3 py-2.5 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition font-mono">
-                </div>
-            </div>
-
-            <!-- সাবমিট বাটন -->
-            <button type="submit" id="regBtn" class="w-full py-3 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-sm transition">
-                একাউন্ট তৈরি করুন <i class="fa-solid fa-user-plus text-[10px]"></i>
-            </button>
-        </form>
-
-        <!-- ফুটার লিংক -->
-        <p class="text-xs text-center text-gray-500 pt-2 border-t border-gray-100">
-            ইতিমধ্যে একাউন্ট আছে? <a href="/login" class="text-yellow-600 font-bold hover:underline">লগইন করুন</a>
-        </p>
 
     </div>
 
+    <!-- স্ক্রিপ্ট লজিক -->
     <script>
-        // ইউআরএল থেকে রেফার কোড অটো-ডিটেক্ট (?ref=XXXXX)
+        // ১. ইনভাইট লিঙ্ক থেকে অটো-রেফার ডিটেকশন (?ref=XXXXX)
         const urlParams = new URLSearchParams(window.location.search);
         const refParam = urlParams.get('ref');
         if (refParam) {
             document.getElementById('referred_by').value = refParam;
         }
 
-        function togglePasswordVisibility(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.className = "fa-solid fa-eye-slash text-xs";
+        // ২. পাসওয়ার্ড শো / হাইড টগল
+        function togglePassVisibility() {
+            const passInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                eyeIcon.className = "fa-solid fa-eye-slash text-xs text-yellow-600";
             } else {
-                input.type = "password";
-                icon.className = "fa-solid fa-eye text-xs";
+                passInput.type = "password";
+                eyeIcon.className = "fa-solid fa-eye text-xs text-gray-400";
             }
         }
 
+        // ৩. ফর্ম সাবমিশন ও ডিভাইস লক চেক
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('regBtn');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> যাচাই হচ্ছে...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> যাচাই ও তৈরি হচ্ছে...`;
             btn.disabled = true;
 
             const payload = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
                 password: document.getElementById('password').value,
                 device_id: getDeviceFingerprint(), // ১ ডিভাইসে ১ একাউন্ট লক
                 referred_by: document.getElementById('referred_by').value.trim() || null
@@ -137,7 +165,7 @@
                 window.location.href = "/login";
             } catch (err) {
                 alert(err.message);
-                btn.innerHTML = `একাউন্ট তৈরি করুন <i class="fa-solid fa-user-plus text-[10px]"></i>`;
+                btn.innerHTML = `একাউন্ট তৈরি করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
                 btn.disabled = false;
             }
         });
