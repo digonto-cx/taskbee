@@ -148,6 +148,63 @@ def register(data: RegisterSchema):
     token = create_access_token({"sub": str(new_user["id"]), "user_id": user_5digit_id, "role": "user"})
     return {"message": "নিবন্ধন সফল হয়েছে!", "token": token, "user_id": user_5digit_id}
 
+
+# ----------------- WITHDRAWAL APIs ----------------- #
+
+class WithdrawSchema(BaseModel):
+    user_id: int
+    amount: float
+    method: str
+    account_number: str
+
+@app.post("/api/user/withdraw")
+def request_withdraw(data: WithdrawSchema):
+    # ১. ইউজার ডাটা আনা
+    user_res = supabase.table("users").select("*").eq("id", data.user_id).single().execute()
+    if not user_res.data:
+        raise HTTPException(status_code=404, detail="ইউজার পাওয়া যায়নি!")
+    
+    user = user_res.data
+    user_balance = float(user["balance"])
+
+    # ২. শর্ত ১: নূন্যতম ব্যালেন্স ৩৫০ টাকা
+    if data.amount < 350.00:
+        raise HTTPException(status_code=400, detail="নূন্যতম উত্তোলনের পরিমাণ ৩৫০ টাকা!")
+
+    if user_balance < data.amount:
+        raise HTTPException(status_code=400, detail="আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই!")
+
+    # ৩. শর্ত ২: নূন্যতম ৫টি রেফার থাকতে হবে
+    ref_res = supabase.table("users").select("id", count="exact").eq("referred_by", user["user_id"]).execute()
+    ref_count = ref_res.count if ref_res.count is not None else 0
+
+    if ref_count < 5:
+        raise HTTPException(status_code=400, detail=f"টাকা উত্তোলনের জন্য কমপক্ষে ৫টি সফল রেফার প্রয়োজন! আপনার বর্তমান রেফার: {ref_count}টি।")
+
+    # ৪. ব্যালেন্স থেকে টাকা কাটা
+    new_balance = user_balance - data.amount
+    supabase.table("users").update({"balance": new_balance}).eq("id", user["id"]).execute()
+
+    # ৫. উত্তোলন রিকোয়েস্ট তৈরি
+    supabase.table("withdrawals").insert({
+        "user_id": user["id"],
+        "amount": data.amount,
+        "method": data.method,
+        "account_number": data.account_number,
+        "status": "pending"
+    }).execute()
+
+    return {"message": "উত্তোলন রিকোয়েস্ট সফলভাবে জমা হয়েছে! শীঘ্রই পেমেন্ট সম্পন্ন হবে।"}
+
+@app.get("/api/user/withdrawals")
+def get_user_withdrawals(user_id: int):
+    res = supabase.table("withdrawals")\
+        .select("*")\
+        .eq("user_id", user_id)\
+        .order("created_at", desc=True)\
+        .execute()
+    return res.data
+    
 @app.post("/api/auth/login")
 def login(data: LoginSchema):
     res = supabase.table("users").select("*").eq("email", data.email).execute()
