@@ -291,6 +291,30 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
         "limit": limit,
         "users": users_res.data
     }
+
+
+# ----------------- GLOBAL NOTICE APIs ----------------- #
+
+class NoticeSchema(BaseModel):
+    content: str
+    is_active: bool = True
+
+@app.get("/api/notice")
+def get_global_notice():
+    res = supabase.table("global_notices").select("*").eq("id", 1).execute()
+    if res.data and res.data[0]["is_active"]:
+        return {"content": res.data[0]["content"], "is_active": True}
+    return {"content": "", "is_active": False}
+
+@app.post("/api/admin/notice")
+def update_global_notice(data: NoticeSchema):
+    supabase.table("global_notices").upsert({
+        "id": 1,
+        "content": data.content,
+        "is_active": data.is_active,
+        "updated_at": "now()"
+    }).execute()
+    return {"message": "গ্লোবাল নোটিশ সফলভাবে আপডেট হয়েছে!"}
     
 
 @app.delete("/api/admin/imgbb-keys/{key_id}")
