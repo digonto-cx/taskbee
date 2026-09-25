@@ -1,6 +1,6 @@
 // public/assets/js/layout.js - TaskBee Ultimate Base Layout
 
-const BEE_LOGO = "https://cdn-icons-png.flaticon.com/512/1888/1888375.png";
+const BEE_LOGO = "https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png";
 
 document.addEventListener("DOMContentLoaded", () => {
     // FontAwesome 6 CDN ইনজেকশন
