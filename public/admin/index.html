@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskBee এডমিন প্যানেল</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800">
+    <!-- এডমিন হেডার -->
+    <header class="bg-gray-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-black text-yellow-400">TaskBee Admin</h1>
+        <button onclick="logout()" class="text-xs bg-red-600 px-3 py-1.5 rounded-lg hover:bg-red-700">লগআউট</button>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 space-y-6 mt-4">
+        
+        <!-- ১. গুগল সার্চ টাস্ক তৈরি -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="font-bold text-gray-900 text-lg mb-3">১. নতুন গুগল সার্চ টাস্ক তৈরি করুন</h3>
+            <form id="addTaskForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input type="text" id="taskTitle" placeholder="টাস্ক শিরোনাম (Title)" required class="border p-2.5 rounded-xl text-sm">
+                <input type="text" id="taskKeyword" placeholder="সার্চ কীওয়ার্ড (Keyword)" required class="border p-2.5 rounded-xl text-sm">
+                <input type="number" id="taskReward" placeholder="টাকা (Reward ৳)" step="0.5" required class="border p-2.5 rounded-xl text-sm">
+                <button type="submit" class="sm:col-span-3 py-3 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-xl text-sm shadow">টাস্ক পাবলিশ করুন</button>
+            </form>
+        </div>
+
+        <!-- ২. ImgBB API Keys কন্ট্রোল -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="font-bold text-gray-900 text-lg mb-2">২. ImgBB API Key যুক্ত করুন</h3>
+            <form id="addKeyForm" class="flex gap-2">
+                <input type="text" id="apiKeyInput" placeholder="ImgBB Client API Key দিন" required class="flex-1 border p-2.5 rounded-xl text-sm">
+                <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-sm hover:bg-blue-700">সেভ করুন</button>
+            </form>
+        </div>
+
+        <!-- ৩. পেন্ডিং সাবমিশন রিভিউ -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+            <h3 class="font-bold text-gray-900 text-lg">৩. পেন্ডিং স্ক্রিনশট ভেরিফিকেশন</h3>
+            <div id="subList" class="space-y-3">
+                <p class="text-sm text-gray-400">সাবমিশন লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const admin = getUser();
+        if (!admin || admin.role !== 'admin') {
+            alert("প্রবেশ নিষিদ্ধ! শুধুমাত্র এডমিনের জন্য।");
+            window.location.href = "/login.html";
+        }
+
+        // টাস্ক তৈরি
+        document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch(`${API_URL}/admin/tasks/google-search`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    title: document.getElementById('taskTitle').value,
+                    keyword: document.getElementById('taskKeyword').value,
+                    reward_amount: parseFloat(document.getElementById('taskReward').value)
+                })
+            });
+            alert("টাস্ক সফলভাবে পাবলিশ হয়েছে!");
+            document.getElementById('addTaskForm').reset();
+        });
+
+        // Key যুক্ত করা
+        document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch(`${API_URL}/admin/imgbb-keys`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ api_key: document.getElementById('apiKeyInput').value })
+            });
+            alert("ImgBB কী যুক্ত হয়েছে!");
+            document.getElementById('apiKeyInput').value = "";
+        });
+
+        // পেন্ডিং সাবমিশন লোড
+        async function loadSubmissions() {
+            const res = await fetch(`${API_URL}/admin/submissions/pending`);
+            const data = await res.json();
+            const container = document.getElementById('subList');
+            container.innerHTML = "";
+
+            if (data.length === 0) {
+                container.innerHTML = "<p class='text-sm text-gray-400'>কোনো পেন্ডিং স্ক্রিনশট নেই।</p>";
+                return;
+            }
+
+            data.forEach(sub => {
+                container.innerHTML += `
+                    <div class="p-4 border rounded-xl flex flex-wrap justify-between items-center gap-3 bg-gray-50">
+                        <div>
+                            <p class="font-bold text-gray-800">${sub.tasks.title} - ৳${sub.tasks.reward_amount}</p>
+                            <p class="text-xs text-gray-500">ইউজার: ${sub.users.name} (ID: ${sub.users.user_id})</p>
+                            <a href="${sub.screenshot_url}" target="_blank" class="text-xs text-blue-600 font-bold underline mt-1 inline-block">স্ক্রিনশট দেখুন (Open Image)</a>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="actionSub(${sub.id}, 'approve')" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg">Approve</button>
+                            <button onclick="actionSub(${sub.id}, 'reject')" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg">Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function actionSub(id, action) {
+            await fetch(`${API_URL}/admin/submissions/action`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ submission_id: id, action: action })
+            });
+            alert(`কাজটি ${action === 'approve' ? 'Approved' : 'Rejected'} হয়েছে!`);
+            loadSubmissions();
+        }
+
+        loadSubmissions();
+    </script>
+</body>
+</html>
