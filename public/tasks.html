@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টাস্ক সেন্টার - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-10">
+    <script>checkAuth();</script>
+
+    <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. টাস্ক সেন্টার ব্যানার -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <span class="bg-yellow-100 text-yellow-800 text-[11px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 mb-2">
+                    <i class="fa-solid fa-bolt text-yellow-600"></i> আর্নিং হাব
+                </span>
+                <h2 class="text-2xl font-black text-gray-900">টাস্ক সেন্টার (All Tasks)</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mt-0.5">নিচের সহজ কাজগুলো সম্পন্ন করে সরাসরি আপনার একাউন্টে টাকা যোগ করুন।</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs bg-green-50 text-green-700 font-bold px-3 py-1.5 rounded-xl border border-green-200 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> ১টি কাজ লাইভ
+                </span>
+            </div>
+        </div>
+
+        <!-- ২. কুইক মেনু / ক্যাটাগরি ফিল্টার (মোবাইলে মসৃণ স্ক্রল হবে) -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
+            <button onclick="filterTasks('all')" class="filter-btn active-filter px-4 py-2.5 bg-yellow-400 text-gray-900 rounded-xl whitespace-nowrap shadow-sm transition flex items-center gap-1.5">
+                <i class="fa-solid fa-border-all"></i> সব কাজ
+            </button>
+            <button onclick="filterTasks('active')" class="filter-btn px-4 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-check text-green-500"></i> সক্রিয় কাজ
+            </button>
+            <button onclick="filterTasks('google')" class="filter-btn px-4 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition flex items-center gap-1.5">
+                <i class="fa-brands fa-google text-blue-500"></i> গুগল সার্ভিস
+            </button>
+            <button onclick="filterTasks('ai')" class="filter-btn px-4 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i> AI টুলস
+            </button>
+            <button onclick="filterTasks('email')" class="filter-btn px-4 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-envelope text-red-500"></i> ইমেইল জব
+            </button>
+        </div>
+
+        <!-- ৩. টাস্ক কার্ড গ্রিড -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="taskGrid">
+
+            <!-- ১. Google Search (Active) -->
+            <div class="task-item bg-white p-5 rounded-2xl border-2 border-yellow-400 shadow-sm flex flex-col justify-between" data-category="active google">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-brands fa-google"></i>
+                        </span>
+                        <span class="bg-green-100 text-green-700 text-xs font-black px-2.5 py-1 rounded-lg">সক্রিয়</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-lg">গুগল সার্চ টাস্ক</h3>
+                    <p class="text-xs text-gray-500 mt-1">প্রদত্ত কীওয়ার্ড গুগলে সার্চ করে রেজাল্ট স্ক্রিনশট প্রুফ দিন।</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-bold text-gray-400">প্রতি টাস্কে আয়: <b class="text-green-600">৳ ১ - ৳ ১০</b></span>
+                    <a href="/tasks/google-search" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition">
+                        কাজ করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ২. Refer & Earn (Active Task) -->
+            <div class="task-item bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between" data-category="active">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-gift"></i>
+                        </span>
+                        <span class="bg-green-100 text-green-700 text-xs font-black px-2.5 py-1 rounded-lg">আনলিমিটেড</span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-lg">বন্ধুদের রেফার করুন</h3>
+                    <p class="text-xs text-gray-500 mt-1">আপনার ৫ ডিজিট রেফার কোড শেয়ার করলেই উভয়ে পাবেন ২০ টাকা।</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-bold text-gray-400">বোনাস: <b class="text-green-600">৳ ২০.০০</b></span>
+                    <a href="/refer" class="px-4 py-2 bg-gray-900 hover:bg-black text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition">
+                        রেফার করুন <i class="fa-solid fa-share-nodes text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ৩. Google Review (Maintenance) -->
+            <div class="task-item bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 flex flex-col justify-between" data-category="google">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                        <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-md">Maintenance</span>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-lg">গুগল ম্যাপ রিভিউ</h3>
+                    <p class="text-xs text-gray-400 mt-1">গুগল ম্যাপে ৫ স্টার রেটিং দিয়ে আয় করার সিস্টেম।</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs text-gray-400 font-semibold">শিঘ্রই আসছে</span>
+                    <a href="/tasks/maintenance" class="px-3 py-1.5 bg-gray-100 text-gray-500 font-bold rounded-xl text-xs">অপেক্ষা করুন</a>
+                </div>
+            </div>
+
+            <!-- ৪. AI Image Generator (Maintenance) -->
+            <div class="task-item bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 flex flex-col justify-between" data-category="ai">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </span>
+                        <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-md">Maintenance</span>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-lg">AI Image Generator</h3>
+                    <p class="text-xs text-gray-400 mt-1">প্রম্পট দিয়ে ইউনিক এআই ইমেজ তৈরি করার মাইক্রো কাজ।</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs text-gray-400 font-semibold">শিঘ্রই আসছে</span>
+                    <a href="/tasks/maintenance" class="px-3 py-1.5 bg-gray-100 text-gray-500 font-bold rounded-xl text-xs">অপেক্ষা করুন</a>
+                </div>
+            </div>
+
+            <!-- ৫. Gmail Create (Maintenance) -->
+            <div class="task-item bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 flex flex-col justify-between" data-category="email">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-xl">
+                            <i class="fa-regular fa-envelope"></i>
+                        </span>
+                        <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-md">Maintenance</span>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-lg">Gmail Creat Task</h3>
+                    <p class="text-xs text-gray-400 mt-1">নির্দেশনা মোতাবেক নতুন জিমেইল অ্যাকাউন্ট তৈরি করার জব।</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs text-gray-400 font-semibold">শিঘ্রই আসছে</span>
+                    <a href="/tasks/maintenance" class="px-3 py-1.5 bg-gray-100 text-gray-500 font-bold rounded-xl text-xs">অপেক্ষা করুন</a>
+                </div>
+            </div>
+
+            <!-- ৬. Email Send (Maintenance) -->
+            <div class="task-item bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 flex flex-col justify-between" data-category="email">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </span>
+                        <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-md">Maintenance</span>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-lg">Email Send Task</h3>
+                    <p class="text-xs text-gray-400 mt-1">প্রদত্ত টেক্সট নির্দিষ্ট ইমেইলে পাঠিয়ে স্ক্রিনশট জমা দেওয়া।</p>
+                </div>
+                <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs text-gray-400 font-semibold">শিঘ্রই আসছে</span>
+                    <a href="/tasks/maintenance" class="px-3 py-1.5 bg-gray-100 text-gray-500 font-bold rounded-xl text-xs">অপেক্ষা করুন</a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ক্যাটাগরি ফিল্টারিং স্ক্রিপ্ট -->
+    <script>
+        function filterTasks(category) {
+            // বাটন এক্টিভ স্টাইল টগল
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.className = "filter-btn px-4 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition flex items-center gap-1.5";
+            });
+            event.currentTarget.className = "filter-btn px-4 py-2.5 bg-yellow-400 text-gray-900 font-bold rounded-xl whitespace-nowrap shadow-sm transition flex items-center gap-1.5";
+
+            // কার্ড ফিল্টারিং লজিক
+            const cards = document.querySelectorAll('.task-item');
+            cards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = "flex";
+                } else {
+                    const cardCats = card.getAttribute('data-category');
+                    if (cardCats && cardCats.includes(category)) {
+                        card.style.display = "flex";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+  </html>
