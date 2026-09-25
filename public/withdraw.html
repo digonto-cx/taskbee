@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টাকা উত্তোলন - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
+    <script>checkAuth();</script>
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- হেডার -->
+        <div class="flex justify-between items-center">
+            <a href="/account" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> অ্যাকাউন্টে ফিরুন
+            </a>
+            <span class="text-xs text-gray-400 font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved text-green-500"></i> নিরাপদ পেমেন্ট
+            </span>
+        </div>
+
+        <!-- ব্যালেন্স ও শর্ত প্রগ্রেস কার্ড -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                <div>
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">বর্তমান ব্যালেন্স</span>
+                    <span class="text-2xl font-black text-green-600">৳ <span id="currentBal">0.00</span></span>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block text-right">আপনার সফল রেফার</span>
+                    <span class="text-xl font-black text-blue-600 text-right block"><span id="currentRef">0</span> টি</span>
+                </div>
+            </div>
+
+            <!-- শর্ত চেকলিস্ট -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-black uppercase text-gray-400 tracking-wider">উত্তোলনের আবশ্যিক শর্তাবলী:</h4>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <!-- শর্ত ১ -->
+                    <div id="condBalBox" class="p-3 rounded-2xl border flex items-center justify-between bg-gray-50 border-gray-200">
+                        <div class="flex items-center gap-2.5">
+                            <span id="condBalIcon" class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </span>
+                            <span>নূন্যতম ব্যালেন্স: <b>৳ ৩৫০.০০</b></span>
+                        </div>
+                        <span id="condBalStatus" class="font-bold text-[11px]">যাচাই হচ্ছে...</span>
+                    </div>
+
+                    <!-- শর্ত ২ -->
+                    <div id="condRefBox" class="p-3 rounded-2xl border flex items-center justify-between bg-gray-50 border-gray-200">
+                        <div class="flex items-center gap-2.5">
+                            <span id="condRefIcon" class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </span>
+                            <span>নূন্যতম রেফার: <b>৫টি আইডি</b></span>
+                        </div>
+                        <span id="condRefStatus" class="font-bold text-[11px]">যাচাই হচ্ছে...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- উত্তোলন ফর্ম -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-money-bill-transfer text-yellow-500"></i> উইথড্র রিকোয়েস্ট পাঠান
+            </h3>
+
+            <!-- শর্ত পূরণ না হলে সতর্কতা মেসেজ -->
+            <div id="lockAlert" class="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 flex items-start gap-2.5">
+                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+                <p>টাকা তুলতে কমপক্ষে ৩৫০ টাকা ব্যালেন্স এবং ৫টি সফল রেফার থাকতে হবে। শর্ত দুটি পূরণ হলে ফর্মটি স্বয়ংক্রিয়ভাবে উন্মুক্ত হবে।</p>
+            </div>
+
+            <form id="withdrawForm" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">পেমেন্ট মেথড</label>
+                        <select id="payMethod" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                            <option value="bKash">বিকাশ (bKash)</option>
+                            <option value="Nagad">নগদ (Nagad)</option>
+                            <option value="Rocket">রকেট (Rocket)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">অ্যাকাউন্ট নম্বর</label>
+                        <input type="text" id="accNumber" placeholder="যেমন: 017xxxxxxxx" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">টাকার পরিমাণ (নূন্যতম ৩৫০৳)</label>
+                        <input type="number" id="withdrawAmount" placeholder="350" min="350" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" id="submitWithdrawBtn" disabled class="w-full py-3 bg-gray-200 text-gray-400 font-bold rounded-xl text-xs cursor-not-allowed transition shadow-sm">
+                    উত্তোলন সাবমিট করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- উত্তোলন হিস্টোরি (History) -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-yellow-500"></i> উত্তোলনের ইতিহাস (History)
+            </h3>
+
+            <div id="historyList" class="space-y-3">
+                <p class="text-xs text-gray-400 text-center py-6"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const user = getUser();
+        let userBal = 0;
+        let userRefs = 0;
+
+        // ১. শর্তাবলী ও তথ্য যাচাই
+        async function checkConditionsAndInit() {
+            try {
+                // ব্যালেন্স ফেচ
+                userBal = parseFloat(user.balance || 0);
+                document.getElementById('currentBal').innerText = userBal.toFixed(2);
+                document.getElementById('withdrawAmount').max = userBal;
+
+                // রেফার সংখ্যা ফেচ
+                const refRes = await fetch(`${API_URL}/user/referrals?user_code=${user.user_id}&page=1&limit=1`);
+                const refData = await refRes.json();
+                userRefs = refData.total_count || 0;
+                document.getElementById('currentRef').innerText = userRefs;
+
+                // শর্ত ১: ব্যালেন্স ৩৫০৳
+                const condBalBox = document.getElementById('condBalBox');
+                const condBalIcon = document.getElementById('condBalIcon');
+                const condBalStatus = document.getElementById('condBalStatus');
+
+                if (userBal >= 350) {
+                    condBalBox.className = "p-3 rounded-2xl border flex items-center justify-between bg-green-50 border-green-200 text-green-800";
+                    condBalIcon.className = "w-6 h-6 rounded-full bg-green-200 text-green-800 flex items-center justify-center text-xs";
+                    condBalIcon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                    condBalStatus.innerText = "সম্পন্ন";
+                } else {
+                    condBalBox.className = "p-3 rounded-2xl border flex items-center justify-between bg-red-50 border-red-200 text-red-700";
+                    condBalIcon.className = "w-6 h-6 rounded-full bg-red-200 text-red-700 flex items-center justify-center text-xs";
+                    condBalIcon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                    condBalStatus.innerText = `বাকি ৳${(350 - userBal).toFixed(2)}`;
+                }
+
+                // শর্ত ২: ৫টি রেফার
+                const condRefBox = document.getElementById('condRefBox');
+                const condRefIcon = document.getElementById('condRefIcon');
+                const condRefStatus = document.getElementById('condRefStatus');
+
+                if (userRefs >= 5) {
+                    condRefBox.className = "p-3 rounded-2xl border flex items-center justify-between bg-green-50 border-green-200 text-green-800";
+                    condRefIcon.className = "w-6 h-6 rounded-full bg-green-200 text-green-800 flex items-center justify-center text-xs";
+                    condRefIcon.innerHTML = `<i class="fa-solid fa-check"></i>`;
+                    condRefStatus.innerText = "সম্পন্ন";
+                } else {
+                    condRefBox.className = "p-3 rounded-2xl border flex items-center justify-between bg-red-50 border-red-200 text-red-700";
+                    condRefIcon.className = "w-6 h-6 rounded-full bg-red-200 text-red-700 flex items-center justify-center text-xs";
+                    condRefIcon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+                    condRefStatus.innerText = `বাকি ${5 - userRefs}টি`;
+                }
+
+                // উভয় শর্ত পূরণ হলে বাটন একটিভ করা
+                const btn = document.getElementById('submitWithdrawBtn');
+                if (userBal >= 350 && userRefs >= 5) {
+                    document.getElementById('lockAlert').classList.add('hidden');
+                    btn.disabled = false;
+                    btn.className = "w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl text-xs shadow-sm cursor-pointer transition";
+                }
+
+                loadWithdrawHistory();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ২. উইথড্র রিকোয়েস্ট সাবমিট
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitWithdrawBtn');
+            btn.innerText = "প্রসেসিং হচ্ছে...";
+            btn.disabled = true;
+
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('payMethod').value;
+            const account_number = document.getElementById('accNumber').value;
+
+            try {
+                const res = await fetch(`${API_URL}/user/withdraw`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        amount: amount,
+                        method: method,
+                        account_number: account_number
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(data.message);
+                
+                // লোকাল স্টোরেজে ব্যালেন্স আপডেট
+                user.balance = userBal - amount;
+                localStorage.setItem("tb_user", JSON.stringify(user));
+
+                window.location.reload();
+            } catch (err) {
+                alert(err.message);
+                btn.innerText = "উত্তোলন সাবমিট করুন";
+                btn.disabled = false;
+            }
+        });
+
+        // ৩. হিস্টোরি ফেচ
+        async function loadWithdrawHistory() {
+            const container = document.getElementById('historyList');
+            try {
+                const res = await fetch(`${API_URL}/user/withdrawals?user_id=${user.id}`);
+                const data = await res.json();
+                container.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-center text-gray-400 text-xs py-4">এখনো কোনো উত্তোলনের রিকোয়েস্ট নেই।</p>`;
+                    return;
+                }
+
+                data.forEach(item => {
+                    let badge = "";
+                    if (item.status === 'approved') {
+                        badge = `<span class="bg-green-100 text-green-700 text-[11px] font-bold px-2 py-0.5 rounded-md"><i class="fa-solid fa-check text-[10px]"></i> সম্পন্ন</span>`;
+                    } else if (item.status === 'rejected') {
+                        badge = `<span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-md"><i class="fa-solid fa-xmark text-[10px]"></i> রিজেক্টেড</span>`;
+                    } else {
+                        badge = `<span class="bg-yellow-100 text-yellow-800 text-[11px] font-bold px-2 py-0.5 rounded-md"><i class="fa-solid fa-hourglass-half text-[10px]"></i> পেন্ডিং</span>`;
+                    }
+
+                    const dateStr = new Date(item.created_at).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short' });
+
+                    container.innerHTML += `
+                        <div class="p-3 bg-gray-50 border border-gray-100 rounded-2xl flex justify-between items-center text-xs">
+                            <div>
+                                <h4 class="font-bold text-gray-800">৳ ${parseFloat(item.amount).toFixed(2)} (${item.method})</h4>
+                                <span class="text-[10px] text-gray-400">নম্বর: ${item.account_number} &bull; ${dateStr}</span>
+                            </div>
+                            <div>${badge}</div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                container.innerHTML = `<p class="text-center text-red-500 text-xs py-2">হিস্টোরি লোড করা যায়নি!</p>`;
+            }
+        }
+
+        checkConditionsAndInit();
+    </script>
+</body>
+  </html>
