@@ -28,28 +28,36 @@
       "dest": "/public/admin/$1"
     },
     {
-      "src": "/login",
-      "dest": "/public/login.html"
-    },
-    {
-      "src": "/register",
-      "dest": "/public/register.html"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/public/dashboard.html"
-    },
-    {
-      "src": "/refer",
-      "dest": "/public/refer.html"
-    },
-    {
       "src": "/tasks/google-search",
       "dest": "/public/tasks/google-search.html"
     },
     {
       "src": "/tasks/maintenance",
       "dest": "/public/tasks/maintenance.html"
+    },
+    {
+      "src": "/tasks",
+      "dest": "/public/tasks.html"
+    },
+    {
+      "src": "/account",
+      "dest": "/public/account.html"
+    },
+    {
+      "src": "/refer",
+      "dest": "/public/refer.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/public/dashboard.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/public/login.html"
+    },
+    {
+      "src": "/register",
+      "dest": "/public/register.html"
     },
     {
       "src": "/$",
