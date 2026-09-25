@@ -1,4 +1,3 @@
-// public/assets/js/layout.js - TaskBee Ultimate Base Layout
 
 document.addEventListener("DOMContentLoaded", () => {
     // FontAwesome 6 CDN ইনজেকশন
