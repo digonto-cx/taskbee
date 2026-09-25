@@ -5,36 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskBee - লগইন</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-md max-w-md w-full border border-yellow-400">
-        <h2 class="text-2xl font-black text-center text-gray-900 mb-2">TaskBee লগইন</h2>
-        <p class="text-xs text-center text-gray-500 mb-6">আপনার অ্যাকাউন্টে প্রবেশ করতে তথ্য দিন</p>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4 text-gray-800">
 
+    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 space-y-6">
+        
+        <!-- ব্র্যান্ড লোগো ও হেডার -->
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 rounded-3xl bg-yellow-400/20 border border-yellow-400/40 p-2 mx-auto flex items-center justify-center shadow-xs">
+                <img src="https://cdn-icons-png.flaticon.com/512/1888/1888375.png" alt="TaskBee" class="w-full h-full object-contain">
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span> লগইন</h2>
+            <p class="text-xs text-gray-500">আপনার একাউন্টে প্রবেশ করে সহজ কাজ সম্পন্ন করুন</p>
+        </div>
+
+        <!-- লগইন ফর্ম -->
         <form id="loginForm" class="space-y-4">
+            <!-- ইমেইল -->
             <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase">ইমেইল এড্রেস</label>
-                <input type="email" id="email" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none text-sm">
-            </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase">পাসওয়ার্ড</label>
-                <input type="password" id="password" required class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none text-sm">
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ইমেইল এড্রেস</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                        <i class="fa-solid fa-envelope"></i>
+                    </span>
+                    <input type="email" id="email" placeholder="example@mail.com" required 
+                           class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
+                </div>
             </div>
 
-            <button type="submit" id="btn" class="w-full py-3 bg-yellow-400 font-bold rounded-xl hover:bg-yellow-500 transition shadow-sm">লগইন করুন</button>
+            <!-- পাসওয়ার্ড (Show/Hide সহ) -->
+            <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">পাসওয়ার্ড</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="password" placeholder="••••••••" required 
+                           class="w-full text-xs pl-9 pr-10 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
+                    <button type="button" onclick="togglePasswordVisibility('password', 'eyeIcon')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black">
+                        <i id="eyeIcon" class="fa-solid fa-eye text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- সাবমিট বাটন -->
+            <button type="submit" id="loginBtn" class="w-full py-3 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-sm transition">
+                লগইন করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
         </form>
 
-        <p class="text-sm text-center text-gray-600 mt-5">
-            নতুন একাউন্ট করতে চান? <a href="/register.html" class="text-yellow-600 font-bold hover:underline">এখানে ক্লিক করুন</a>
+        <!-- ফুটার লিংক -->
+        <p class="text-xs text-center text-gray-500 pt-2 border-t border-gray-100">
+            নতুন ব্যবহারকারী? <a href="/register" class="text-yellow-600 font-bold hover:underline">একাউন্ট তৈরি করুন</a>
         </p>
+
     </div>
 
     <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.className = "fa-solid fa-eye-slash text-xs";
+            } else {
+                input.type = "password";
+                icon.className = "fa-solid fa-eye text-xs";
+            }
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btn');
-            btn.innerText = "লগইন হচ্ছে...";
+            const btn = document.getElementById('loginBtn');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> লগইন হচ্ছে...`;
             btn.disabled = true;
 
             try {
@@ -49,18 +95,11 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail);
 
-                // সেশন সেভ করা
                 setAuth(data.token, data.user);
-
-                // রোল অনুযায়ী রিডাইরেক্ট
-                if (data.user.role === 'admin') {
-                    window.location.href = "/admin/index.html";
-                } else {
-                    window.location.href = "/dashboard.html";
-                }
+                window.location.href = data.user.role === 'admin' ? '/admin' : '/dashboard';
             } catch (err) {
                 alert(err.message);
-                btn.innerText = "লগইন করুন";
+                btn.innerHTML = `লগইন করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
                 btn.disabled = false;
             }
         });
