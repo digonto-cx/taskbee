@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskBee - ড্যাশবোর্ড</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+    <script>checkAuth();</script>
+
+    <!-- Topbar -->
+    <header class="bg-yellow-400 px-6 py-4 flex justify-between items-center shadow">
+        <h1 class="text-2xl font-black text-gray-900">TaskBee</h1>
+        <button onclick="logout()" class="text-xs font-bold bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800 transition">লগআউট</button>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 space-y-6 mt-4">
+        <!-- ইউজার স্ট্যাটাস কার্ড -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 id="userName" class="text-2xl font-black text-gray-900">স্বাগতম!</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <p class="text-sm text-gray-500">আপনার রেফারেল কোড: <span id="userId" class="font-black text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded tracking-widest">...</span></p>
+                    <button onclick="copyRefer()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded font-semibold border">কপি</button>
+                </div>
+            </div>
+            <div class="bg-yellow-50 px-5 py-3 rounded-xl border border-yellow-200">
+                <span class="text-xs text-yellow-700 font-bold uppercase tracking-wider block">বর্তমান ব্যালেন্স</span>
+                <span class="text-3xl font-black text-green-600">৳ <span id="userBalance">0.00</span></span>
+            </div>
+        </div>
+
+        <!-- টাস্ক গ্রিড -->
+        <div>
+            <h3 class="text-lg font-black text-gray-800 mb-3">উপলব্ধ কাজসমূহ (Tasks)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                
+                <!-- ১. Google Search (সক্রিয়) -->
+                <a href="/tasks/google-search.html" class="bg-white p-5 rounded-2xl border-2 border-yellow-400 shadow-sm hover:shadow-md transition block relative">
+                    <span class="bg-green-100 text-green-800 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">সক্রিয় (Active)</span>
+                    <h4 class="font-bold text-gray-900 text-lg mt-2">গুগল সার্চ টাস্ক</h4>
+                    <p class="text-xs text-gray-500 mt-1">কীওয়ার্ড সার্চ করে স্ক্রিনশট দিন এবং টাকা আয় করুন।</p>
+                </a>
+
+                <!-- ২. Google Review (Maintenance) -->
+                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
+                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
+                    <h4 class="font-bold text-gray-800 text-lg mt-2">Google Review</h4>
+                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                </a>
+
+                <!-- ৩. AI Image Generator (Maintenance) -->
+                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
+                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
+                    <h4 class="font-bold text-gray-800 text-lg mt-2">AI Image Generator</h4>
+                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                </a>
+
+                <!-- ৪. Gmail Creat (Maintenance) -->
+                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
+                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
+                    <h4 class="font-bold text-gray-800 text-lg mt-2">Gmail Create</h4>
+                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                </a>
+
+                <!-- ৫. Email Send (Maintenance) -->
+                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
+                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
+                    <h4 class="font-bold text-gray-800 text-lg mt-2">Email Send</h4>
+                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                </a>
+
+                <!-- ৬. Job Post (Maintenance) -->
+                <a href="/tasks/maintenance.html" class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition block">
+                    <span class="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded-full uppercase">Maintenance</span>
+                    <h4 class="font-bold text-gray-800 text-lg mt-2">Job Post</h4>
+                    <p class="text-xs text-gray-400 mt-1">রক্ষণাবেক্ষণ চলছে...</p>
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const user = getUser();
+        if (user) {
+            document.getElementById('userName').innerText = `স্বাগতম, ${user.name}!`;
+            document.getElementById('userId').innerText = user.user_id;
+            document.getElementById('userBalance').innerText = parseFloat(user.balance).toFixed(2);
+        }
+
+        function copyRefer() {
+            navigator.clipboard.writeText(user.user_id);
+            alert("রেফারেল কোড কপি করা হয়েছে: " + user.user_id);
+        }
+    </script>
+</body>
+</html>
