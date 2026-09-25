@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "builds": [
     {
       "src": "api/index.py",
@@ -16,20 +18,28 @@
       "dest": "api/index.py"
     },
     {
+      "src": "/assets/(.*)",
+      "dest": "/public/assets/$1"
+    },
+    {
       "src": "/admin/?$",
       "dest": "/public/admin/index.html"
     },
     {
       "src": "/admin/(.*)",
-      "dest": "/public/admin/$1"
+      "dest": "/public/admin/$1.html"
     },
     {
-      "src": "/tasks/(.*)",
-      "dest": "/public/tasks/$1"
+      "src": "/tasks/google-search",
+      "dest": "/public/tasks/google-search.html"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/public/assets/$1"
+      "src": "/tasks/maintenance",
+      "dest": "/public/tasks/maintenance.html"
+    },
+    {
+      "src": "/(login|register|dashboard|refer)",
+      "dest": "/public/$1.html"
     },
     {
       "src": "/$",
