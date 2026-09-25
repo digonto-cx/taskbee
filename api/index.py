@@ -264,6 +264,35 @@ def add_imgbb_key(data: ImgbbKeySchema):
     supabase.table("imgbb_keys").insert({"api_key": data.api_key, "is_active": True}).execute()
     return {"message": "API Key সফলভাবে সেভ হয়েছে!"}
 
+# ----------------- REFERRAL STATS & PAGINATION API ----------------- #
+
+@app.get("/api/user/referrals")
+def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
+    # ১. মোট রেফারের সংখ্যা গণনা
+    count_res = supabase.table("users").select("id", count="exact").eq("referred_by", user_code).execute()
+    total_count = count_res.count if count_res.count is not None else 0
+    total_earnings = total_count * 20.00  # প্রতি রেফারে ২০ টাকা
+
+    # ২. প্রতি পেজে ২০ জন করে ডাটা নিয়ে আসা (Pagination)
+    start = (page - 1) * limit
+    end = start + limit - 1
+    
+    users_res = supabase.table("users")\
+        .select("name, user_id, created_at")\
+        .eq("referred_by", user_code)\
+        .order("created_at", desc=True)\
+        .range(start, end)\
+        .execute()
+
+    return {
+        "total_count": total_count,
+        "total_earnings": total_earnings,
+        "page": page,
+        "limit": limit,
+        "users": users_res.data
+    }
+    
+
 @app.delete("/api/admin/imgbb-keys/{key_id}")
 def delete_imgbb_key(key_id: int):
     supabase.table("imgbb_keys").delete().eq("id", key_id).execute()
