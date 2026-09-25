@@ -1,0 +1,119 @@
+/* ১. গুগল বাংলা ফন্ট (Hind Siliguri) ইমপোর্ট */
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #facc15;       /* TaskBee Yellow */
+    --primary-hover: #eab308;
+    --dark-bg: #111827;
+    --card-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --success: #16a34a;
+    --danger: #dc2626;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Hind Siliguri', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #f8fafc;
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* ২. কাস্টম মসৃণ স্ক্রলবার */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ৩. কার্ড ও বাটন ইন্টারেকশন এনিমেশন */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #000;
+    font-weight: 700;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(250, 204, 21, 0.35);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* কার্ড হোভার ইফেক্ট */
+.task-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* ৪. লোডিং স্পিনার (ছবি আপলোডের সময় ব্যবহারের জন্য) */
+.spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border-left-color: #000;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ৫. মডাল পপআপ এনিমেশন */
+.modal-animate {
+    animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ৬. ফর্ম ইনপুট ফোকাস স্টাইল */
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.2) !important;
+}
+
+/* টেক্সট সিলেকশন কালার */
+::selection {
+    background-color: var(--primary-color);
+    color: #000;
+}
