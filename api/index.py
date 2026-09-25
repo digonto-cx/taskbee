@@ -3,7 +3,7 @@ import random
 import base64
 import requests
 from datetime import datetime, timedelta
-
+from typing import Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -78,7 +78,7 @@ def upload_to_imgbb(image_bytes: bytes, api_keys: list[str]) -> str:
             continue  # Failover to next key
 
     raise Exception("সবগুলো ImgBB API Key ব্লক বা লিমিট ক্রস করেছে!")
-
+    
 # ----------------- ৪. Pydantic স্কিমাস ----------------- #
 
 class RegisterSchema(BaseModel):
@@ -86,7 +86,7 @@ class RegisterSchema(BaseModel):
     email: str
     password: str
     device_id: str
-    referred_by: str = None
+    referred_by: Optional[str] = None   # <--- Optional[str] করে দেওয়া হয়েছে
 
 class LoginSchema(BaseModel):
     email: str
@@ -100,10 +100,11 @@ class CreateTaskSchema(BaseModel):
 class ActionSubmissionSchema(BaseModel):
     submission_id: int
     action: str  # 'approve' অথবা 'reject'
-    admin_note: str = ""
+    admin_note: Optional[str] = ""      # <--- Optional[str] করে দেওয়া হয়েছে
 
 class ImgbbKeySchema(BaseModel):
     api_key: str
+    
 
 # ----------------- ৫. AUTHENTICATION APIs ----------------- #
 
