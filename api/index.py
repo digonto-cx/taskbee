@@ -206,21 +206,6 @@ def get_user_withdrawals(user_id: int):
     return res.data
 
 
-# ----------------- ADMIN DASHBOARD STATS API ----------------- #
-
-@app.get("/api/admin/stats")
-def get_admin_stats():
-    # মোট ইউজার, পেন্ডিং টাস্ক ও পেন্ডিং উইথড্র কাউন্ট
-    u_count = supabase.table("users").select("id", count="exact").execute().count or 0
-    t_count = supabase.table("task_submissions").select("id", count="exact").eq("status", "pending").execute().count or 0
-    w_count = supabase.table("withdrawals").select("id", count="exact").eq("status", "pending").execute().count or 0
-    
-    return {
-        "total_users": u_count,
-        "pending_tasks": t_count,
-        "pending_withdrawals": w_count
-    }
-    
 @app.post("/api/auth/login")
 def login(data: LoginSchema):
     res = supabase.table("users").select("*").eq("email", data.email).execute()
@@ -431,6 +416,22 @@ def update_global_notice(data: NoticeSchema):
         "updated_at": "now()"
     }).execute()
     return {"message": "গ্লোবাল নোটিশ সফলভাবে আপডেট হয়েছে!"}
+
+
+# ----------------- ADMIN DASHBOARD STATS API ----------------- #
+
+@app.get("/api/admin/stats")
+def get_admin_stats():
+    # মোট ইউজার, পেন্ডিং টাস্ক ও পেন্ডিং উইথড্র কাউন্ট
+    u_count = supabase.table("users").select("id", count="exact").execute().count or 0
+    t_count = supabase.table("task_submissions").select("id", count="exact").eq("status", "pending").execute().count or 0
+    w_count = supabase.table("withdrawals").select("id", count="exact").eq("status", "pending").execute().count or 0
+    
+    return {
+        "total_users": u_count,
+        "pending_tasks": t_count,
+        "pending_withdrawals": w_count
+    }
     
 
 @app.delete("/api/admin/imgbb-keys/{key_id}")
