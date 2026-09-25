@@ -230,6 +230,49 @@ def login(data: LoginSchema):
 
 # ----------------- ৬. USER TASK APIs ----------------- #
 
+# ----------------- ADMIN WITHDRAWAL ACTION APIs ----------------- #
+
+class ActionWithdrawalSchema(BaseModel):
+    withdrawal_id: int
+    action: str  # 'approve' অথবা 'reject'
+    admin_note: Optional[str] = ""
+
+@app.get("/api/admin/withdrawals/pending")
+def get_pending_withdrawals():
+    res = supabase.table("withdrawals")\
+        .select("id, user_id, amount, method, account_number, status, created_at, users(name, user_id, email)")\
+        .eq("status", "pending")\
+        .order("created_at", desc=True)\
+        .execute()
+    return res.data
+
+@app.post("/api/admin/withdrawals/action")
+def take_withdrawal_action(data: ActionWithdrawalSchema):
+    w_res = supabase.table("withdrawals").select("*").eq("id", data.withdrawal_id).single().execute()
+    if not w_res.data:
+        raise HTTPException(status_code=404, detail="উইথড্র রিকোয়েস্ট পাওয়া যায়নি!")
+
+    withdrawal = w_res.data
+    if data.action == "approve":
+        supabase.table("withdrawals").update({
+            "status": "approved",
+            "admin_note": data.admin_note
+        }).eq("id", data.withdrawal_id).execute()
+        return {"message": "পেমেন্ট সফলভাবে এপ্রুভ করা হয়েছে!"}
+
+    elif data.action == "reject":
+        # রিজেক্ট হলে টাকা ইউজারের ব্যালেন্সে ফেরত যাবে
+        user = supabase.table("users").select("balance").eq("id", withdrawal["user_id"]).single().execute()
+        refund_balance = float(user.data["balance"]) + float(withdrawal["amount"])
+        supabase.table("users").update({"balance": refund_balance}).eq("id", withdrawal["user_id"]).execute()
+
+        supabase.table("withdrawals").update({
+            "status": "rejected",
+            "admin_note": data.admin_note
+        }).eq("id", data.withdrawal_id).execute()
+        return {"message": "উইথড্র রিকোয়েস্ট বাতিল এবং টাকা ইউজারের ব্যালেন্সে রিফান্ড হয়েছে!"}
+
+    raise HTTPException(status_code=400, detail="ভুল অ্যাকশন কমান্ড!")https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png
 @app.get("/api/tasks/google-search")
 def get_google_search_tasks():
     res = supabase.table("tasks").select("*").eq("task_type", "google_search").eq("status", "active").execute()
