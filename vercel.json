@@ -28,6 +28,10 @@
       "dest": "/public/admin/$1"
     },
     {
+      "src": "/tasks/task-details",
+      "dest": "/public/tasks/task-details.html"
+    },
+    {
       "src": "/tasks/google-search",
       "dest": "/public/tasks/google-search.html"
     },
@@ -38,6 +42,18 @@
     {
       "src": "/tasks",
       "dest": "/public/tasks.html"
+    },
+    {
+      "src": "/history",
+      "dest": "/public/history.html"
+    },
+    {
+      "src": "/video",
+      "dest": "/public/video.html"
+    },
+    {
+      "src": "/withdraw",
+      "dest": "/public/withdraw.html"
     },
     {
       "src": "/account",
