@@ -367,7 +367,18 @@ def create_google_search_task(data: CreateTaskSchema):
     return {"message": "গুগল সার্চ টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
 
 
+# ----------------- FULL TASK HISTORY API ----------------- #
 
+@app.get("/api/user/submissions")
+def get_user_submissions(user_id: int):
+    # ইউজারের জমা দেওয়া সব কাজের বিবরণী
+    res = supabase.table("task_submissions")\
+        .select("id, status, admin_note, screenshot_url, created_at, tasks(title, reward_amount)")\
+        .eq("user_id", user_id)\
+        .order("created_at", desc=True)\
+        .execute()
+    return res.data
+    
 # ----------------- SINGLE TASK & STATUS CHECK APIs ----------------- #
 
 @app.get("/api/tasks/single/{task_id}")
