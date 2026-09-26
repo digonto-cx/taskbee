@@ -366,6 +366,23 @@ def create_google_search_task(data: CreateTaskSchema):
     }).execute()
     return {"message": "গুগল সার্চ টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
 
+
+
+# ----------------- SINGLE TASK & STATUS CHECK APIs ----------------- #
+
+@app.get("/api/tasks/single/{task_id}")
+def get_single_task(task_id: int):
+    res = supabase.table("tasks").select("*").eq("id", task_id).single().execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="টাস্ক পাওয়া যায়নি!")
+    return res.data
+
+@app.get("/api/tasks/submission-status")
+def get_submission_status(task_id: int, user_id: int):
+    # এই টাস্কে ইউজারের বর্তমান স্ট্যাটাস চেক
+    sub = supabase.table("task_submissions").select("*").eq("task_id", task_id).eq("user_id", user_id).order("id", desc=True).limit(1).execute()
+    return sub.data[0] if sub.data else None
+    
 @app.get("/api/admin/submissions/pending")
 def get_pending_submissions():
     res = supabase.table("task_submissions")\
