@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টাস্ক হিস্টোরি - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
+    <script>checkAuth();</script>
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- হেডার ও ব্যাক বাটন -->
+        <div class="flex items-center justify-between">
+            <div>
+                <a href="/dashboard" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1.5 mb-1">
+                    <i class="fa-solid fa-arrow-left"></i> ড্যাশবোর্ডে ফিরুন
+                </a>
+                <h2 class="text-xl sm:text-2xl font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-yellow-500"></i> কাজের হিস্টোরি (Task History)
+                </h2>
+            </div>
+            <button onclick="loadHistory()" class="text-xs bg-white border border-gray-200 px-3 py-1.5 rounded-xl font-bold hover:bg-gray-100 shadow-2xs transition">
+                <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+            </button>
+        </div>
+
+        <!-- ১. হিস্টোরি সামারি কাউন্টার্স -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">মোট সাবমিশন</span>
+                <span id="statTotal" class="text-xl font-black text-gray-900 mt-0.5 block">0</span>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">পেন্ডিং</span>
+                <span id="statPending" class="text-xl font-black text-yellow-600 mt-0.5 block">0</span>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">অনুমোদিত (Approved)</span>
+                <span id="statApproved" class="text-xl font-black text-green-600 mt-0.5 block">0</span>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-2xs">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">বাতিল (Rejected)</span>
+                <span id="statRejected" class="text-xl font-black text-red-600 mt-0.5 block">0</span>
+            </div>
+        </div>
+
+        <!-- ২. ফিল্টারিং বাটন বার -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-bold">
+            <button onclick="filterHistory('all')" class="hist-filter active-filter px-4 py-2 bg-yellow-400 text-gray-950 rounded-xl whitespace-nowrap shadow-xs transition">
+                সবগুলো (<span id="countAll">0</span>)
+            </button>
+            <button onclick="filterHistory('pending')" class="hist-filter px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition">
+                পেন্ডিং
+            </button>
+            <button onclick="filterHistory('approved')" class="hist-filter px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition">
+                অনুমোদিত
+            </button>
+            <button onclick="filterHistory('rejected')" class="hist-filter px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition">
+                বাতিল
+            </button>
+        </div>
+
+        <!-- ৩. সাবমিশন হিস্টোরি লিস্ট -->
+        <div id="historyContainer" class="space-y-3">
+            <p class="text-center text-gray-400 text-xs py-10"><i class="fa-solid fa-spinner fa-spin"></i> হিস্টোরি লোড হচ্ছে...</p>
+        </div>
+
+    </main>
+
+    <!-- স্ক্রিনশট দেখার প্রিভিউ মডাল -->
+    <div id="proofModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 space-y-3 shadow-2xl relative border border-gray-200">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h4 class="font-bold text-xs text-gray-800">জমা দেওয়া স্ক্রিনশট</h4>
+                <button onclick="closeProofModal()" class="text-gray-400 hover:text-black">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <img id="modalProofImg" src="#" alt="Screenshot" class="w-full max-h-80 object-contain rounded-xl border border-gray-100 bg-gray-50">
+            <a id="modalProofLink" href="#" target="_blank" class="block text-center text-xs text-blue-600 font-bold hover:underline">
+                আসল ছবি ওপেন করুন <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const user = getUser();
+        let allSubmissions = [];
+
+        // ১. হিস্টোরি ডাটা ফেচ
+        async function loadHistory() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = `<p class="text-center text-gray-400 text-xs py-10"><i class="fa-solid fa-spinner fa-spin"></i> হিস্টোরি লোড হচ্ছে...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/user/submissions?user_id=${user.id}`);
+                allSubmissions = await res.json();
+
+                // কাউন্টার আপডেট
+                const pending = allSubmissions.filter(s => s.status === 'pending').length;
+                const approved = allSubmissions.filter(s => s.status === 'approved').length;
+                const rejected = allSubmissions.filter(s => s.status === 'rejected').length;
+
+                document.getElementById('statTotal').innerText = allSubmissions.length;
+                document.getElementById('statPending').innerText = pending;
+                document.getElementById('statApproved').innerText = approved;
+                document.getElementById('statRejected').innerText = rejected;
+                document.getElementById('countAll').innerText = allSubmissions.length;
+
+                renderList(allSubmissions);
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="text-center text-red-500 text-xs py-6">হিস্টোরি আনতে সমস্যা হয়েছে!</p>`;
+            }
+        }
+
+        // ২. লিস্ট রেন্ডার ফাংশন
+        function renderList(items) {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = "";
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white p-10 rounded-3xl text-center text-gray-400 text-xs shadow-2xs border border-gray-100 space-y-2">
+                        <i class="fa-solid fa-inbox text-3xl text-gray-300"></i>
+                        <p>কোনো কাজের রেকর্ড পাওয়া যায়নি।</p>
+                    </div>
+                `;
+                return;
+            }
+
+            items.forEach(item => {
+                let badge = "";
+                let icon = "";
+
+                if (item.status === 'approved') {
+                    badge = `<span class="bg-green-100 text-green-700 text-xs font-black px-2.5 py-1 rounded-xl flex items-center gap-1"><i class="fa-solid fa-check"></i> Approved</span>`;
+                    icon = `<div class="w-10 h-10 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-base flex-shrink-0"><i class="fa-solid fa-circle-check"></i></div>`;
+                } else if (item.status === 'rejected') {
+                    badge = `<span class="bg-red-100 text-red-700 text-xs font-black px-2.5 py-1 rounded-xl flex items-center gap-1"><i class="fa-solid fa-xmark"></i> Rejected</span>`;
+                    icon = `<div class="w-10 h-10 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-base flex-shrink-0"><i class="fa-solid fa-circle-xmark"></i></div>`;
+                } else {
+                    badge = `<span class="bg-yellow-100 text-yellow-800 text-xs font-black px-2.5 py-1 rounded-xl flex items-center gap-1"><i class="fa-solid fa-hourglass-half"></i> Pending</span>`;
+                    icon = `<div class="w-10 h-10 rounded-2xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-base flex-shrink-0"><i class="fa-solid fa-clock"></i></div>`;
+                }
+
+                const dateStr = new Date(item.created_at).toLocaleDateString('bn-BD', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                container.innerHTML += `
+                    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-gray-200/70 shadow-2xs hover:shadow-xs transition space-y-3">
+                        <div class="flex justify-between items-start gap-3">
+                            <div class="flex items-start gap-3">
+                                ${icon}
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-sm sm:text-base">${item.tasks.title}</h4>
+                                    <span class="text-[11px] text-gray-400 block mt-0.5">${dateStr}</span>
+                                </div>
+                            </div>
+                            <div class="text-right flex-shrink-0">
+                                <span class="text-sm font-black text-gray-900 block">৳ ${parseFloat(item.tasks.reward_amount).toFixed(2)}</span>
+                                <div class="mt-1">${badge}</div>
+                            </div>
+                        </div>
+
+                        <!-- স্ক্রিনশট ভিউ ও রিজেক্টেড নোট -->
+                        <div class="pt-2.5 border-t border-gray-100 flex flex-wrap justify-between items-center gap-2 text-xs">
+                            <button onclick="viewProof('${item.screenshot_url}')" class="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                <i class="fa-solid fa-image"></i> জমা দেওয়া স্ক্রিনশট দেখুন
+                            </button>
+
+                            ${item.status === 'rejected' && item.admin_note ? `
+                                <span class="text-red-600 bg-red-50 px-2 py-0.5 rounded-lg text-[11px] font-medium">
+                                    কারণ: ${item.admin_note}
+                                </span>
+                            ` : ''}
+
+                            ${item.status === 'approved' ? `
+                                <span class="text-green-600 text-[11px] font-bold">
+                                    + ৳ ${item.tasks.reward_amount} ব্যালেন্সে যুক্ত হয়েছে
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ৩. ফিল্টারিং লজিক
+        function filterHistory(type) {
+            document.querySelectorAll('.hist-filter').forEach(btn => {
+                btn.className = "hist-filter px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl whitespace-nowrap hover:bg-gray-100 transition";
+            });
+            event.currentTarget.className = "hist-filter px-4 py-2 bg-yellow-400 text-gray-950 font-bold rounded-xl whitespace-nowrap shadow-xs transition";
+
+            if (type === 'all') {
+                renderList(allSubmissions);
+            } else {
+                const filtered = allSubmissions.filter(s => s.status === type);
+                renderList(filtered);
+            }
+        }
+
+        // ৪. স্ক্রিনশট প্রিভিউ মডাল
+        function viewProof(url) {
+            document.getElementById('modalProofImg').src = url;
+            document.getElementById('modalProofLink').href = url;
+            document.getElementById('proofModal').classList.remove('hidden');
+        }
+
+        function closeProofModal() {
+            document.getElementById('proofModal').classList.add('hidden');
+        }
+
+        loadHistory();
+    </script>
+</body>
+      </html>
