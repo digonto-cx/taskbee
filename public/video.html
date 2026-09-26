@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ভিডিও গাইড - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
+    <script>checkAuth();</script>
+
+    <main class="max-w-xl mx-auto p-4 sm:p-6 text-center space-y-6 mt-4">
+
+        <!-- মেইন মেইনটেন্যান্স কার্ড -->
+        <div class="bg-white p-8 sm:p-10 rounded-3xl border border-gray-100 shadow-xl shadow-yellow-500/5 space-y-5 relative overflow-hidden">
+            
+            <!-- ব্যাকগ্রাউন্ড গ্লো ইফেক্ট -->
+            <div class="w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl absolute -top-8 -right-8 pointer-events-none"></div>
+
+            <!-- ভিডিও প্লে / মেইনটেন্যান্স আইকন -->
+            <div class="relative inline-block">
+                <div class="w-20 h-20 rounded-3xl bg-red-50 text-red-600 flex items-center justify-center text-4xl shadow-xs mx-auto animate-pulse">
+                    <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <span class="absolute -bottom-1 -right-1 w-7 h-7 bg-yellow-400 text-gray-950 rounded-full flex items-center justify-center text-xs shadow-sm">
+                    <i class="fa-solid fa-wrench"></i>
+                </span>
+            </div>
+
+            <!-- ব্যাজ -->
+            <div>
+                <span class="bg-red-100 text-red-700 text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-tools text-[10px]"></i> Under Maintenance
+                </span>
+            </div>
+
+            <!-- শিরোনাম ও বিবরণ -->
+            <div class="space-y-2">
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight">ভিডিও টিউটোরিয়াল তৈরিকরণ চলছে</h2>
+                <p class="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+                    কীভাবে সহজে গুগল সার্চ করবেন, সঠিক স্ক্রিনশট নিবেন এবং টাকা উত্তোলন করবেন—তার পূর্ণাঙ্গ ভিডিও গাইড তৈরির কাজ চলছে। খুব শীঘ্রই ভিডিওটি এখানে যুক্ত করা হবে।
+                </p>
+            </div>
+
+            <!-- অ্যাকশন বাটনসমূহ -->
+            <div class="pt-3 space-y-2 max-w-xs mx-auto">
+                <a href="/dashboard" class="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-house text-xs"></i> ড্যাশবোর্ডে ফিরে যান
+                </a>
+                
+                <a href="/tasks" class="w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-list-check text-xs"></i> সরাসরি কাজ শুরু করুন
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+</body>
+</html>
