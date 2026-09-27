@@ -9,71 +9,84 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4 text-gray-800">
+<body class="bg-gradient-to-br from-yellow-50 via-white to-amber-50/40 min-h-screen flex items-center justify-center p-4 text-gray-800">
 
-    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 space-y-6">
-        
-        <!-- ব্র্যান্ড লোগো ও হেডার -->
-        <div class="text-center space-y-2">
-            <div class="w-16 h-16 rounded-3xl bg-yellow-400/20 border border-yellow-400/40 p-2 mx-auto flex items-center justify-center shadow-xs">
-                <img src="https://cdn-icons-png.flaticon.com/512/1888/1888375.png" alt="TaskBee" class="w-full h-full object-contain">
+    <div class="max-w-md w-full my-6">
+
+        <!-- মেইন গ্লাস-স্টাইল কার্ড -->
+        <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-xl shadow-yellow-500/5 border border-yellow-200/60 space-y-6 relative overflow-hidden">
+            
+            <!-- টপ অ্যাম্বিয়েন্ট গ্লো -->
+            <div class="w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl absolute -top-10 -right-10 pointer-events-none"></div>
+
+            <!-- ১. ব্র্যান্ড লোগো ও হেডার -->
+            <div class="text-center space-y-2 relative z-10">
+                <div class="w-16 h-16 rounded-2xl bg-yellow-400/20 border border-yellow-400/50 p-1.5 mx-auto flex items-center justify-center shadow-xs">
+                    <img src="https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png" alt="TaskBee" class="w-full h-full object-contain">
+                </div>
+                
+                <div>
+                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span> লগইন</h2>
+                    <p class="text-xs text-gray-500 mt-0.5">আপনার অ্যাকাউন্টে প্রবেশ করে আয় শুরু করুন</p>
+                </div>
             </div>
-            <h2 class="text-2xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span> লগইন</h2>
-            <p class="text-xs text-gray-500">আপনার একাউন্টে প্রবেশ করে সহজ কাজ সম্পন্ন করুন</p>
+
+            <!-- ২. লগইন ফর্ম (নতুন ইনপুট স্টাইল সহ) -->
+            <form id="loginForm" class="space-y-4 relative z-10">
+                
+                <!-- ইমেইল এড্রেস -->
+                <div>
+                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">ইমেইল এড্রেস</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="email" placeholder="example@mail.com" required 
+                               class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <!-- পাসওয়ার্ড (Show/Hide টগল সহ) -->
+                <div>
+                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">পাসওয়ার্ড</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="password" placeholder="••••••••" required 
+                               class="w-full text-xs pl-9 pr-10 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
+                        <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black">
+                            <i id="eyeIcon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- লগইন সাবমিট বাটন -->
+                <button type="submit" id="loginBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 font-extrabold rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-sm shadow-yellow-500/20 hover:scale-[1.01] active:scale-[0.99] transition duration-200">
+                    লগইন করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+            </form>
+
+            <!-- ৩. রেজিস্ট্রেশন ফুটার লিঙ্ক -->
+            <p class="text-xs text-center text-gray-500 pt-3 border-t border-gray-100 relative z-10">
+                নতুন ব্যবহারকারী? <a href="/register" class="text-yellow-600 font-black hover:underline ml-1">একাউন্ট তৈরি করুন</a>
+            </p>
+
         </div>
-
-        <!-- লগইন ফর্ম -->
-        <form id="loginForm" class="space-y-4">
-            <!-- ইমেইল -->
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ইমেইল এড্রেস</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                        <i class="fa-solid fa-envelope"></i>
-                    </span>
-                    <input type="email" id="email" placeholder="example@mail.com" required 
-                           class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
-                </div>
-            </div>
-
-            <!-- পাসওয়ার্ড (Show/Hide সহ) -->
-            <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">পাসওয়ার্ড</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                        <i class="fa-solid fa-lock"></i>
-                    </span>
-                    <input type="password" id="password" placeholder="••••••••" required 
-                           class="w-full text-xs pl-9 pr-10 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 focus:bg-white transition">
-                    <button type="button" onclick="togglePasswordVisibility('password', 'eyeIcon')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black">
-                        <i id="eyeIcon" class="fa-solid fa-eye text-xs"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- সাবমিট বাটন -->
-            <button type="submit" id="loginBtn" class="w-full py-3 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-sm transition">
-                লগইন করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
-            </button>
-        </form>
-
-        <!-- ফুটার লিংক -->
-        <p class="text-xs text-center text-gray-500 pt-2 border-t border-gray-100">
-            নতুন ব্যবহারকারী? <a href="/register" class="text-yellow-600 font-bold hover:underline">একাউন্ট তৈরি করুন</a>
-        </p>
 
     </div>
 
     <script>
-        function togglePasswordVisibility(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === "password") {
-                input.type = "text";
-                icon.className = "fa-solid fa-eye-slash text-xs";
+        // পাসওয়ার্ড শো / হাইড টগল
+        function togglePassVisibility() {
+            const passInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                eyeIcon.className = "fa-solid fa-eye-slash text-xs text-yellow-600";
             } else {
-                input.type = "password";
-                icon.className = "fa-solid fa-eye text-xs";
+                passInput.type = "password";
+                eyeIcon.className = "fa-solid fa-eye text-xs text-gray-400";
             }
         }
 
@@ -88,7 +101,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        email: document.getElementById('email').value,
+                        email: document.getElementById('email').value.trim(),
                         password: document.getElementById('password').value
                     })
                 });
