@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBee - সহজ কাজ করে নিশ্চিত আয়</title>
+    <title>TaskBee - সহজ মাইক্রো কাজ করে প্রতিদিন নিশ্চিত আয়</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
 </head>
-<body class="bg-gradient-to-br from-yellow-50/50 via-white to-amber-50/30 text-gray-800 min-h-screen flex flex-col justify-between selection:bg-yellow-400">
+<body class="bg-gradient-to-br from-yellow-50/40 via-white to-amber-50/30 text-gray-800 min-h-screen flex flex-col justify-between selection:bg-yellow-400">
 
-    <!-- ১. নেভিগেশন বার -->
-    <header class="bg-white/80 backdrop-blur-md border-b border-yellow-200/50 sticky top-0 z-50">
+    <!-- ১. ডাইনামিক নেভিগেশন বার -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-yellow-200/50 sticky top-0 z-50 shadow-2xs">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             
             <!-- ব্র্যান্ড লোগো -->
             <a href="/" class="flex items-center gap-2.5 group">
                 <div class="w-10 h-10 rounded-2xl bg-yellow-400/20 border border-yellow-400/40 p-1 flex items-center justify-center shadow-xs group-hover:scale-105 transition">
-                    <img src="https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png" alt="TaskBee" class="w-full h-full object-contain">
+                    <img src="https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png" alt="TaskBee Logo" class="w-full h-full object-contain">
                 </div>
                 <div class="leading-none">
                     <span class="text-xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span></span>
@@ -25,8 +26,9 @@
                 </div>
             </a>
 
-            <!-- অ্যাকশন বাটনসমূহ -->
-            <div class="flex items-center gap-2.5">
+            <!-- ডাইনামিক নেভিগেশন (লগইন থাকলে প্রোফাইল ও ব্যালেন্স, না থাকলে লগইন/সাইনআপ) -->
+            <div id="navActionContainer" class="flex items-center gap-2.5">
+                <!-- স্ক্রিপ্ট দিয়ে লোড হবে -->
                 <a href="/login" class="text-xs font-bold text-gray-700 hover:text-black px-3 py-2 rounded-xl transition">লগইন</a>
                 <a href="/register" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-black rounded-xl shadow-xs transition hover:scale-105">
                     রেজিস্ট্রেশন
@@ -35,74 +37,236 @@
         </div>
     </header>
 
-    <!-- ২. হিরো সেকশন -->
-    <main class="max-w-5xl mx-auto px-4 py-12 sm:py-20 text-center space-y-6 relative overflow-hidden">
-        
-        <!-- টপ অ্যাম্বিয়েন্ট গ্লো -->
-        <div class="w-64 h-64 bg-yellow-400/15 rounded-full blur-3xl absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
+    <main class="space-y-16 sm:space-y-24 py-10 sm:py-16">
 
-        <!-- রেফারেল নোটিশ ব্যাজ -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-yellow-300 rounded-full text-xs font-bold text-yellow-800 shadow-xs relative z-10">
-            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
-            <i class="fa-solid fa-gift text-yellow-600"></i> বন্ধুদের রেফার করলেই উভয় পাবেন ২০৳ ফ্রি বোনাস!
-        </div>
+        <!-- ২. হিরো সেকশন -->
+        <section class="max-w-5xl mx-auto px-4 text-center space-y-6 relative overflow-hidden">
+            <div class="w-72 h-72 bg-yellow-400/15 rounded-full blur-3xl absolute -top-10 left-1/2 -translate-x-1/2 pointer-events-none"></div>
 
-        <!-- মেইন শিরোনাম -->
-        <div class="space-y-3 relative z-10">
-            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-gray-950 tracking-tight leading-tight">
-                স্মার্টফোনেই সহজ কাজ করে <br>
-                <span class="bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">প্রতিদিন নিশ্চিত আয়</span> করুন
-            </h1>
-            <p class="text-xs sm:text-sm text-gray-500 max-w-lg mx-auto leading-relaxed">
-                গুগল সার্চ ও অন্যান্য সহজ মাইক্রো টাস্ক সম্পন্ন করে সরাসরি টাকা আয় করুন। কোনো ইনভেস্ট ছাড়াই নিশ্চিত ও নিরাপদ পেমেন্ট।
-            </p>
-        </div>
-
-        <!-- মেইন CTA বাটনসমূহ -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 relative z-10">
-            <a href="/register" class="w-full sm:w-auto px-8 py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-yellow-500/20 hover:scale-105 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-bolt"></i> এখনই কাজ শুরু করুন
-            </a>
-            <a href="/login" class="w-full sm:w-auto px-7 py-3.5 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-2xl text-xs sm:text-sm border border-gray-200 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-right-to-bracket text-gray-400"></i> অ্যাকাউন্টে প্রবেশ করুন
-            </a>
-        </div>
-
-        <!-- ৩. কীভাবে কাজ করবেন (৩টি সহজ ধাপ) -->
-        <div class="pt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left relative z-10">
-            
-            <div class="bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-gray-200/70 shadow-xs space-y-2 hover:border-yellow-300 transition">
-                <div class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xl font-black mb-3">
-                    ১
-                </div>
-                <h3 class="font-bold text-gray-900 text-base">ফ্রি একাউন্ট খুলুন</h3>
-                <p class="text-xs text-gray-500 leading-relaxed">১ ডিভাইসে ১ একাউন্ট সুরক্ষায় সহজে নিবন্ধন করুন এবং ৫ ডিজিট রেফার আইডি পান।</p>
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-white border border-yellow-300 rounded-full text-xs font-bold text-yellow-800 shadow-xs relative z-10">
+                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
+                <i class="fa-solid fa-gift text-yellow-600"></i> প্রতি রেফারে উভয় পাবেন ২০৳ বোনাস | ১ ডিভাইসে ১ একাউন্ট
             </div>
 
-            <div class="bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-gray-200/70 shadow-xs space-y-2 hover:border-yellow-300 transition">
-                <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-black mb-3">
-                    ২
-                </div>
-                <h3 class="font-bold text-gray-900 text-base">টাস্ক সম্পন্ন করুন</h3>
-                <p class="text-xs text-gray-500 leading-relaxed">গুগল সার্চ ও কীওয়ার্ড ভিজিট করে প্রমাণ হিসেবে স্ক্রিনশট জমা দিন।</p>
+            <div class="space-y-3 relative z-10">
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-gray-950 tracking-tight leading-tight">
+                    সহজ কাজ করে স্মার্টফোনেই <br>
+                    <span class="bg-gradient-to-r from-yellow-500 to-amber-500 bg-clip-text text-transparent">প্রতিদিন নিশ্চিত আয়</span> করুন
+                </h1>
+                <p class="text-xs sm:text-sm text-gray-500 max-w-xl mx-auto leading-relaxed">
+                    গুগল সার্চ ও অন্যান্য সহজ মাইক্রো টাস্ক সম্পন্ন করে সরাসরি টাকা আয় করুন। কোনো প্রকার ডিপোজিট ছাড়াই নিশ্চিত বিকাশ ও নগদ পেমেন্ট।
+                </p>
             </div>
 
-            <div class="bg-white/80 backdrop-blur-md p-6 rounded-3xl border border-gray-200/70 shadow-xs space-y-2 hover:border-yellow-300 transition">
-                <div class="w-12 h-12 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-xl font-black mb-3">
-                    ৩
+            <!-- ডাইনামিক হিরো বাটন -->
+            <div id="heroBtnContainer" class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 relative z-10">
+                <a href="/register" class="w-full sm:w-auto px-8 py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-yellow-500/20 hover:scale-105 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> ফ্রি একাউন্ট তৈরি করুন
+                </a>
+                <a href="/login" class="w-full sm:w-auto px-7 py-3.5 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-2xl text-xs sm:text-sm border border-gray-200 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket text-gray-400"></i> লগইন করুন
+                </a>
+            </div>
+        </section>
+
+        <!-- ৩. লাইভ পরিসংখ্যান ও সোশ্যাল প্রুফ -->
+        <section class="max-w-5xl mx-auto px-4">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-yellow-200/80 shadow-sm grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="space-y-1">
+                    <h3 class="text-2xl sm:text-3xl font-black text-gray-900">৳ ৩৫০</h3>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">নূন্যতম উত্তোলন</p>
                 </div>
-                <h3 class="font-bold text-gray-900 text-base">টাকা উত্তোলন করুন</h3>
-                <p class="text-xs text-gray-500 leading-relaxed">ব্যালেন্স ৩৫০ টাকা এবং ৫টি রেফার হলেই বিকাশ বা নগদে টাকা উইথড্র করুন।</p>
+                <div class="space-y-1 border-l border-gray-100">
+                    <h3 class="text-2xl sm:text-3xl font-black text-green-600">৳ ২০.০০</h3>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">রেফারেল বোনাস</p>
+                </div>
+                <div class="space-y-1 border-l border-gray-100">
+                    <h3 class="text-2xl sm:text-3xl font-black text-yellow-600">১ মিনিট</h3>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">টাস্ক সম্পন্ন সময়</p>
+                </div>
+                <div class="space-y-1 border-l border-gray-100">
+                    <h3 class="text-2xl sm:text-3xl font-black text-blue-600">১০০%</h3>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">নিরাপদ ও বিশ্বস্ত</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ৪. উপলব্ধ কাজসমূহ (Available Task Showcase) -->
+        <section class="max-w-5xl mx-auto px-4 space-y-6">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-black uppercase text-yellow-600 tracking-wider">টাস্ক শোকেস</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-gray-900">যেসব কাজ করে আয় করতে পারবেন</h2>
             </div>
 
-        </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- গুগল সার্চ -->
+                <div class="bg-white p-5 rounded-3xl border-2 border-yellow-400 shadow-2xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xl">
+                        <i class="fa-brands fa-google"></i>
+                    </div>
+                    <div>
+                        <span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">লাইভ চলছে</span>
+                        <h4 class="font-bold text-gray-900 text-base mt-1">গুগল সার্চ টাস্ক</h4>
+                        <p class="text-xs text-gray-500 mt-1">কীওয়ার্ড সার্চ করে স্ক্রিনশট দিলেই সরাসরি একাউন্টে টাকা যোগ হবে।</p>
+                    </div>
+                </div>
+
+                <!-- রেফার ও আয় -->
+                <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-2xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <div>
+                        <span class="bg-green-100 text-green-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">আনলিমিটেড</span>
+                        <h4 class="font-bold text-gray-900 text-base mt-1">রেফার ও আয়</h4>
+                        <p class="text-xs text-gray-500 mt-1">আপনার ৫ ডিজিট রেফার কোড শেয়ার করলেই দুজনেই পাবেন ২০ টাকা।</p>
+                    </div>
+                </div>
+
+                <!-- গুগল রিভিউ -->
+                <div class="bg-white p-5 rounded-3xl border border-gray-200 opacity-65 shadow-2xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <div>
+                        <span class="bg-red-50 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">শীঘ্রই আসছে</span>
+                        <h4 class="font-bold text-gray-800 text-base mt-1">গুগল রিভিউ</h4>
+                        <p class="text-xs text-gray-400 mt-1">গুগল ম্যাপে ৫ স্টার রেটিং ও ভালো রিভিউ দিয়ে আয় করার কাজ।</p>
+                    </div>
+                </div>
+
+                <!-- AI ইমেজ জেনারেশন -->
+                <div class="bg-white p-5 rounded-3xl border border-gray-200 opacity-65 shadow-2xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <span class="bg-red-50 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">শীঘ্রই আসছে</span>
+                        <h4 class="font-bold text-gray-800 text-base mt-1">AI ইমেজ জব</h4>
+                        <p class="text-xs text-gray-400 mt-1">প্রম্পট লিখে আধুনিক এআই ছবি তৈরি করে আয় করার মাইক্রো টাস্ক।</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ৫. কেন TaskBee সেরা? (Features & Benefits) -->
+        <section class="max-w-5xl mx-auto px-4 space-y-6">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-black uppercase text-yellow-600 tracking-wider">আমাদের বৈশিষ্ট্য</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-gray-900">কেন TaskBee-তে কাজ করবেন?</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-lg">কোনো ইনভেস্টমেন্ট নেই</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">TaskBee-তে কাজ করতে ১ টাকাও ডিপোজিট করতে হয় না। সম্পূর্ণ ফ্রিতে একাউন্ট খুলে প্রথম দিন থেকেই কাজ শুরু করা যায়।</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-green-100 text-green-700 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-lg">১ ডিভাইসে ১ একাউন্ট সুরক্ষা</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">আমাদের উন্নত ডিভাইস ট্র্যাকিং সিস্টেম নিশ্চিত করে একটি ডিভাইস থেকে কেবল একজন জেনুইন ইউজার কাজ করতে পারবে।</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-lg">সহজ ও দ্রুত পেমেন্ট</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">ব্যালেন্স ৩৫০ টাকা এবং ৫টি সফল রেফার সম্পন্ন হলেই বিকাশ, নগদ বা রকেটে দ্রুত টাকা উত্তোলন করা যায়।</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ৬. সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ) -->
+        <section class="max-w-3xl mx-auto px-4 space-y-6">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-black uppercase text-yellow-600 tracking-wider">প্রশ্নোত্তর</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-gray-900">সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)</h2>
+            </div>
+
+            <div class="space-y-3">
+                <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
+                    <h4 class="font-bold text-sm text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-question text-yellow-500"></i> ১ ডিভাইসে কয়টি একাউন্ট খোলা যাবে?
+                    </h4>
+                    <p class="text-xs text-gray-500 leading-relaxed pl-6">কঠোরভাবে ১ ডিভাইসে কেবল ১টি একাউন্টই অনুমোদিত। একাধিক একাউন্ট খোলার চেষ্টা করলে সিস্টেম অটোমেটিক ব্লক করে দিবে।</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
+                    <h4 class="font-bold text-sm text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-question text-yellow-500"></i> টাকা তোলার নিয়ম কী?
+                    </h4>
+                    <p class="text-xs text-gray-500 leading-relaxed pl-6">আপনার অ্যাকাউন্টে নূন্যতম ৩৫০ টাকা ব্যালেন্স এবং কমপক্ষে ৫টি সফল রেফার থাকতে হবে। শর্ত পূরণ হলে উইথড্র পেজ থেকে বিকাশ বা নগদে টাকা তুলতে পারবেন।</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs space-y-1.5">
+                    <h4 class="font-bold text-sm text-gray-900 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-question text-yellow-500"></i> গুগল সার্চ টাস্ক রিজেক্ট হলে কী করব?
+                    </h4>
+                    <p class="text-xs text-gray-500 leading-relaxed pl-6">টাস্ক রিজেক্ট হলে এডমিনের কারণ উল্লেখ থাকবে এবং আপনি সাথে সাথে পুনরায় সঠিক নিয়মে সার্চ করে নতুন স্ক্রিনশট জমা দেওয়ার সুযোগ পাবেন।</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ৭. টেলিগ্রাম চ্যানেল CTA ব্যানার -->
+        <section class="max-w-4xl mx-auto px-4">
+            <div class="bg-gradient-to-r from-sky-500 to-blue-600 text-white p-6 sm:p-8 rounded-3xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+                <div class="space-y-1">
+                    <h3 class="text-xl sm:text-2xl font-black">আমাদের অফিশিয়াল টেলিগ্রাম চ্যানেলে যুক্ত হোন!</h3>
+                    <p class="text-xs sm:text-sm text-white/80">নতুন কাজের নোটিশ, পেমেন্ট প্রুফ এবং যেকোনো আপডেট সবার আগে পেতে।</p>
+                </div>
+                <a href="https://t.me/your_telegram_channel" target="_blank" class="px-6 py-3 bg-white text-blue-600 font-black rounded-2xl text-xs shadow-sm hover:scale-105 transition whitespace-nowrap flex items-center gap-2">
+                    <i class="fa-brands fa-telegram text-base"></i> জয়েন টেলিগ্রাম
+                </a>
+            </div>
+        </section>
 
     </main>
 
-    <!-- ৪. ফুটার -->
-    <footer class="bg-white border-t border-gray-100 py-6 text-center text-xs text-gray-400">
-        <p>&copy; 2024 TaskBee Platform. সর্বস্বত্ব সংরক্ষিত।</p>
+    <!-- ৮. ফুটার (© 2026) -->
+    <footer class="bg-white border-t border-gray-100 py-8 text-center text-xs text-gray-400 space-y-2">
+        <div class="flex justify-center items-center gap-4 text-gray-600 font-bold">
+            <a href="/login" class="hover:text-black">লগইন</a>
+            <a href="/register" class="hover:text-black">রেজিস্টার</a>
+            <a href="/dashboard" class="hover:text-black">ড্যাশবোর্ড</a>
+            <a href="/tasks" class="hover:text-black">টাস্ক হাব</a>
+        </div>
+        <p>&copy; 2026 TaskBee Platform. সর্বস্বত্ব সংরক্ষিত।</p>
     </footer>
 
+    <!-- ৯. হেডার ও বাটনে লগইন স্ট্যাটাস হ্যান্ডলার -->
+    <script>
+        const user = getUser();
+        const navContainer = document.getElementById('navActionContainer');
+        const heroContainer = document.getElementById('heroBtnContainer');
+
+        // ইউজার ইতিমধ্যে লগইন থাকলে হেডারে প্রোফাইল ও ব্যালেন্স দেখানো
+        if (user) {
+            navContainer.innerHTML = `
+                <a href="/withdraw" class="bg-yellow-50 border border-yellow-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition text-xs">
+                    <i class="fa-solid fa-wallet text-yellow-600"></i>
+                    <span class="font-black text-green-700">৳ ${parseFloat(user.balance || 0).toFixed(2)}</span>
+                </a>
+                <a href="${user.role === 'admin' ? '/admin' : '/dashboard'}" class="px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-black rounded-xl shadow-xs transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-check"></i> ${user.name.split(' ')[0]}
+                </a>
+            `;
+
+            heroContainer.innerHTML = `
+                <a href="${user.role === 'admin' ? '/admin' : '/dashboard'}" class="w-full sm:w-auto px-8 py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-yellow-500/20 hover:scale-105 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-house"></i> আপনার ড্যাশবোর্ডে প্রবেশ করুন
+                </a>
+                <a href="/tasks" class="w-full sm:w-auto px-7 py-3.5 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-2xl text-xs sm:text-sm border border-gray-200 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-list-check text-yellow-600"></i> উপলব্ধ কাজসমূহ
+                </a>
+            `;
+        }
+    </script>
 </body>
 </html>
