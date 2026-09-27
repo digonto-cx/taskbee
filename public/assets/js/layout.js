@@ -1,6 +1,6 @@
 // public/assets/js/layout.js - TaskBee Ultimate Base Layout
 
-const BEE_LOGO = "https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png";
+const BEE_LOGO = "https://i.ibb.co/ZZ1GyTp/3011-removebg-preview.png";
 
 document.addEventListener("DOMContentLoaded", () => {
     // FontAwesome 6 CDN ইনজেকশন
