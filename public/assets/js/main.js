@@ -1,7 +1,31 @@
-// TaskBee কোর হেল্পার ও ডিভাইস ট্র্যাকিং স্ক্রিপ্ট
+// public/assets/js/main.js
+
 const API_URL = "/api";
 
-// ১ ডিভাইসে ১ একাউন্ট নিশ্চিত করতে ইউনিক ডিভাইস ফিঙ্গারপ্রিন্ট
+// ================= ১. লগইন থাকা অবস্থায় গেস্ট পেজ ব্লক ================= //
+(function redirectIfAlreadyLoggedIn() {
+    const token = localStorage.getItem("tb_token");
+    const userStr = localStorage.getItem("tb_user");
+
+    if (token && userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            const path = window.location.pathname;
+
+            // যে পেজগুলোতে লগইন অবস্থায় ঢোকা যাবে না
+            const guestPages = ["/", "/index.html", "/login", "/login.html", "/register", "/register.html"];
+
+            if (guestPages.includes(path) || path === "") {
+                // এডমিন হলে এডমিন প্যানেলে, সাধারণ ইউজার হলে ড্যাশবোর্ডে রিডাইরেক্ট
+                window.location.replace(user.role === 'admin' ? '/admin' : '/dashboard');
+            }
+        } catch (e) {
+            localStorage.clear();
+        }
+    }
+})();
+
+// ================= ২. ডিভাইস ফিঙ্গারপ্রিন্ট ট্র্যাকার ================= //
 function getDeviceFingerprint() {
     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext('2d');
@@ -20,7 +44,7 @@ function getDeviceFingerprint() {
     return "DEV_" + Math.abs(hash);
 }
 
-// অথেনটিকেশন ও সেশন ফাংশনসমূহ
+// ================= ৩. অথেনটিকেশন হেল্পার ফাংশনসমূহ ================= //
 function setAuth(token, user) {
     localStorage.setItem("tb_token", token);
     localStorage.setItem("tb_user", JSON.stringify(user));
@@ -37,11 +61,13 @@ function getToken() {
 
 function logout() {
     localStorage.clear();
-    window.location.href = "/login.html";
+    window.location.replace("/login");
 }
 
+// প্রটেক্টেড পেজগুলোতে ইউজার লগইন না থাকলে লগইন পেজে পাঠাবে
 function checkAuth() {
-    if (!localStorage.getItem("tb_token")) {
-        window.location.href = "/login.html";
+    const token = localStorage.getItem("tb_token");
+    if (!token) {
+        window.location.replace("/login");
     }
 }
