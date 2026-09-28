@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইউটিউব কাজসমূহ - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
+    <script>checkAuth();</script>
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <div class="flex items-center justify-between">
+            <div>
+                <a href="/tasks" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1 mb-1">
+                    <i class="fa-solid fa-arrow-left"></i> টাস্ক সেন্টারে ফিরুন
+                </a>
+                <h2 class="text-xl font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-brands fa-youtube text-red-600"></i> ইউটিউব টাস্ক তালিকা
+                </h2>
+            </div>
+            <span class="text-xs bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-xl">সহজ ইনকাম</span>
+        </div>
+
+        <div id="ytTaskList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <p class="text-center text-gray-400 text-xs py-10 col-span-2"><i class="fa-solid fa-spinner fa-spin"></i> কাজগুলো লোড হচ্ছে...</p>
+        </div>
+
+    </main>
+
+    <script>
+        async function loadYtTasks() {
+            const container = document.getElementById('ytTaskList');
+            try {
+                const res = await fetch(`${API_URL}/tasks/youtube`);
+                const tasks = await res.json();
+                container.innerHTML = "";
+
+                if (tasks.length === 0) {
+                    container.innerHTML = `<div class="bg-white p-8 rounded-3xl text-center text-gray-400 text-sm shadow-sm border col-span-2"><i class="fa-brands fa-youtube text-4xl text-gray-300 mb-2 block"></i>বর্তমানে কোনো নতুন ইউটিউব টাস্ক নেই।</div>`;
+                    return;
+                }
+
+                tasks.forEach(t => {
+                    container.innerHTML += `
+                        <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-200 flex flex-col justify-between hover:border-red-200 transition">
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-gray-900 text-base flex items-center gap-1.5">
+                                        <i class="fa-brands fa-youtube text-red-600"></i> ${t.title}
+                                    </h4>
+                                    <span class="bg-green-100 text-green-700 font-black px-2.5 py-1 rounded-xl text-xs">৳ ${t.reward_amount}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 line-clamp-2">${t.description}</p>
+                            </div>
+                            
+                            <!-- Start Task বাটন -->
+                            <div class="pt-4 mt-3 border-t border-gray-100">
+                                <a href="/tasks/yt-details?id=${t.id}" class="w-full py-2.5 bg-red-600 hover:bg-red-700 font-extrabold rounded-xl text-xs text-white flex items-center justify-center gap-2 shadow-xs transition">
+                                    Start Task (কাজ শুরু করুন) <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        loadYtTasks();
+    </script>
+</body>
+</html>
