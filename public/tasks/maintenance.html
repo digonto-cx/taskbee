@@ -5,13 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>কাজটি মেইনটেন্যান্সে আছে - TaskBee</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+
+    <style>
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes gearRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-float { animation: floatSlow 4s ease-in-out infinite; }
+        .animate-gear { animation: gearRotate 12s linear infinite; }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 text-center">
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 max-w-sm w-full space-y-4">
-        <div class="text-5xl">🛠️</div>
-        <h2 class="text-2xl font-black text-gray-900">Under Maintenance</h2>
-        <p class="text-sm text-gray-500">এই কাজটি বর্তমানে সাময়িক রক্ষণাবেক্ষণের অধীনে আছে। খুব শীঘ্রই ফিচারটি সবার জন্য চালু করা হবে।</p>
-        <a href="/dashboard.html" class="inline-block w-full py-3 bg-yellow-400 hover:bg-yellow-500 font-bold rounded-xl text-gray-900 transition shadow-sm">ড্যাশবোর্ডে ফিরে যান</a>
-    </div>
+<body class="bg-gradient-to-br from-amber-50/30 via-white to-yellow-50/40 min-h-screen text-gray-800 pb-28 sm:pb-14 selection:bg-yellow-400">
+    <script>checkAuth();</script>
+
+    <!-- ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট গ্লো -->
+    <div class="fixed top-12 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-400/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <main class="max-w-lg mx-auto p-4 sm:p-6 text-center space-y-6 mt-6 relative z-10">
+
+        <!-- মেইন গ্লাস কার্ড -->
+        <div class="bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-[32px] border border-yellow-200/70 shadow-2xl shadow-yellow-500/10 space-y-6 relative overflow-hidden">
+            
+            <!-- টপ ব্যাকগ্রাউন্ড গ্লো ইফেক্ট -->
+            <div class="w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl absolute -top-8 -right-8 pointer-events-none"></div>
+
+            <!-- এনিমেটেড মেইনটেন্যান্স আইকন ও মৌমাছি -->
+            <div class="relative inline-block animate-float">
+                <div class="w-24 h-24 rounded-3xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center text-4xl shadow-sm mx-auto">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                </div>
+                <!-- ঘূর্ণায়মান ছোট গিয়ার আইকন -->
+                <span class="absolute -bottom-2 -right-2 w-9 h-9 bg-yellow-400 text-gray-950 rounded-2xl flex items-center justify-center text-sm shadow-md animate-gear border-2 border-white">
+                    <i class="fa-solid fa-gear"></i>
+                </span>
+            </div>
+
+            <!-- স্ট্যাটাস ব্যাজ -->
+            <div>
+                <span class="bg-amber-100 text-amber-800 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 border border-amber-200 shadow-2xs">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <i class="fa-solid fa-wrench text-[10px]"></i> Under Maintenance
+                </span>
+            </div>
+
+            <!-- শিরোনাম ও বার্তা -->
+            <div class="space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">ফিচারটি রক্ষণাবেক্ষণে আছে</h2>
+                <p class="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+                    এই কাজটি বর্তমানে সিস্টেম উন্নয়ন ও সাময়িক রক্ষণাবেক্ষণের অধীনে রয়েছে। আমাদের টিম দ্রুত কাজ সম্পন্ন করতে কাজ করছে। খুব শীঘ্রই এটি সবার জন্য উন্মুক্ত করা হবে।
+                </p>
+            </div>
+
+            <!-- নোটিস বক্স -->
+            <div class="p-3.5 bg-yellow-50/70 border border-yellow-200/80 rounded-2xl text-xs text-yellow-900 font-semibold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-info text-yellow-600 text-sm"></i>
+                <span>অন্যান্য সক্রিয় কাজগুলো করে আপনি এখনও নিয়মিত আয় করতে পারবেন।</span>
+            </div>
+
+            <!-- অ্যাকশন বাটনসমূহ -->
+            <div class="pt-2 space-y-2.5 max-w-xs mx-auto">
+                <a href="/tasks" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-md shadow-yellow-500/20 hover:scale-[1.01] active:scale-[0.99] transition duration-200">
+                    <i class="fa-solid fa-list-check text-xs"></i> সক্রিয় কাজগুলো দেখুন
+                </a>
+                
+                <a href="/dashboard" class="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-house text-xs"></i> ড্যাশবোর্ডে ফিরে যান
+                </a>
+            </div>
+
+        </div>
+
+    </main>
 </body>
 </html>
