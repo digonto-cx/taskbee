@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইউটিউব টাস্ক বিবরণ ও সাবমিশন - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
+    <script>checkAuth();</script>
+
+    <main class="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <a href="/tasks/yt" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-left"></i> সকল ইউটিউব টাস্কে ফিরুন
+        </a>
+
+        <!-- ১. টাস্ক হেডলাইন ও রিওয়ার্ড কার্ড -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-3">
+            <div class="flex justify-between items-start gap-4">
+                <div>
+                    <span class="text-[10px] font-black uppercase text-red-600 bg-red-100 px-2 py-0.5 rounded-md inline-flex items-center gap-1 mb-1">
+                        <i class="fa-brands fa-youtube"></i> YouTube Job
+                    </span>
+                    <h2 id="taskTitle" class="text-xl sm:text-2xl font-black text-gray-900">লোড হচ্ছে...</h2>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-gray-400 uppercase font-bold block">পুরস্কার</span>
+                    <span class="text-2xl font-black text-green-600">৳ <span id="taskReward">0.00</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ২. কাজের নির্দেশনা ও সরাসরি লিংক বাটন -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-black text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-yellow-500"></i> কাজের নির্দেশনা (Instructions)
+            </h3>
+
+            <!-- ডেসক্রিপশন বক্স -->
+            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-xs text-gray-700 leading-relaxed whitespace-pre-line" id="taskDesc">
+                লোড হচ্ছে...
+            </div>
+
+            <!-- ইউটিউব ওপেন করার লাল বাটন -->
+            <div class="pt-2">
+                <a id="ytOpenBtn" href="#" target="_blank" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                    <i class="fa-brands fa-youtube text-base"></i> ইউটিউবে গিয়ে কাজটি সম্পন্ন করুন
+                </a>
+            </div>
+        </div>
+
+        <!-- ৩. সরাসরি স্ক্রিনশট আপলোড সেকশন -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+            <h3 class="font-black text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-yellow-500"></i> প্রুফ স্ক্রিনশট আপলোড দিন
+            </h3>
+
+            <div id="statusAlert" class="hidden p-4 rounded-2xl text-xs font-bold"></div>
+
+            <form id="ytUploadForm" class="space-y-4">
+                <div class="border-2 border-dashed border-gray-300 hover:border-red-400 rounded-2xl p-6 text-center cursor-pointer transition bg-gray-50/50" onclick="document.getElementById('ytFileInput').click()">
+                    <input type="file" id="ytFileInput" accept="image/*" required class="hidden" onchange="previewScreenshot(event)">
+                    
+                    <div id="placeholderBox" class="space-y-2">
+                        <div class="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        <p class="text-xs font-bold text-gray-700">কাজের স্ক্রিনশট সিলেক্ট করতে এখানে ক্লিক করুন</p>
+                    </div>
+
+                    <div id="previewBox" class="hidden space-y-2">
+                        <img id="previewImg" src="#" alt="Preview" class="max-h-60 mx-auto rounded-xl shadow-xs border border-gray-200 object-contain">
+                        <p class="text-[11px] text-blue-600 font-bold">ছবি পরিবর্তন করতে আবার ক্লিক করুন</p>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-paper-plane"></i> টাস্ক জমা দিন (Submit Task)
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <script>
+        const user = getUser();
+        const taskId = new URLSearchParams(window.location.search).get('id');
+
+        if (!taskId) {
+            alert("টাস্ক আইডি পাওয়া যায়নি!");
+            window.location.href = "/tasks/yt";
+        }
+
+        async function initDetails() {
+            try {
+                const res = await fetch(`${API_URL}/tasks/single/${taskId}`);
+                const task = await res.json();
+
+                document.getElementById('taskTitle').innerText = task.title;
+                document.getElementById('taskReward').innerText = parseFloat(task.reward_amount).toFixed(2);
+                document.getElementById('taskDesc').innerText = task.description;
+                document.getElementById('ytOpenBtn').href = task.link;
+
+                // ইউজারের বর্তমান স্ট্যাটাস চেক
+                const statusRes = await fetch(`${API_URL}/tasks/submission-status?task_id=${taskId}&user_id=${user.id}`);
+                const statusData = await statusRes.json();
+                
+                if (statusData) {
+                    const alertBox = document.getElementById('statusAlert');
+                    const form = document.getElementById('ytUploadForm');
+
+                    if (statusData.status === 'approved') {
+                        alertBox.className = "p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl text-xs";
+                        alertBox.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> আপনি ইতিমধ্যে কাজটি সম্পন্ন করে টাকা পেয়ে গেছেন।`;
+                        alertBox.classList.remove('hidden');
+                        form.classList.add('hidden');
+                    } else if (statusData.status === 'pending') {
+                        alertBox.className = "p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-2xl text-xs";
+                        alertBox.innerHTML = `<i class="fa-solid fa-hourglass-half mr-1"></i> আপনার আগের সাবমিশনটি পেন্ডিং আছে। এডমিন চেক করা পর্যন্ত অপেক্ষা করুন।`;
+                        alertBox.classList.remove('hidden');
+                        form.classList.add('hidden');
+                    } else if (statusData.status === 'rejected') {
+                        alertBox.className = "p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl text-xs";
+                        alertBox.innerHTML = `<i class="fa-solid fa-xmark mr-1"></i> আগের সাবমিশনটি রিজেক্ট হয়েছিল ${statusData.admin_note ? '(' + statusData.admin_note + ')' : ''}। আপনি পুনরায় সঠিক নিয়মে কাজটি জমা দিতে পারেন।`;
+                        alertBox.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                alert("টাস্ক লোড করা যায়নি!");
+            }
+        }
+
+        function previewScreenshot(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('placeholderBox').classList.add('hidden');
+                    document.getElementById('previewBox').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('ytUploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const file = document.getElementById('ytFileInput').files[0];
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...`;
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('task_id', taskId);
+            formData.append('user_id', user.id);
+            formData.append('screenshot', file);
+
+            try {
+                const res = await fetch(`${API_URL}/tasks/submit-google-search`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(data.message);
+                window.location.reload();
+            } catch (err) {
+                alert(err.message);
+                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> টাস্ক জমা দিন (Submit Task)`;
+                btn.disabled = false;
+            }
+        });
+
+        initDetails();
+    </script>
+</body>
+  </html>
