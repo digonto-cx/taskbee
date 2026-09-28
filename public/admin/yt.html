@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Task Manager - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-16">
+
+    <header class="bg-gray-950 text-white px-6 py-3 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center text-white"><i class="fa-brands fa-youtube"></i></span>
+            <h1 class="font-black text-lg text-yellow-400">YouTube Task Manager</h1>
+        </div>
+        <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-xl font-bold text-gray-300">
+            &larr; মূল এডমিন প্যানেল
+        </a>
+    </header>
+
+    <main class="max-w-3xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ফর্ম -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-brands fa-youtube text-red-600 text-lg"></i> নতুন ইউটিউব টাস্ক তৈরি করুন
+            </h3>
+
+            <form id="ytTaskForm" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">টাস্ক শিরোনাম (Title)</label>
+                    <input type="text" id="ytTitle" placeholder="যেমন: ভিডিওটি লাইক ও সাবস্ক্রাইব করুন" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">কাজের বর্ণনা (Description/Instructions)</label>
+                    <textarea id="ytDesc" rows="3" placeholder="ইউজার কীভাবে কাজ করবে বিস্তারিত লিখুন..." required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">ইউটিউব লিংক (Video / Channel Link)</label>
+                        <input type="url" id="ytLink" placeholder="https://youtube.com/watch?v=..." required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">পুরস্কারের টাকা (৳ Price)</label>
+                        <input type="number" id="ytReward" placeholder="যেমন: 2.00" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" id="ytBtn" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black rounded-2xl text-xs shadow-sm transition">
+                    টাস্ক পাবলিশ করুন
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.href = "/login";
+        }
+
+        document.getElementById('ytTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('ytBtn');
+            btn.innerText = "পাবলিশ হচ্ছে...";
+
+            try {
+                const res = await fetch(`${API_URL}/admin/tasks/youtube`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        title: document.getElementById('ytTitle').value,
+                        description: document.getElementById('ytDesc').value,
+                        link: document.getElementById('ytLink').value,
+                        reward_amount: parseFloat(document.getElementById('ytReward').value)
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(data.message);
+                document.getElementById('ytTaskForm').reset();
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.innerText = "টাস্ক পাবলিশ করুন";
+            }
+        });
+    </script>
+</body>
+</html>
