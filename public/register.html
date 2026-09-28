@@ -9,47 +9,34 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 
-    <!-- কাস্টম স্মুথ এনিমেশন সিএসএস -->
     <style>
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
+            50% { transform: translateY(-5px); }
         }
         @keyframes cardPop {
-            0% { opacity: 0; transform: scale(0.96) translateY(12px); }
+            0% { opacity: 0; transform: scale(0.96) translateY(10px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.25; transform: scale(1); }
-            50% { opacity: 0.45; transform: scale(1.1); }
         }
         .animate-float { animation: floatSlow 4s ease-in-out infinite; }
         .animate-card-pop { animation: cardPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-glow { animation: pulseGlow 6s ease-in-out infinite; }
-        
-        .input-group:focus-within label {
-            color: #d97706;
-            transform: translateY(-1px);
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/50 min-h-screen flex items-center justify-center p-4 text-gray-800 selection:bg-yellow-400 selection:text-black">
 
-    <!-- পেজ ব্যাকগ্রাউন্ড লাইট ব্লার গ্লো -->
-    <div class="fixed top-12 left-1/2 -translate-x-1/2 w-80 h-80 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none animate-glow"></div>
+    <!-- পেজ ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট গ্লো -->
+    <div class="fixed top-12 left-1/2 -translate-x-1/2 w-80 h-80 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-md w-full my-6 relative z-10 animate-card-pop">
 
-        <!-- মেইন প্রিমিয়াম কার্ড -->
-        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] shadow-2xl shadow-yellow-500/10 border border-yellow-200/70 space-y-6 relative overflow-hidden transition-all duration-300">
+        <!-- মেইন গ্লাস-স্টাইল কার্ড -->
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] shadow-2xl shadow-yellow-500/10 border border-yellow-200/70 space-y-6 relative overflow-hidden">
             
-            <!-- টপ ব্র্যান্ড ও হেডার (কোনো প্রমোশনাল লেখা ছাড়া) -->
-            <div class="text-center space-y-2.5">
-                <!-- মৌমাছি লোগো (ভাসমান এনিমেশন) -->
-                <div class="w-16 h-16 rounded-3xl bg-yellow-400/20 border border-yellow-400/50 p-2 mx-auto flex items-center justify-center shadow-xs animate-float">
-                    <img src="https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png" alt="TaskBee" class="w-full h-full object-contain">
+            <!-- ব্র্যান্ড লোগো ও হেডার (কোনো প্রমোশনাল ব্যানার ছাড়া) -->
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 mx-auto flex items-center justify-center animate-float">
+                    <img src="https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-sm">
                 </div>
-
                 <div>
                     <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">নতুন একাউন্ট</h2>
                     <p class="text-xs text-gray-400 font-medium mt-0.5">TaskBee-তে যুক্ত হতে আপনার সঠিক তথ্য দিন</p>
@@ -60,8 +47,8 @@
             <form id="regForm" class="space-y-4">
                 
                 <!-- পুরো নাম -->
-                <div class="input-group space-y-1">
-                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider transition duration-200">পুরো নাম</label>
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">আপনার পুরো নাম</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
                             <i class="fa-regular fa-user"></i>
@@ -72,8 +59,8 @@
                 </div>
 
                 <!-- ইমেইল এড্রেস -->
-                <div class="input-group space-y-1">
-                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider transition duration-200">ইমেইল এড্রেস</label>
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">ইমেইল এড্রেস</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
                             <i class="fa-regular fa-envelope"></i>
@@ -83,9 +70,9 @@
                     </div>
                 </div>
 
-                <!-- পাসওয়ার্ড (Eye Icon Toggle) -->
-                <div class="input-group space-y-1">
-                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider transition duration-200">গোপন পাসওয়ার্ড</label>
+                <!-- পাসওয়ার্ড (Show/Hide টগল সহ) -->
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">গোপন পাসওয়ার্ড</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
                             <i class="fa-solid fa-lock"></i>
@@ -99,9 +86,9 @@
                 </div>
 
                 <!-- ৫ ডিজিট রেফার কোড (ঐচ্ছিক) -->
-                <div class="input-group space-y-1">
+                <div class="space-y-1">
                     <div class="flex justify-between items-center">
-                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider transition duration-200">রেফারেল কোড (৫ ডিজিট আইডি)</label>
+                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">রেফারেল কোড (৫ ডিজিট আইডি)</label>
                         <span class="text-[10px] text-gray-400 font-bold bg-gray-100 px-1.5 py-0.2 rounded-md">ঐচ্ছিক</span>
                     </div>
                     <div class="relative">
@@ -119,7 +106,7 @@
                     <span>একটি ডিভাইস থেকে কেবল একটি অ্যাকাউন্ট খোলা অনুমোদিত।</span>
                 </div>
 
-                <!-- সাবমিট বাটন (ইন্টারেক্টিভ স্কেল এনিমেশন সহ) -->
+                <!-- সাবমিট বাটন -->
                 <button type="submit" id="regBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 font-black rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-md shadow-yellow-500/25 hover:shadow-yellow-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200">
                     একাউন্ট তৈরি করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
@@ -134,9 +121,8 @@
 
     </div>
 
-    <!-- স্ক্রিপ্ট লজিক -->
     <script>
-        // ১. ইনভাইট লিংক থেকে রেফার কোড অটো-ডিটেক্ট (?ref=XXXXX)
+        // ১. লিংক থেকে রেফার কোড অটো-ডিটেক্ট (?ref=XXXXX)
         const urlParams = new URLSearchParams(window.location.search);
         const refParam = urlParams.get('ref');
         if (refParam) {
@@ -181,7 +167,7 @@
                 if (!res.ok) throw new Error(data.detail);
 
                 alert(`অভিনন্দন! আপনার একাউন্ট সফলভাবে তৈরি হয়েছে। আপনার ৫ ডিজিটের রেফারেল আইডি হলো: ${data.user_id}`);
-                window.location.href = "/login";
+                window.location.replace("/login");
             } catch (err) {
                 alert(err.message);
                 btn.innerHTML = `একাউন্ট তৈরি করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
