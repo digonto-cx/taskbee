@@ -476,7 +476,32 @@ def add_imgbb_key(data: ImgbbKeySchema):
 def delete_imgbb_key(key_id: int):
     supabase.table("imgbb_keys").delete().eq("id", key_id).execute()
     return {"message": "কী মুছে ফেলা হয়েছে!"}
+# ----------------- YOUTUBE TASK APIs ----------------- #
 
+class CreateYoutubeTaskSchema(BaseModel):
+    title: str
+    description: str
+    link: str
+    reward_amount: float
+
+@app.post("/api/admin/tasks/youtube")
+def create_youtube_task(data: CreateYoutubeTaskSchema):
+    res = supabase.table("tasks").insert({
+        "task_type": "youtube",
+        "title": data.title,
+        "description": data.description,
+        "link": data.link,
+        "keyword": data.link,  # সেফটি ব্যাকআপ
+        "reward_amount": data.reward_amount,
+        "status": "active"
+    }).execute()
+    return {"message": "ইউটিউব টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
+
+@app.get("/api/tasks/youtube")
+def get_youtube_tasks():
+    res = supabase.table("tasks").select("*").eq("task_type", "youtube").eq("status", "active").execute()
+    return res.data
+    
 # হেল্থ চেক
 @app.get("/api")
 def health_check():
