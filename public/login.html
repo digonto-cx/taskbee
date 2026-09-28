@@ -8,67 +8,79 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
-</head>
-<body class="bg-gradient-to-br from-yellow-50 via-white to-amber-50/40 min-h-screen flex items-center justify-center p-4 text-gray-800">
 
-    <div class="max-w-md w-full my-6">
+    <style>
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        @keyframes cardPop {
+            0% { opacity: 0; transform: scale(0.96) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-float { animation: floatSlow 4s ease-in-out infinite; }
+        .animate-card-pop { animation: cardPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/50 min-h-screen flex items-center justify-center p-4 text-gray-800 selection:bg-yellow-400 selection:text-black">
+
+    <!-- পেজ ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট গ্লো -->
+    <div class="fixed top-12 left-1/2 -translate-x-1/2 w-80 h-80 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-md w-full my-6 relative z-10 animate-card-pop">
 
         <!-- মেইন গ্লাস-স্টাইল কার্ড -->
-        <div class="bg-white/95 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-xl shadow-yellow-500/5 border border-yellow-200/60 space-y-6 relative overflow-hidden">
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] shadow-2xl shadow-yellow-500/10 border border-yellow-200/70 space-y-6 relative overflow-hidden">
             
-            <!-- টপ অ্যাম্বিয়েন্ট গ্লো -->
-            <div class="w-32 h-32 bg-yellow-400/10 rounded-full blur-2xl absolute -top-10 -right-10 pointer-events-none"></div>
-
-            <!-- ১. ব্র্যান্ড লোগো ও হেডার -->
-            <div class="text-center space-y-2 relative z-10">
-                <div class="w-16 h-16 rounded-2xl bg-yellow-400/20 border border-yellow-400/50 p-1.5 mx-auto flex items-center justify-center shadow-xs">
-                    <img src="https://i.ibb.co.com/PZV16bNp/file-00000000bea481f5b7ca59b2fe930fea.png" alt="TaskBee" class="w-full h-full object-contain">
+            <!-- ব্র্যান্ড লোগো ও হেডার -->
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 mx-auto flex items-center justify-center animate-float">
+                    <img src="https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-sm">
                 </div>
-                
                 <div>
-                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span> লগইন</h2>
-                    <p class="text-xs text-gray-500 mt-0.5">আপনার অ্যাকাউন্টে প্রবেশ করে আয় শুরু করুন</p>
+                    <h2 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Task<span class="text-yellow-500">Bee</span> লগইন</h2>
+                    <p class="text-xs text-gray-400 font-medium mt-0.5">আপনার অ্যাকাউন্টে প্রবেশ করে আয় শুরু করুন</p>
                 </div>
             </div>
 
-            <!-- ২. লগইন ফর্ম (নতুন ইনপুট স্টাইল সহ) -->
-            <form id="loginForm" class="space-y-4 relative z-10">
+            <!-- লগইন ফর্ম -->
+            <form id="loginForm" class="space-y-4">
                 
                 <!-- ইমেইল এড্রেস -->
-                <div>
-                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">ইমেইল এড্রেস</label>
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">ইমেইল এড্রেস</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
-                            <i class="fa-solid fa-envelope"></i>
+                            <i class="fa-regular fa-envelope"></i>
                         </span>
                         <input type="email" id="email" placeholder="example@mail.com" required 
-                               class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
+                               class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition-all duration-200">
                     </div>
                 </div>
 
                 <!-- পাসওয়ার্ড (Show/Hide টগল সহ) -->
-                <div>
-                    <label class="block text-[11px] font-extrabold text-gray-700 uppercase tracking-wider mb-1">পাসওয়ার্ড</label>
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">পাসওয়ার্ড</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400 text-xs">
                             <i class="fa-solid fa-lock"></i>
                         </span>
                         <input type="password" id="password" placeholder="••••••••" required 
-                               class="w-full text-xs pl-9 pr-10 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition">
-                        <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black">
+                               class="w-full text-xs pl-9 pr-10 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50/60 focus:bg-white transition-all duration-200">
+                        <button type="button" onclick="togglePassVisibility()" class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-black transition">
                             <i id="eyeIcon" class="fa-solid fa-eye text-xs"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- লগইন সাবমিট বাটন -->
-                <button type="submit" id="loginBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 font-extrabold rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-sm shadow-yellow-500/20 hover:scale-[1.01] active:scale-[0.99] transition duration-200">
+                <!-- সাবমিট বাটন -->
+                <button type="submit" id="loginBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 font-black rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-md shadow-yellow-500/25 hover:shadow-yellow-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200">
                     লগইন করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
             </form>
 
-            <!-- ৩. রেজিস্ট্রেশন ফুটার লিঙ্ক -->
-            <p class="text-xs text-center text-gray-500 pt-3 border-t border-gray-100 relative z-10">
+            <!-- রেজিস্ট্রেশন রিডাইরেক্ট ফুটার -->
+            <p class="text-xs text-center text-gray-400 pt-3 border-t border-gray-100">
                 নতুন ব্যবহারকারী? <a href="/register" class="text-yellow-600 font-black hover:underline ml-1">একাউন্ট তৈরি করুন</a>
             </p>
 
@@ -77,7 +89,6 @@
     </div>
 
     <script>
-        // পাসওয়ার্ড শো / হাইড টগল
         function togglePassVisibility() {
             const passInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
@@ -109,7 +120,7 @@
                 if (!res.ok) throw new Error(data.detail);
 
                 setAuth(data.token, data.user);
-                window.location.href = data.user.role === 'admin' ? '/admin' : '/dashboard';
+                window.location.replace(data.user.role === 'admin' ? '/admin' : '/dashboard');
             } catch (err) {
                 alert(err.message);
                 btn.innerHTML = `লগইন করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
