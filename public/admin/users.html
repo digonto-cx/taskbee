@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইউজার ম্যানেজমেন্ট - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-16">
+
+    <!-- হেডার -->
+    <header class="bg-gray-950 text-white sticky top-0 z-40 border-b border-gray-800 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white"><i class="fa-solid fa-users-gear"></i></span>
+                <h1 class="font-black text-lg text-yellow-400">User Management</h1>
+            </div>
+            <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-xl font-bold text-gray-300 transition">
+                &larr; মূল এডমিন প্যানেল
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- সার্চ ও ফিল্টার বার -->
+        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-gray-200 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="relative w-full sm:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="নাম, ইমেইল বা ৫ ডিজিট আইডি..." 
+                       class="w-full text-xs pl-8 pr-3 py-2.5 border rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50">
+            </div>
+            
+            <div class="text-xs text-gray-500 font-bold">
+                মোট ইউজার: <span id="totalUsersCount" class="text-gray-900 font-black">0</span> জন
+            </div>
+        </div>
+
+        <!-- ইউজার টেবিল/লিস্ট -->
+        <div class="bg-white rounded-3xl border border-gray-200 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 border-b border-gray-200 text-gray-400 uppercase font-black tracking-wider">
+                        <tr>
+                            <th class="p-4">ব্যবহারকারী (User)</th>
+                            <th class="p-4">৫ ডিজিট ID</th>
+                            <th class="p-4">ব্যালেন্স (৳)</th>
+                            <th class="p-4">স্ট্যাটাস</th>
+                            <th class="p-4 text-center">অ্যাকশন (Actions)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-gray-400">
+                                <i class="fa-solid fa-spinner fa-spin mr-1"></i> ইউজার লোড হচ্ছে...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ব্যালেন্স অ্যাড/কাটার মডাল -->
+    <div id="balanceModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-xl text-center">
+            <div class="w-12 h-12 bg-yellow-100 text-yellow-700 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <h3 class="font-black text-gray-900 text-base">ব্যালেন্স নিয়ন্ত্রণ করুন</h3>
+            <p id="targetUserName" class="text-xs text-gray-500">ইউজার: ...</p>
+            
+            <form id="balanceForm" class="space-y-3 text-left">
+                <input type="hidden" id="targetUserId">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">অ্যাকশন সিলেক্ট করুন</label>
+                    <select id="balAction" class="w-full text-xs p-2.5 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                        <option value="add">+ ব্যালেন্স যোগ করুন (Add)</option>
+                        <option value="deduct">- ব্যালেন্স কেটে নিন (Deduct)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">টাকার পরিমাণ (৳)</label>
+                    <input type="number" id="balAmount" placeholder="যেমন: 50" step="1" required class="w-full text-xs p-2.5 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeBalanceModal()" class="w-1/2 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl text-xs">বাতিল</button>
+                    <button type="submit" id="saveBalBtn" class="w-1/2 py-2.5 bg-yellow-400 hover:bg-yellow-500 font-black rounded-xl text-xs text-gray-950">সেভ করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.href = "/login";
+        }
+
+        let allUsersData = [];
+
+        // ১. সব ইউজার ফেচ
+        async function fetchUsers() {
+            try {
+                const res = await fetch(`${API_URL}/admin/users`);
+                allUsersData = await res.json();
+                document.getElementById('totalUsersCount').innerText = allUsersData.length;
+                renderUsers(allUsersData);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // ২. ইউজার টেবিল রেন্ডার
+        function renderUsers(users) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = "";
+
+            if (!users || users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400">কোনো ইউজার পাওয়া যায়নি।</td></tr>`;
+                return;
+            }
+
+            users.forEach(u => {
+                const isBanned = u.is_banned;
+                const statusBadge = isBanned 
+                    ? `<span class="bg-red-100 text-red-700 font-black px-2 py-0.5 rounded-md text-[10px] uppercase">Banned</span>`
+                    : `<span class="bg-green-100 text-green-700 font-black px-2 py-0.5 rounded-md text-[10px] uppercase">Active</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 font-bold flex items-center justify-center text-xs">
+                                    ${u.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-900">${u.name} ${u.role === 'admin' ? '<span class="text-[9px] bg-red-100 text-red-600 px-1 rounded font-black">ADMIN</span>' : ''}</p>
+                                    <p class="text-[11px] text-gray-400">${u.email}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 font-mono font-bold text-yellow-600">${u.user_id}</td>
+                        <td class="p-4 font-black text-green-600">৳ ${parseFloat(u.balance).toFixed(2)}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <!-- ব্যালেন্স যোগ/কাটা -->
+                                <button onclick="openBalanceModal(${u.id}, '${u.name}')" title="ব্যালেন্স এডিট" class="w-7 h-7 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-coins"></i>
+                                </button>
+                                
+                                <!-- ব্যান / আনব্যান -->
+                                ${u.role !== 'admin' ? `
+                                <button onclick="toggleBan(${u.id}, ${isBanned})" title="${isBanned ? 'আনব্যান করুন' : 'ব্যান করুন'}" class="w-7 h-7 ${isBanned ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-orange-100 text-orange-700 hover:bg-orange-200'} rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid ${isBanned ? 'fa-lock-open' : 'fa-ban'}"></i>
+                                </button>
+                                
+                                <!-- ডিলিট -->
+                                <button onclick="deleteUser(${u.id}, '${u.name}')" title="একাউন্ট ডিলিট" class="w-7 h-7 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ৩. সার্চ ফিল্টার
+        function filterUsers() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allUsersData.filter(u => 
+                u.name.toLowerCase().includes(query) ||
+                u.email.toLowerCase().includes(query) ||
+                u.user_id.includes(query)
+            );
+            renderUsers(filtered);
+        }
+
+        // ৪. ব্যালেন্স মডাল ও সাবমিট
+        function openBalanceModal(id, name) {
+            document.getElementById('targetUserId').value = id;
+            document.getElementById('targetUserName').innerText = `ইউজার: ${name}`;
+            document.getElementById('balanceModal').classList.remove('hidden');
+        }
+
+        function closeBalanceModal() {
+            document.getElementById('balanceModal').classList.add('hidden');
+        }
+
+        document.getElementById('balanceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveBalBtn');
+            btn.innerText = "আপডেট হচ্ছে...";
+
+            await fetch(`${API_URL}/admin/users/balance`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: parseInt(document.getElementById('targetUserId').value),
+                    amount: parseFloat(document.getElementById('balAmount').value),
+                    action: document.getElementById('balAction').value
+                })
+            });
+
+            alert("ব্যালেন্স আপডেট সম্পন্ন হয়েছে!");
+            btn.innerText = "সেভ করুন";
+            closeBalanceModal();
+            fetchUsers();
+        });
+
+        // ৫. ব্যান / আনব্যান
+        async function toggleBan(id, currentStatus) {
+            if (!confirm(`আপনি কি নিশ্চিত এই ব্যবহারকারীকে ${currentStatus ? 'আনব্যান' : 'ব্যান'} করতে চান?`)) return;
+
+            const res = await fetch(`${API_URL}/admin/users/toggle-ban`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: id })
+            });
+            const data = await res.json();
+            alert(data.message);
+            fetchUsers();
+        }
+
+        // ৬. ডিলিট একাউন্ট
+        async function deleteUser(id, name) {
+            if (!confirm(`সতর্কতা: ${name}-এর অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা যাবে না!`)) return;
+
+            await fetch(`${API_URL}/admin/users/${id}`, { method: 'DELETE' });
+            alert("ইউজার ডিলিট করা হয়েছে!");
+            fetchUsers();
+        }
+
+        fetchUsers();
+    </script>
+</body>
+  </html>
