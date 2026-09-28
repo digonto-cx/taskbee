@@ -478,6 +478,64 @@ def delete_imgbb_key(key_id: int):
     return {"message": "কী মুছে ফেলা হয়েছে!"}
 # ----------------- YOUTUBE TASK APIs ----------------- #
 
+
+
+# ----------------- ADMIN USER MANAGEMENT APIs ----------------- #
+
+class AdjustBalanceSchema(BaseModel):
+    user_id: int
+    amount: float
+    action: str  # 'add' অথবা 'deduct'
+
+class ToggleBanSchema(BaseModel):
+    user_id: int
+
+@app.get("/api/admin/users")
+def get_all_users():
+    res = supabase.table("users")\
+        .select("id, user_id, name, email, balance, is_banned, role, created_at")\
+        .order("created_at", desc=True)\
+        .execute()
+    return res.data
+
+@app.post("/api/admin/users/balance")
+def adjust_user_balance(data: AdjustBalanceSchema):
+    u = supabase.table("users").select("balance").eq("id", data.user_id).single().execute()
+    if not u.data:
+        raise HTTPException(status_code=404, detail="ইউজার পাওয়া যায়নি!")
+
+    current_bal = float(u.data["balance"])
+    new_bal = (current_bal + data.amount) if data.action == "add" else (current_bal - data.amount)
+    if new_bal < 0:
+        new_bal = 0.00
+
+    supabase.table("users").update({"balance": new_bal}).eq("id", data.user_id).execute()
+    return {"message": "ব্যালেন্স সফলভাবে আপডেট করা হয়েছে!", "new_balance": new_bal}
+
+@app.post("/api/admin/users/toggle-ban")
+def toggle_user_ban(data: ToggleBanSchema):
+    u = supabase.table("users").select("is_banned, role").eq("id", data.user_id).single().execute()
+    if not u.data:
+        raise HTTPException(status_code=404, detail="ইউজার পাওয়া যায়নি!")
+    
+    if u.data["role"] == "admin":
+        raise HTTPException(status_code=400, detail="এডমিন অ্যাকাউন্ট ব্যান করা সম্ভব নয়!")
+
+    new_status = not u.data.get("is_banned", False)
+    supabase.table("users").update({"is_banned": new_status}).eq("id", data.user_id).execute()
+    
+    return {"message": f"ইউজারকে সফলভাবে {'ব্যান' if new_status else 'আনব্যান'} করা হয়েছে!", "is_banned": new_status}
+
+@app.delete("/api/admin/users/{user_id}")
+def delete_user(user_id: int):
+    u = supabase.table("users").select("role").eq("id", user_id).single().execute()
+    if u.data and u.data["role"] == "admin":
+        raise HTTPException(status_code=400, detail="এডমিন একাউন্ট ডিলিট করা যাবে না!")
+
+    supabase.table("users").delete().eq("id", user_id).execute()
+    return {"message": "ইউজার অ্যাকাউন্ট সফলভাবে মুছে ফেলা হয়েছে!"}
+
+
 class CreateYoutubeTaskSchema(BaseModel):
     title: str
     description: str
