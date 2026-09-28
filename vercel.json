@@ -20,12 +20,28 @@
       "dest": "/public/assets/$1"
     },
     {
+      "src": "/admin/users",
+      "dest": "/public/admin/users.html"
+    },
+    {
+      "src": "/admin/yt",
+      "dest": "/public/admin/yt.html"
+    },
+    {
       "src": "/admin/?$",
       "dest": "/public/admin/index.html"
     },
     {
       "src": "/admin/(.*)",
       "dest": "/public/admin/$1"
+    },
+    {
+      "src": "/tasks/yt-details",
+      "dest": "/public/tasks/yt-details.html"
+    },
+    {
+      "src": "/tasks/yt",
+      "dest": "/public/tasks/yt.html"
     },
     {
       "src": "/tasks/task-details",
