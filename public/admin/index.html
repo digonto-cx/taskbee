@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBee - সুপার এডমিন কন্ট্রোল হাব</title>
+    <title>TaskBee - সুপার এডমিন কন্ট্রোল প্যানেল</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
@@ -48,13 +48,13 @@
 
     <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <!-- ২. লাইভ স্ট্যাটাস কাউন্টার্স (Analytics Overview) -->
+        <!-- ২. লাইভ পরিসংখ্যান ও টোটাল ইউজার কার্ডস -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             
             <!-- মোট ব্যবহারকারী -->
             <div class="bg-white p-6 rounded-[28px] border border-gray-200/80 shadow-xs flex items-center justify-between">
                 <div>
-                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">মোট ব্যবহারকারী</span>
+                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">মোট ব্যবহারকারী (Total Users)</span>
                     <h3 id="statTotalUsers" class="text-3xl font-black text-gray-900 mt-0.5">0</h3>
                 </div>
                 <div class="w-13 h-13 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-2xs">
@@ -110,7 +110,7 @@
             </form>
         </div>
 
-        <!-- ৪. কুইক নেভিগেশন এক্সেস (Quick Navs) -->
+        <!-- ৪. প্যানেল কুইক এক্সেস নেভিগেশন (Quick Navs) -->
         <div>
             <h4 class="text-xs font-black uppercase text-gray-400 tracking-wider mb-2.5 px-1">প্যানেল কুইক এক্সেস</h4>
             <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
@@ -320,7 +320,7 @@
             btn.innerText = "নোটিশ সেভ করুন";
         });
 
-        // ৪. পেন্ডিং স্ক্রিনশট রিভিউ
+        // ৪. পেন্ডিং স্ক্রিনশট রিভিউ (সিঙ্গেল অ্যাপ্রুভ ফিক্সড)
         async function loadSubmissions() {
             const container = document.getElementById('submissionsList');
             container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>`;
@@ -377,7 +377,7 @@
 
         // বাল্ক অ্যাপ্রুভ ফাংশন (ম্যাক্স ৩০টি, র‍্যান্ডম ২ রিজেক্ট)
         async function bulkApproveTasks() {
-            if (!confirm("আপনি কি নিশ্চিত সর্বোচ্চ ৩০টি পেন্ডিং কাজ একসাথে প্রসেস করতে চান? (এর মধ্যে র‍্যান্ডম ২টি রিজেক্ট হবে এবং বাকিগুলো অনুমোদিত হয়ে স্বয়ংক্রিয়ভাবে ব্যালেন্স যোগ হবে)")) return;
+            if (!confirm("আপনি কি নিশ্চিত সর্বোচ্চ ৩০টি পেন্ডিং কাজ একসাথে প্রসেস করতে চান? (এর মধ্যে র‍্যান্ডম ২টি রিজেক্ট হবে এবং বাকিগুলো অনুমোদিত হয়ে স্বয়ংক্রিয়ভাবে ইউজারের ব্যালেন্স যোগ হবে)")) return;
 
             const btn = document.getElementById('bulkBtn');
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...`;
