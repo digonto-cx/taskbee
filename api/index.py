@@ -626,6 +626,49 @@ def create_youtube_task(data: CreateYoutubeTaskSchema):
     }).execute()
     return {"message": "ইউটিউব টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
 
+# ----------------- IMGBB ADVANCED MANAGEMENT APIs ----------------- #
+
+@app.post("/api/admin/imgbb-keys/test-all")
+def test_all_imgbb_keys():
+    """সবগুলো কী লাইভ টেস্ট করে ফেইল্ড কীগুলোকে স্বয়ংক্রিয়ভাবে ইন-এক্টিভ (Failed) করে দেয়"""
+    keys_res = supabase.table("imgbb_keys").select("*").execute()
+    keys = keys_res.data or []
+    
+    # ১ পিক্সেলের টেস্ট ইমেজ
+    dummy_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    
+    active_count = 0
+    failed_count = 0
+
+    for k in keys:
+        try:
+            r = requests.post("https://api.imgbb.com/1/upload", data={"key": k["api_key"], "image": dummy_b64}, timeout=7)
+            data = r.json()
+            if r.status_code == 200 and data.get("success"):
+                supabase.table("imgbb_keys").update({"is_active": True}).eq("id", k["id"]).execute()
+                active_count += 1
+            else:
+                supabase.table("imgbb_keys").update({"is_active": False}).eq("id", k["id"]).execute()
+                failed_count += 1
+        except Exception:
+            supabase.table("imgbb_keys").update({"is_active": False}).eq("id", k["id"]).execute()
+            failed_count += 1
+
+    return {
+        "message": f"ভেরিফিকেশন সম্পন্ন! সক্রিয়: {active_count}টি, ব্যর্থ (Failed): {failed_count}টি",
+        "active": active_count,
+        "failed": failed_count
+    }
+
+@app.post("/api/admin/imgbb-keys/toggle/{key_id}")
+def toggle_imgbb_key_status(key_id: int):
+    k = supabase.table("imgbb_keys").select("is_active").eq("id", key_id).single().execute()
+    if not k.data:
+        raise HTTPException(status_code=404, detail="কী পাওয়া যায়নি!")
+    new_status = not k.data.get("is_active", True)
+    supabase.table("imgbb_keys").update({"is_active": new_status}).eq("id", key_id).execute()
+    return {"message": "স্ট্যাটাস পরিবর্তিত হয়েছে!", "is_active": new_status}
+    
 @app.get("/api/tasks/youtube")
 def get_youtube_tasks():
     res = supabase.table("tasks").select("*").eq("task_type", "youtube").eq("status", "active").execute()
