@@ -403,29 +403,100 @@ def get_pending_submissions():
         .execute()
     return res.data
 
+# ----------------- ফিক্সড সিঙ্গেল ও বাল্ক টাস্ক অ্যাপ্রুভাল ----------------- #
+
 @app.post("/api/admin/submissions/action")
 def take_task_action(data: ActionSubmissionSchema):
-    sub = supabase.table("task_submissions").select("*, tasks(reward_amount)").eq("id", data.submission_id).single().execute()
-    if not sub.data:
-        raise HTTPException(status_code=404, detail="সাবমিশন খুঁজে পাওয়া যায়নি!")
+    # ১. সাবমিশন ডাটা আনা
+    sub_res = supabase.table("task_submissions").select("*").eq("id", data.submission_id).single().execute()
+    if not sub_res.data:
+        raise HTTPException(status_code=404, detail="সাবমিশন পাওয়া যায়নি!")
+    
+    sub = sub_res.data
 
-    submission = sub.data
+    # ২. সরাসরি টাস্ক টেবিল থেকে নির্ভুলভাবে টাকা (Reward) আনা
+    task_res = supabase.table("tasks").select("reward_amount").eq("id", sub["task_id"]).single().execute()
+    reward = float(task_res.data["reward_amount"]) if task_res.data else 0.0
+
     if data.action == "approve":
-        # ইউজারের ব্যালেন্সে টাকা যুক্ত করা
-        user = supabase.table("users").select("balance").eq("id", submission["user_id"]).single().execute()
-        new_balance = float(user.data["balance"]) + float(submission["tasks"]["reward_amount"])
-        supabase.table("users").update({"balance": new_balance}).eq("id", submission["user_id"]).execute()
+        # ৩. ইউজারের বর্তমান ব্যালেন্স সরাসরি ডাটাবেস থেকে এনে যোগ করা
+        user_res = supabase.table("users").select("balance").eq("id", sub["user_id"]).single().execute()
+        if user_res.data:
+            current_bal = float(user_res.data.get("balance") or 0.0)
+            new_bal = current_bal + reward
+            supabase.table("users").update({"balance": new_bal}).eq("id", sub["user_id"]).execute()
 
-        supabase.table("task_submissions").update({"status": "approved", "admin_note": data.admin_note}).eq("id", data.submission_id).execute()
-        return {"message": "টাস্ক অনুমোদিত এবং টাকা ইউজারের ব্যালেন্সে যোগ হয়েছে!"}
+        # সাবমিশন এপ্রুভ করা
+        supabase.table("task_submissions").update({
+            "status": "approved",
+            "admin_note": data.admin_note or "সঠিক কাজের জন্য অনুমোদিত"
+        }).eq("id", sub["id"]).execute()
+
+        return {"message": f"টাস্ক অনুমোদিত এবং ৳{reward} ব্যালেন্সে যোগ হয়েছে!"}
 
     elif data.action == "reject":
-        # রিজেক্ট করা (ইউজার আবার করতে পারবে)
-        supabase.table("task_submissions").update({"status": "rejected", "admin_note": data.admin_note}).eq("id", data.submission_id).execute()
+        supabase.table("task_submissions").update({
+            "status": "rejected",
+            "admin_note": data.admin_note or "ভুল বা অস্পষ্ট স্ক্রিনশট"
+        }).eq("id", sub["id"]).execute()
         return {"message": "টাস্ক রিজেক্ট করা হয়েছে।"}
 
-    raise HTTPException(status_code=400, detail="ভুল কমান্ড!")
 
+# ================= বাল্ক অ্যাপ্রুভ (সর্বোচ্চ ৩০টি, র‍্যান্ডম ২ রিজেক্ট) ================= #
+@app.post("/api/admin/submissions/bulk-action")
+def bulk_approve_tasks():
+    # সর্বোচ্চ ৩০টি পেন্ডিং কাজ আনা
+    pending_res = supabase.table("task_submissions")\
+        .select("id, user_id, task_id")\
+        .eq("status", "pending")\
+        .order("id", desc=False)\
+        .limit(30)\
+        .execute()
+    
+    submissions = pending_res.data
+    if not submissions:
+        return {"message": "কোনো পেন্ডিং সাবমিশন পাওয়া যায়নি!", "approved": 0, "rejected": 0}
+
+    total_count = len(submissions)
+    
+    # র‍্যান্ডম ২ জনকে রিজেক্ট করার লজিক (যদি মোট কাজ ২টি বা তার বেশি থাকে)
+    reject_count = 2 if total_count >= 2 else 0
+    rejected_items = random.sample(submissions, reject_count) if reject_count > 0 else []
+    rejected_ids = [item["id"] for item in rejected_items]
+
+    approved_count = 0
+
+    for sub in submissions:
+        if sub["id"] in rejected_ids:
+            # রিজেক্ট করা
+            supabase.table("task_submissions").update({
+                "status": "rejected",
+                "admin_note": "অস্পষ্ট বা ভুল স্ক্রিনশট (অটো-যাচাইকৃত)"
+            }).eq("id", sub["id"]).execute()
+        else:
+            # অ্যাপ্রুভ করা ও ইউজারের ব্যালেন্সে টাকা যোগ করা
+            task_res = supabase.table("tasks").select("reward_amount").eq("id", sub["task_id"]).single().execute()
+            reward = float(task_res.data["reward_amount"]) if task_res.data else 0.0
+
+            user_res = supabase.table("users").select("balance").eq("id", sub["user_id"]).single().execute()
+            if user_res.data:
+                current_bal = float(user_res.data.get("balance") or 0.0)
+                new_bal = current_bal + reward
+                supabase.table("users").update({"balance": new_bal}).eq("id", sub["user_id"]).execute()
+
+            supabase.table("task_submissions").update({
+                "status": "approved",
+                "admin_note": "সঠিক কাজের জন্য অনুমোদিত"
+            }).eq("id", sub["id"]).execute()
+
+            approved_count += 1
+
+    return {
+        "message": f"বাল্ক প্রসেস সম্পন্ন! {approved_count}টি অনুমোদিত (ব্যালেন্স যুক্ত হয়েছে) এবং {len(rejected_items)}টি রিজেক্ট হয়েছে।",
+        "approved": approved_count,
+        "rejected": len(rejected_items)
+    }
+    
 @app.get("/api/admin/withdrawals/pending")
 def get_pending_withdrawals():
     res = supabase.table("withdrawals")\
