@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImgBB API Key Manager - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-20 selection:bg-yellow-400">
+
+    <!-- হেডার -->
+    <header class="bg-gray-950 text-white sticky top-0 z-40 border-b border-gray-800 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-purple-600 flex items-center justify-center text-white"><i class="fa-solid fa-key"></i></span>
+                <h1 class="font-black text-lg text-yellow-400">ImgBB Key Manager</h1>
+            </div>
+            <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3.5 py-1.5 rounded-xl font-bold text-gray-300 transition">
+                &larr; মূল এডমিন প্যানেল
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. কী স্ট্যাটিসটিক্স কাউন্টার -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            
+            <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">মোট API Keys</span>
+                    <h3 id="statTotalKeys" class="text-3xl font-black text-gray-900 mt-0.5">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-2xs">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-green-200 shadow-xs flex items-center justify-between bg-green-50/30">
+                <div>
+                    <span class="text-[11px] font-extrabold text-green-700 uppercase tracking-wider block">সক্রিয় কী (Active)</span>
+                    <h3 id="statActiveKeys" class="text-3xl font-black text-green-600 mt-0.5">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-green-100 text-green-700 flex items-center justify-center text-xl shadow-2xs">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-red-200 shadow-xs flex items-center justify-between bg-red-50/40">
+                <div>
+                    <span class="text-[11px] font-extrabold text-red-600 uppercase tracking-wider block">ব্যর্থ কী (Failed / Limit)</span>
+                    <h3 id="statFailedKeys" class="text-3xl font-black text-red-600 mt-0.5">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-xl shadow-2xs">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ২. নতুন কী যোগ করার ফর্ম -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-purple-600"></i> নতুন ImgBB API Key যুক্ত করুন
+            </h3>
+            
+            <form id="addKeyForm" class="flex flex-col sm:flex-row gap-2.5">
+                <input type="text" id="newApiKey" placeholder="ImgBB Client API Key পেস্ট করুন (যেমন: 07a82b3c...)" required 
+                       class="flex-1 text-xs p-3.5 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:outline-none font-mono bg-gray-50/60 focus:bg-white transition">
+                <button type="submit" id="addKeyBtn" class="px-6 py-3.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-2xl text-xs shadow-sm transition whitespace-nowrap">
+                    + নতুন কী সেভ করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- ৩. কী-গুলোর তালিকা ও লাইভ ডায়াগনস্টিক টেস্ট -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            
+            <div class="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-gray-100">
+                <div>
+                    <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                        <i class="fa-solid fa-key text-yellow-500"></i> সংরক্ষিত API Keys তালিকা
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-0.5">নষ্ট বা লিমিট শেষ হওয়া কী-গুলো লাল হয়ে থাকবে</p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <!-- অটো টেস্ট অল বাটন -->
+                    <button onclick="testAllKeys()" id="testBtn" class="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition">
+                        <i class="fa-solid fa-vial-circle-check"></i> সব কী অটো-টেস্ট করুন
+                    </button>
+                    <button onclick="loadKeys()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-xl font-bold text-gray-600 transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+                    </button>
+                </div>
+            </div>
+
+            <!-- কার্ড লিস্ট কনটেইনার -->
+            <div id="keysContainer" class="space-y-3">
+                <p class="text-xs text-gray-400 py-8 text-center"><i class="fa-solid fa-spinner fa-spin"></i> কী লোড হচ্ছে...</p>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.replace("/login");
+        }
+
+        // ১. সব কী লোড ও ডিসপ্লে
+        async function loadKeys() {
+            const container = document.getElementById('keysContainer');
+            container.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center"><i class="fa-solid fa-spinner fa-spin"></i> কী লোড হচ্ছে...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/imgbb-keys`);
+                const keys = await res.json();
+                container.innerHTML = "";
+
+                let activeCount = 0;
+                let failedCount = 0;
+
+                if (!keys || keys.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-red-500 py-6 text-center">কোনো ImgBB Key যুক্ত নেই! উপরে বক্স থেকে কী যোগ করুন।</p>`;
+                    document.getElementById('statTotalKeys').innerText = 0;
+                    document.getElementById('statActiveKeys').innerText = 0;
+                    document.getElementById('statFailedKeys').innerText = 0;
+                    return;
+                }
+
+                keys.forEach((k, idx) => {
+                    const isActive = k.is_active;
+                    if (isActive) activeCount++; else failedCount++;
+
+                    // ফেইল্ড হলে লাল ব্যাকগ্রাউন্ড ও লাল বর্ডার
+                    const cardStyle = isActive 
+                        ? "bg-green-50/40 border-green-200 hover:border-green-300"
+                        : "bg-red-50/80 border-2 border-red-400 shadow-sm"; // FAILED RED BORDER
+
+                    const badge = isActive
+                        ? `<span class="bg-green-100 text-green-700 font-black px-2.5 py-1 rounded-lg text-[10px] flex items-center gap-1 border border-green-200">
+                                <i class="fa-solid fa-check text-[9px]"></i> Active (সক্রিয়)
+                           </span>`
+                        : `<span class="bg-red-100 text-red-700 font-black px-2.5 py-1 rounded-lg text-[10px] flex items-center gap-1 border border-red-200 animate-pulse">
+                                <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> Failed / Limit Ended
+                           </span>`;
+
+                    container.innerHTML += `
+                        <div class="p-4 rounded-2xl border ${cardStyle} flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 transition">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-xs text-gray-800">Key #${idx + 1}</span>
+                                    ${badge}
+                                </div>
+                                <p class="font-mono text-xs ${isActive ? 'text-gray-600' : 'text-red-700 font-bold'}">
+                                    ${k.api_key.substring(0, 8)}••••••••••••••••••••${k.api_key.substring(k.api_key.length - 4)}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <!-- কপি বাটন -->
+                                <button onclick="navigator.clipboard.writeText('${k.api_key}'); alert('কী কপি হয়েছে!')" title="কপি করুন" class="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl text-xs font-bold text-gray-700">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+
+                                <!-- টগল স্ট্যাটাস -->
+                                <button onclick="toggleKey(${k.id})" class="px-3 py-1.5 ${isActive ? 'bg-orange-100 text-orange-700 hover:bg-orange-200' : 'bg-green-100 text-green-700 hover:bg-green-200'} rounded-xl text-xs font-bold transition">
+                                    ${isActive ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন'}
+                                </button>
+
+                                <!-- ডিলিট বাটন -->
+                                <button onclick="deleteKey(${k.id})" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl text-xs font-bold transition">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('statTotalKeys').innerText = keys.length;
+                document.getElementById('statActiveKeys').innerText = activeCount;
+                document.getElementById('statFailedKeys').innerText = failedCount;
+
+            } catch (err) {
+                container.innerHTML = `<p class="text-xs text-red-500 py-4 text-center">ডাটা লোড করা যায়নি!</p>`;
+            }
+        }
+
+        // ২. নতুন কী যোগ
+        document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('addKeyBtn');
+            const keyVal = document.getElementById('newApiKey').value.trim();
+
+            btn.innerText = "সেভ হচ্ছে...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/imgbb-keys`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ api_key: keyVal })
+                });
+                const data = await res.json();
+                alert(data.message);
+                document.getElementById('newApiKey').value = "";
+                loadKeys();
+            } catch (err) {
+                alert("কী যোগ করতে সমস্যা হয়েছে!");
+            } finally {
+                btn.innerText = "+ নতুন কী সেভ করুন";
+                btn.disabled = false;
+            }
+        });
+
+        // ৩. সব কী লাইভ টেস্ট
+        async function testAllKeys() {
+            const btn = document.getElementById('testBtn');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> টেস্ট চলছে...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/imgbb-keys/test-all`, { method: 'POST' });
+                const data = await res.json();
+                alert(data.message);
+                loadKeys();
+            } catch (err) {
+                alert("টেস্ট করতে সমস্যা হয়েছে!");
+            } finally {
+                btn.innerHTML = `<i class="fa-solid fa-vial-circle-check"></i> সব কী অটো-টেস্ট করুন`;
+                btn.disabled = false;
+            }
+        }
+
+        // ৪. কী টগল ও ডিলিট
+        async function toggleKey(id) {
+            await fetch(`${API_URL}/admin/imgbb-keys/toggle/${id}`, { method: 'POST' });
+            loadKeys();
+        }
+
+        async function deleteKey(id) {
+            if (!confirm("আপনি কি নিশ্চিত এই কী-টি মুছে ফেলতে চান?")) return;
+            await fetch(`${API_URL}/admin/imgbb-keys/${id}`, { method: 'DELETE' });
+            loadKeys();
+        }
+
+        loadKeys();
+    </script>
+</body>
+  </html>
