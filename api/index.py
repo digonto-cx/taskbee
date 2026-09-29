@@ -403,36 +403,60 @@ def get_pending_submissions():
         .execute()
     return res.data
 
-# ----------------- ফিক্সড সিঙ্গেল ও বাল্ক টাস্ক অ্যাপ্রুভাল ----------------- #
+# ----------------- ১. রিয়েল-টাইম লাইভ ব্যালেন্স সিঙ্ক API ----------------- #
+
+@app.get("/api/user/profile/{user_db_id}")
+def get_user_live_profile(user_db_id: int):
+    # সরাসরি ডাটাবেস থেকে ইউজারের লেটেস্ট ব্যালেন্স আনা
+    u_res = supabase.table("users").select("id, user_id, name, email, balance, role, is_banned").eq("id", user_db_id).execute()
+    if not u_res.data:
+        raise HTTPException(status_code=404, detail="ইউজার পাওয়া যায়নি!")
+    return u_res.data[0]
+
+
+# ----------------- ২. ফিক্সড সিঙ্গেল টাস্ক অ্যাপ্রুভ অ্যাকশন ----------------- #
 
 @app.post("/api/admin/submissions/action")
 def take_task_action(data: ActionSubmissionSchema):
-    # ১. সাবমিশন ডাটা আনা
-    sub_res = supabase.table("task_submissions").select("*").eq("id", data.submission_id).single().execute()
+    # ১. সাবমিশন বের করা
+    sub_res = supabase.table("task_submissions").select("*").eq("id", data.submission_id).execute()
     if not sub_res.data:
         raise HTTPException(status_code=404, detail="সাবমিশন পাওয়া যায়নি!")
     
-    sub = sub_res.data
+    sub = sub_res.data[0]
 
-    # ২. সরাসরি টাস্ক টেবিল থেকে নির্ভুলভাবে টাকা (Reward) আনা
-    task_res = supabase.table("tasks").select("reward_amount").eq("id", sub["task_id"]).single().execute()
-    reward = float(task_res.data["reward_amount"]) if task_res.data else 0.0
+    # ডাবল ব্যালেন্স যোগ রোধ (আগে থেকেই এপ্রুভ থাকলে আর টাকা যোগ হবে না)
+    if sub["status"] == "approved" and data.action == "approve":
+        return {"message": "এই টাস্কটি আগেই অ্যাপ্রুভ করা হয়েছে!"}
+
+    # ২. টাস্কের রিওয়ার্ড টাকা নিশ্চিত করা
+    task_res = supabase.table("tasks").select("reward_amount").eq("id", sub["task_id"]).execute()
+    reward = float(task_res.data[0]["reward_amount"]) if task_res.data else 0.0
 
     if data.action == "approve":
-        # ৩. ইউজারের বর্তমান ব্যালেন্স সরাসরি ডাটাবেস থেকে এনে যোগ করা
-        user_res = supabase.table("users").select("balance").eq("id", sub["user_id"]).single().execute()
-        if user_res.data:
-            current_bal = float(user_res.data.get("balance") or 0.0)
+        # ৩. নিশ্চিতভাবে ইউজারকে খুঁজে ব্যালেন্স যোগ করা
+        target_uid = sub["user_id"]
+        
+        # প্রথমে id দিয়ে খুঁজবে, না পেলে ৫ ডিজিট user_id দিয়ে খুঁজবে
+        u_find = supabase.table("users").select("id, balance").eq("id", target_uid).execute()
+        if not u_find.data:
+            u_find = supabase.table("users").select("id, balance").eq("user_id", str(target_uid)).execute()
+            
+        if u_find.data:
+            user_real_id = u_find.data[0]["id"]
+            current_bal = float(u_find.data[0].get("balance") or 0.0)
             new_bal = current_bal + reward
-            supabase.table("users").update({"balance": new_bal}).eq("id", sub["user_id"]).execute()
+            
+            # ডাটাবেসে ইউজারের ব্যালেন্স আপডেট
+            supabase.table("users").update({"balance": new_bal}).eq("id", user_real_id).execute()
 
-        # সাবমিশন এপ্রুভ করা
+        # সাবমিশন স্ট্যাটাস আপডেট
         supabase.table("task_submissions").update({
             "status": "approved",
             "admin_note": data.admin_note or "সঠিক কাজের জন্য অনুমোদিত"
         }).eq("id", sub["id"]).execute()
 
-        return {"message": f"টাস্ক অনুমোদিত এবং ৳{reward} ব্যালেন্সে যোগ হয়েছে!"}
+        return {"message": f"টাস্ক অনুমোদিত এবং সফলভাবে ৳{reward} ব্যালেন্সে যুক্ত হয়েছে!"}
 
     elif data.action == "reject":
         supabase.table("task_submissions").update({
@@ -440,8 +464,7 @@ def take_task_action(data: ActionSubmissionSchema):
             "admin_note": data.admin_note or "ভুল বা অস্পষ্ট স্ক্রিনশট"
         }).eq("id", sub["id"]).execute()
         return {"message": "টাস্ক রিজেক্ট করা হয়েছে।"}
-
-
+        
 # ================= বাল্ক অ্যাপ্রুভ (সর্বোচ্চ ৩০টি, র‍্যান্ডম ২ রিজেক্ট) ================= #
 @app.post("/api/admin/submissions/bulk-action")
 def bulk_approve_tasks():
