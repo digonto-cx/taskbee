@@ -28,6 +28,10 @@
       "dest": "/public/sw.js"
     },
     {
+      "src": "/admin/imgbb",
+      "dest": "/public/admin/imgbb.html"
+    },
+    {
       "src": "/admin/type",
       "dest": "/public/admin/type.html"
     },
