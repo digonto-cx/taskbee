@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টাইপিং টাস্ক কন্ট্রোল - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-20">
+
+    <header class="bg-gray-950 text-white px-6 py-3 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-yellow-400 text-gray-950 flex items-center justify-center font-black"><i class="fa-solid fa-keyboard"></i></span>
+            <h1 class="font-black text-lg text-yellow-400">Typing Task Control</h1>
+        </div>
+        <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3.5 py-1.5 rounded-xl font-bold text-gray-300">
+            &larr; মূল এডমিন প্যানেল
+        </a>
+    </header>
+
+    <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. নতুন টাইপিং টাস্ক তৈরির ফর্ম -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-yellow-500"></i> নতুন টাইপিং টাস্ক তৈরি করুন
+            </h3>
+
+            <form id="createTypingForm" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">টাস্ক শিরোনাম (Title)</label>
+                        <input type="text" id="typeTitle" placeholder="যেমন: প্যারাগ্রাফটি দেখে টাইপ করুন" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">পুরস্কারের টাকা (৳)</label>
+                        <input type="number" id="typeReward" placeholder="যেমন: 3.00" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">যে ছবি দেখে টাইপ করবে (Image Upload)</label>
+                    <input type="file" id="typeImageFile" accept="image/*" required class="w-full text-xs p-2.5 border border-dashed rounded-xl bg-gray-50">
+                </div>
+
+                <button type="submit" id="createBtn" class="w-full py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs shadow-xs transition">
+                    টাস্ক পাবলিশ করুন (ImgBB-তে আপলোড হবে)
+                </button>
+            </form>
+        </div>
+
+        <!-- ২. পেন্ডিং টাইপিং রিভিউ ও ভেরিফিকেশন -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-yellow-500"></i> পেন্ডিং টাইপিং সাবমিশন
+                </h3>
+                <button onclick="loadTypingSubmissions()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl font-bold text-gray-600">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+                </button>
+            </div>
+
+            <div id="typingList" class="space-y-4">
+                <p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.replace("/login");
+        }
+
+        // ১. টাস্ক তৈরি
+        document.getElementById('createTypingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('createBtn');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ImgBB-তে আপলোড হচ্ছে...`;
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('title', document.getElementById('typeTitle').value);
+            formData.append('reward_amount', document.getElementById('typeReward').value);
+            formData.append('image', document.getElementById('typeImageFile').files[0]);
+
+            try {
+                const res = await fetch(`${API_URL}/admin/tasks/typing`, { method: 'POST', body: formData });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(data.message);
+                document.getElementById('createTypingForm').reset();
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.innerHTML = `টাস্ক পাবলিশ করুন (ImgBB-তে আপলোড হবে)`;
+                btn.disabled = false;
+            }
+        });
+
+        // ২. সাবমিশন লোড
+        async function loadTypingSubmissions() {
+            const container = document.getElementById('typingList');
+            container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/typing/pending`);
+                const data = await res.json();
+                container.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center"><i class="fa-solid fa-circle-check text-2xl text-green-500 mb-2 block"></i>কোনো পেন্ডিং টাইপিং সাবমিশন নেই!</p>`;
+                    return;
+                }
+
+                data.forEach(sub => {
+                    container.innerHTML += `
+                        <div class="p-5 bg-gray-50 border border-gray-200 rounded-2xl space-y-4">
+                            <div class="flex flex-wrap justify-between items-start gap-2 border-b border-gray-200/80 pb-3">
+                                <div>
+                                    <h4 class="font-bold text-gray-900">${sub.tasks.title} - <b class="text-green-600">৳${sub.tasks.reward_amount}</b></h4>
+                                    <p class="text-xs text-gray-500">ইউজার: <b>${sub.users.name}</b> (ID: ${sub.users.user_id})</p>
+                                </div>
+                                <a href="${sub.tasks.image_url}" target="_blank" class="text-xs text-blue-600 font-bold hover:underline flex items-center gap-1 bg-white px-3 py-1.5 rounded-xl border border-gray-200">
+                                    <i class="fa-solid fa-image"></i> আসল ছবি বড় করে দেখুন
+                                </a>
+                            </div>
+
+                            <!-- আসল ছবি ও টাইপিং পাশাপাশি তুলনা -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase block mb-1">আসল ছবি (Original Image)</span>
+                                    <img src="${sub.tasks.image_url}" alt="Task Image" class="max-h-48 w-full object-contain rounded-xl border border-gray-200 bg-white">
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase block mb-1">ইউজারের টাইপ করা টেক্সট (Submitted Text)</span>
+                                    <div class="p-3 bg-white border border-gray-200 rounded-xl max-h-48 overflow-y-auto font-mono text-gray-800 whitespace-pre-wrap select-all">
+                                        ${sub.submitted_text}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- অ্যাকশন বাটন ও প্রি-সেট ফিডব্যাক -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-200">
+                                <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                                    <span class="text-gray-400 font-bold mr-1">দ্রুত রিজেক্ট কারণ:</span>
+                                    <button onclick="actionTyping(${sub.id}, 'reject', 'বানান ভুল')" class="px-2.5 py-1 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg font-bold border border-red-200">বানান ভুল</button>
+                                    <button onclick="actionTyping(${sub.id}, 'reject', 'লাইন ভুল')" class="px-2.5 py-1 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg font-bold border border-red-200">লাইন ভুল</button>
+                                    <button onclick="actionTyping(${sub.id}, 'reject', 'সাজানো হয়নি')" class="px-2.5 py-1 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg font-bold border border-red-200">সাজানো হয়নি</button>
+                                    <button onclick="actionTyping(${sub.id}, 'reject', 'ভালোভাবে হয়নি')" class="px-2.5 py-1 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg font-bold border border-red-200">ভালোভাবে হয়নি</button>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <button onclick="actionTyping(${sub.id}, 'reject', null)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs">
+                                        Reject (কাস্টম নোট)
+                                    </button>
+                                    <button onclick="actionTyping(${sub.id}, 'approve', '')" class="px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-xs">
+                                        Approve (ব্যালেন্স যোগ)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                container.innerHTML = `<p class="text-xs text-red-500 py-4 text-center">ডাটা লোড করা যায়নি!</p>`;
+            }
+        }
+
+        async function actionTyping(id, act, presetNote) {
+            let note = presetNote;
+            if (act === 'reject' && note === null) {
+                note = prompt("রিজেক্ট করার কারণ লিখুন:");
+                if (note === null) return;
+            }
+
+            const res = await fetch(`${API_URL}/admin/submissions/action`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ submission_id: id, action: act, admin_note: note || "" })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadTypingSubmissions();
+        }
+
+        loadTypingSubmissions();
+    </script>
+</body>
+  </html>
