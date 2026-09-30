@@ -168,32 +168,93 @@ def change_password(data: ChangePasswordSchema):
 
     return {"message": "পাসওয়ার্ড সফলভাবে পরিবর্তন হয়েছে!"}
 
+# ================= ১. সরাসরি ডাটাবেস থেকে হোল্ড রিড করার ফিক্সড API ================= #
+
 @app.get("/api/user/referrals")
 def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
-    # মোট রেফার কাউন্ট ও ২০ টাকা করে মোট আর্নিং
-    count_res = supabase.table("users").select("id", count="exact").eq("referred_by", user_code).execute()
-    total_count = count_res.count if count_res.count is not None else 0
-    total_earnings = total_count * 20.00
+    clean_code = str(user_code).strip()
 
-    # ২০ জন করে পেজিনেশন
+    # ১. রেফারারের মূল একাউন্ট খোঁজা
+    ref_user_res = supabase.table("users").select("id, balance, hold_balance").eq("user_id", clean_code).execute()
+    if not ref_user_res.data:
+        return {"total_count": 0, "hold_balance": 0.0, "main_earned": 0.0, "users": []}
+
+    ref_user = ref_user_res.data[0]
+    referrer_id = ref_user["id"]
+
+    # ২. মোট রেফার সংখ্যা
+    count_res = supabase.table("users").select("id", count="exact").eq("referred_by", clean_code).execute()
+    total_count = count_res.count if count_res.count is not None else 0
+
+    # ৩. ডাটাবেসের held_referrals টেবিল থেকে এই ইউজারের সব হোল্ড ডাটা আনা
+    held_records_res = supabase.table("held_referrals")\
+        .select("friend_user_id, status, release_at, amount")\
+        .eq("user_id", referrer_id)\
+        .execute()
+    
+    held_records = held_records_res.data or []
+    
+    # { friend_user_id : record } ম্যাপ তৈরি
+    held_map = {r["friend_user_id"]: r for r in held_records}
+
+    # মোট কত টাকা বর্তমানে held অবস্থায় আছে তার আসল যোগফল
+    actual_hold_balance = sum(float(r["amount"]) for r in held_records if r.get("status") == "held")
+
+    # ডাটাবেসে hold_balance আপডেট রাখা
+    supabase.table("users").update({"hold_balance": actual_hold_balance}).eq("id", referrer_id).execute()
+
+    # ৪. পেজিনেশন সহ রেফার করা বন্ধুদের লিস্ট
     start = (page - 1) * limit
     end = start + limit - 1
-    
     users_res = supabase.table("users")\
-        .select("name, user_id, created_at")\
-        .eq("referred_by", user_code)\
+        .select("id, name, user_id, created_at")\
+        .eq("referred_by", clean_code)\
         .order("created_at", desc=True)\
         .range(start, end)\
         .execute()
 
+    now = datetime.utcnow()
+    user_list = []
+
+    for u in (users_res.data or []):
+        friend_id = u["id"]
+        held_info = held_map.get(friend_id)
+
+        # যদি held_referrals টেবিলে স্ট্যাটাস 'held' থাকে, তবে এটি নিশ্চিত হোল্ড
+        if held_info and held_info.get("status") == "held":
+            is_held = True
+            remaining_hours = 72
+            if held_info.get("release_at"):
+                try:
+                    rel_dt = datetime.fromisoformat(held_info["release_at"].replace("Z", "+00:00")).replace(tzinfo=None)
+                    rem_sec = (rel_dt - now).total_seconds()
+                    remaining_hours = max(0, int(rem_sec / 3600))
+                except:
+                    remaining_hours = 72
+        else:
+            # যদি স্ট্যাটাস released হয় বা কোনো রেকর্ড না থাকে
+            is_held = False
+            remaining_hours = 0
+
+        user_list.append({
+            "id": u["id"],
+            "name": u["name"],
+            "user_id": u["user_id"],
+            "created_at": u["created_at"],
+            "is_held": is_held,
+            "remaining_hours": remaining_hours
+        })
+
     return {
         "total_count": total_count,
-        "total_earnings": total_earnings,
+        "hold_balance": actual_hold_balance,
+        "main_earned": max(0.0, (total_count * 20.0) - actual_hold_balance),
+        "total_earnings": total_count * 20.0,
         "page": page,
         "limit": limit,
-        "users": users_res.data
+        "users": user_list
     }
-
+    
 @app.get("/api/tasks/google-search")
 def get_google_search_tasks():
     res = supabase.table("tasks").select("*").eq("task_type", "google_search").eq("status", "active").execute()
