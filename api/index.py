@@ -683,6 +683,76 @@ def test_all_imgbb_keys():
         "failed": failed_count
     }
 
+
+# ----------------- TYPING TASK APIs ----------------- #
+
+# ১. এডমিন কর্তৃক ছবি আপলোড করে টাইপিং টাস্ক তৈরি
+@app.post("/api/admin/tasks/typing")
+async def create_typing_task(
+    title: str = Form(...),
+    reward_amount: float = Form(...),
+    image: UploadFile = File(...)
+):
+    # ImgBB Key নিয়ে ছবি আপলোড
+    keys_res = supabase.table("imgbb_keys").select("api_key").eq("is_active", True).execute()
+    api_keys = [k["api_key"] for k in keys_res.data]
+
+    image_bytes = await image.read()
+    image_url = upload_to_imgbb(image_bytes, api_keys)
+
+    res = supabase.table("tasks").insert({
+        "task_type": "typing",
+        "title": title,
+        "image_url": image_url,
+        "keyword": "",
+        "reward_amount": reward_amount,
+        "status": "active"
+    }).execute()
+
+    return {"message": "টাইপিং টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
+
+# ২. টাইপিং টাস্ক লিস্ট ফেচ
+@app.get("/api/tasks/typing")
+def get_typing_tasks():
+    res = supabase.table("tasks").select("*").eq("task_type", "typing").eq("status", "active").execute()
+    return res.data
+
+# ৩. ইউজারের টাইপ করা টেক্সট সাবমিশন
+@app.post("/api/tasks/submit-typing")
+def submit_typing_task(
+    task_id: int = Form(...),
+    user_id: int = Form(...),
+    submitted_text: str = Form(...)
+):
+    # স্ট্যাটাস চেক
+    sub = supabase.table("task_submissions").select("*").eq("task_id", task_id).eq("user_id", user_id).order("id", desc=True).limit(1).execute()
+    if sub.data:
+        last_status = sub.data[0]["status"]
+        if last_status == "approved":
+            raise HTTPException(status_code=400, detail="আপনি ইতিমধ্যে এই কাজটি সম্পন্ন করে টাকা পেয়ে গেছেন!")
+        elif last_status == "pending":
+            raise HTTPException(status_code=400, detail="আপনার আগের টাইপিংটি পেন্ডিং আছে। এডমিন চেক করা পর্যন্ত অপেক্ষা করুন।")
+
+    supabase.table("task_submissions").insert({
+        "task_id": task_id,
+        "user_id": user_id,
+        "submitted_text": submitted_text,
+        "status": "pending"
+    }).execute()
+
+    return {"message": "আপনার টাইপিং সফলভাবে জমা হয়েছে! এডমিন চেক করে ব্যালেন্স যোগ করবে।"}
+
+# ৪. এডমিনের পেন্ডিং টাইপিং সাবমিশন লিস্ট
+@app.get("/api/admin/typing/pending")
+def get_pending_typing_submissions():
+    res = supabase.table("task_submissions")\
+        .select("id, task_id, user_id, submitted_text, status, created_at, tasks(title, reward_amount, image_url), users(name, user_id)")\
+        .eq("status", "pending")\
+        .not_.is_("submitted_text", "null")\
+        .order("created_at", desc=True)\
+        .execute()
+    return res.data
+    
 @app.post("/api/admin/imgbb-keys/toggle/{key_id}")
 def toggle_imgbb_key_status(key_id: int):
     k = supabase.table("imgbb_keys").select("is_active").eq("id", key_id).single().execute()
