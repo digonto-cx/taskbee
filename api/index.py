@@ -126,48 +126,6 @@ class NoticeSchema(BaseModel):
 class ImgbbKeySchema(BaseModel):
     api_key: str
 
-# ================= 4. AUTHENTICATION APIs ================= #
-
-@app.post("/api/auth/register")
-def register(data: RegisterSchema):
-    # ১. এক ডিভাইসে একাউন্ট চেক
-    device_check = supabase.table("users").select("id").eq("device_id", data.device_id).execute()
-    if device_check.data:
-        raise HTTPException(status_code=400, detail="এই ডিভাইস থেকে ইতিমধ্যে একটি একাউন্ট খোলা হয়েছে! একটি ডিভাইসে কেবল একটি একাউন্টই অনুমোদিত।")
-
-    # ২. ইমেইল ডুপ্লিকেট চেক
-    email_check = supabase.table("users").select("id").eq("email", data.email).execute()
-    if email_check.data:
-        raise HTTPException(status_code=400, detail="এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হয়েছে!")
-
-    # ৩. ৫ ডিজিট রেফার আইডি তৈরি
-    user_5digit_id = generate_unique_5digit_id()
-
-    # ৪. ইউজার ডাটা সেভ
-    user_payload = {
-        "user_id": user_5digit_id,
-        "name": data.name,
-        "email": data.email,
-        "password_hash": hash_password(data.password),
-        "device_id": data.device_id,
-        "referred_by": data.referred_by if data.referred_by else None,
-        "balance": 0.00,
-        "role": "user"
-    }
-    insert_res = supabase.table("users").insert(user_payload).execute()
-    new_user = insert_res.data[0]
-
-    # ৫. রেফারেল বোনাস ২০ টাকা বণ্টন (উভয়েই ২০ টাকা পাবে)
-    if data.referred_by:
-        ref_user = supabase.table("users").select("id, balance").eq("user_id", data.referred_by).execute()
-        if ref_user.data:
-            # রেফারারকে ২০ টাকা
-            supabase.table("users").update({"balance": float(ref_user.data[0]["balance"]) + 20.00}).eq("id", ref_user.data[0]["id"]).execute()
-            # নতুন ইউজারকেও ২০ টাকা
-            supabase.table("users").update({"balance": 20.00}).eq("id", new_user["id"]).execute()
-
-    token = create_access_token({"sub": str(new_user["id"]), "user_id": user_5digit_id, "role": "user"})
-    return {"message": "নিবন্ধন সফল হয়েছে!", "token": token, "user_id": user_5digit_id}
 
 @app.post("/api/auth/login")
 def login(data: LoginSchema):
@@ -766,6 +724,53 @@ def toggle_imgbb_key_status(key_id: int):
 def get_youtube_tasks():
     res = supabase.table("tasks").select("*").eq("task_type", "youtube").eq("status", "active").execute()
     return res.data
+
+# ================= CRON JOB: ৭২ ঘণ্টা পর অটো রিলিজ ================= #
+
+@app.get("/api/cron/release-referrals")
+def cron_release_referrals():
+    now_iso = datetime.utcnow().isoformat()
+
+    # যে রেফারেলগুলোর ৭২ ঘণ্টা পার হয়ে গেছে এবং এখনো held আছে
+    held_res = supabase.table("held_referrals")\
+        .select("id, user_id, amount")\
+        .eq("status", "held")\
+        .lte("release_at", now_iso)\
+        .execute()
+
+    records = held_res.data
+    if not records:
+        return {"message": "রিলিজ করার মতো কোনো রেফারেল পাওয়া যায়নি।", "released_count": 0}
+
+    released_count = 0
+
+    for rec in records:
+        u_id = rec["user_id"]
+        amt = float(rec["amount"])
+
+        # ইউজারের ব্যালেন্স আপডেট (hold থেকে কেটে মূল ব্যালেন্সে যোগ)
+        u_res = supabase.table("users").select("balance, hold_balance").eq("id", u_id).single().execute()
+        if u_res.data:
+            cur_bal = float(u_res.data.get("balance") or 0.0)
+            cur_hold = float(u_res.data.get("hold_balance") or 0.0)
+
+            new_bal = cur_bal + amt
+            new_hold = max(0.0, cur_hold - amt)
+
+            # ব্যালেন্স ট্রান্সফার
+            supabase.table("users").update({
+                "balance": new_bal,
+                "hold_balance": new_hold
+            }).eq("id", u_id).execute()
+
+            # স্ট্যাটাস রিলিজড করা
+            supabase.table("held_referrals").update({"status": "released"}).eq("id", rec["id"]).execute()
+            released_count += 1
+
+    return {
+        "message": f"সফলভাবে {released_count}টি রেফারেল বোনাস মূল ব্যালেন্সে যুক্ত হয়েছে!",
+        "released_count": released_count
+            }
     
 # হেল্থ চেক
 @app.get("/api")
