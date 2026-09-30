@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBee - সুপার এডমিন কন্ট্রোল প্যানেল</title>
+    <title>TaskBee - সুপার এডমিন কন্ট্রোল হাব</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
@@ -23,7 +23,6 @@
     <header class="bg-gray-950 text-white sticky top-0 z-40 border-b border-gray-800 shadow-md">
         <div class="max-w-6xl mx-auto px-4 py-2.5 flex justify-between items-center">
             
-            <!-- ব্র্যান্ডিং লোগো -->
             <div class="flex items-center gap-2.5">
                 <div class="w-10 h-10 flex items-center justify-center">
                     <img src="https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-xs">
@@ -34,7 +33,6 @@
                 </div>
             </div>
             
-            <!-- অ্যাকশন বাটনসমূহ -->
             <div class="flex items-center gap-2">
                 <a href="/dashboard" class="text-xs bg-gray-900 hover:bg-gray-800 text-gray-300 px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 border border-gray-800">
                     <i class="fa-solid fa-eye text-xs text-yellow-400"></i> সাইট দেখুন
@@ -86,7 +84,7 @@
 
         </div>
 
-        <!-- ৩. গ্লোবাল নোটিশ কন্ট্রোল উইজেট (Global Notice) -->
+        <!-- ৩. গ্লোবাল নোটিশ কন্ট্রোল (ড্যাশবোর্ড পপআপের জন্য) -->
         <div class="bg-white p-6 rounded-[28px] border border-yellow-200 shadow-xs space-y-3 bg-gradient-to-r from-yellow-50/50 via-white to-amber-50/30">
             <div class="flex justify-between items-center">
                 <h3 class="font-black text-gray-900 text-sm sm:text-base flex items-center gap-2">
@@ -101,7 +99,7 @@
                 <div class="flex items-center justify-between">
                     <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
                         <input type="checkbox" id="adminNoticeStatus" checked class="w-4 h-4 text-yellow-500 rounded focus:ring-0">
-                        নোটিশটি সক্রিয় রাখুন (Show in Popup)
+                        নোটিশটি সক্রিয় রাখুন (Active)
                     </label>
                     <button type="submit" id="saveNoticeBtn" class="px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-xl text-xs shadow-xs transition">
                         নোটিশ সেভ করুন
@@ -110,36 +108,45 @@
             </form>
         </div>
 
-        <!-- ৪. প্যানেল কুইক এক্সেস নেভিগেশন (Quick Navs) -->
+        <!-- ৪. সব প্যানেলের সম্পূর্ণ কুইক নেভিগেশন এক্সেস (Quick Navs) -->
         <div>
             <h4 class="text-xs font-black uppercase text-gray-400 tracking-wider mb-2.5 px-1">প্যানেল কুইক এক্সেস</h4>
             <div class="grid grid-cols-2 sm:grid-cols-6 gap-2.5">
                 
+                <!-- ১. টাস্ক রিভিউ (ট্যাব) -->
                 <button onclick="switchTab('tab-tasks-verify')" id="btn-tasks-verify" class="quick-nav-btn p-3.5 bg-yellow-400 text-gray-950 rounded-2xl font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
                     <i class="fa-solid fa-list-check"></i> টাস্ক রিভিউ
                 </button>
 
+                <!-- ২. উইথড্র রিকোয়েস্ট (ট্যাব) -->
                 <button onclick="switchTab('tab-withdrawals')" id="btn-withdrawals" class="quick-nav-btn p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
                     <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> উইথড্র রিকোয়েস্ট
                 </button>
 
+                <!-- ৩. গুগল টাস্ক তৈরি (ট্যাব) -->
                 <button onclick="switchTab('tab-create-task')" id="btn-create-task" class="quick-nav-btn p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-plus-circle text-blue-600"></i> গুগল টাস্ক তৈরি
+                    <i class="fa-solid fa-plus-circle text-blue-600"></i> গুগল টাস্ক
                 </button>
 
-                <!-- ইউটিউব টাস্ক তৈরি লিংক -->
-                <a href="/admin/yt" class="p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
+                <!-- ৪. টাইপিং টাস্ক কন্ট্রোল (ডেডিকেটেড রুট) -->
+                <a href="/admin/type" class="p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
+                    <i class="fa-solid fa-keyboard text-yellow-500"></i> টাইপিং টাস্ক
+                </a>
+
+                <!-- ৫. ইউটিউব টাস্ক তৈরি (ডেডিকেটেড রুট) -->
+                <a href="/admin/yt" class="p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
                     <i class="fa-brands fa-youtube text-red-600"></i> ইউটিউব টাস্ক
                 </a>
 
-                <!-- ইউজার লিস্ট ও ব্যালেন্স লিংক -->
-                <a href="/admin/users" class="p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
+                <!-- ৬. ইউজার ম্যানেজমেন্ট (ডেডিকেটেড রুট) -->
+                <a href="/admin/users" class="p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
                     <i class="fa-solid fa-users-gear text-blue-600"></i> ইউজার লিস্ট
                 </a>
 
-                <button onclick="switchTab('tab-imgbb')" id="btn-imgbb" class="quick-nav-btn p-3.5 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-key text-purple-600"></i> ImgBB Keys
-                </button>
+                <!-- ৭. ImgBB Keys (নতুন ডেডিকেটেড রুট) -->
+                <a href="/admin/imgbb" class="sm:col-span-6 p-3.5 bg-white border border-purple-200 text-purple-700 rounded-2xl font-bold text-xs hover:bg-purple-50 flex items-center justify-center gap-2 transition shadow-2xs">
+                    <i class="fa-solid fa-key text-purple-600"></i> ImgBB API Keys ম্যানেজার পেজে যান &rarr;
+                </a>
             </div>
         </div>
 
@@ -197,7 +204,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-600 mb-1">পুরস্কারের টাকা (৳)</label>
-                    <input type="number" id="taskReward" placeholder="যেমন: 2.50" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    <input type="number" id="taskReward" placeholder="যেমন: 2.50" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-bold">
                 </div>
                 <div class="sm:col-span-3">
                     <label class="block text-xs font-bold text-gray-600 mb-1">সার্চ করার কীওয়ার্ড (Keyword)</label>
@@ -209,27 +216,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-
-        <!-- ==================== সেকশন ৪: ImgBB Keys ==================== -->
-        <div id="tab-imgbb" class="tab-content hidden bg-white p-6 rounded-[28px] border border-gray-200 shadow-xs space-y-4">
-            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2 pb-2 border-b border-gray-100">
-                <i class="fa-solid fa-key text-purple-600"></i> ImgBB API Key রোটেশন
-            </h3>
-            
-            <form id="addKeyForm" class="flex gap-2">
-                <input type="text" id="newApiKey" placeholder="নতুন ImgBB API Key পেস্ট করুন..." required class="flex-1 text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-mono">
-                <button type="submit" class="px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-xs transition">
-                    + কী যুক্ত করুন
-                </button>
-            </form>
-
-            <div class="pt-2">
-                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">সক্রিয় কী-গুলোর তালিকা:</h4>
-                <div id="keysList" class="space-y-2">
-                    <p class="text-xs text-gray-400 py-4 text-center">কী লোড হচ্ছে...</p>
-                </div>
-            </div>
         </div>
 
     </main>
@@ -258,7 +244,7 @@
             window.location.replace("/login");
         }
 
-        // ১. এডমিন স্ট্যাটাস (Total Users, Pending Tasks, Withdrawals) লোড
+        // ১. এডমিন স্ট্যাটাস লোড
         async function loadAdminStats() {
             try {
                 const res = await fetch(`${API_URL}/admin/stats`);
@@ -286,7 +272,6 @@
 
             if (tabId === 'tab-tasks-verify') loadSubmissions();
             if (tabId === 'tab-withdrawals') loadWithdrawals();
-            if (tabId === 'tab-imgbb') loadImgbbKeys();
         }
 
         // ৩. গ্লোবাল নোটিশ হ্যান্ডলার
@@ -320,7 +305,7 @@
             btn.innerText = "নোটিশ সেভ করুন";
         });
 
-        // ৪. পেন্ডিং স্ক্রিনশট রিভিউ (সিঙ্গেল অ্যাপ্রুভ ফিক্সড)
+        // ৪. পেন্ডিং স্ক্রিনশট রিভিউ
         async function loadSubmissions() {
             const container = document.getElementById('submissionsList');
             container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>`;
@@ -377,7 +362,7 @@
 
         // বাল্ক অ্যাপ্রুভ ফাংশন (ম্যাক্স ৩০টি, র‍্যান্ডম ২ রিজেক্ট)
         async function bulkApproveTasks() {
-            if (!confirm("আপনি কি নিশ্চিত সর্বোচ্চ ৩০টি পেন্ডিং কাজ একসাথে প্রসেস করতে চান? (এর মধ্যে র‍্যান্ডম ২টি রিজেক্ট হবে এবং বাকিগুলো অনুমোদিত হয়ে স্বয়ংক্রিয়ভাবে ইউজারের ব্যালেন্স যোগ হবে)")) return;
+            if (!confirm("আপনি কি নিশ্চিত সর্বোচ্চ ৩০টি পেন্ডিং কাজ একসাথে প্রসেস করতে চান? (এর মধ্যে র‍্যান্ডম ২টি রিজেক্ট হবে এবং বাকিগুলো অনুমোদিত হয়ে স্বয়ংক্রিয়ভাবে ইউজারের ব্যালেন্সে টাকা যোগ হবে)")) return;
 
             const btn = document.getElementById('bulkBtn');
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...`;
@@ -470,47 +455,7 @@
             btn.innerText = "টাস্ক পাবলিশ করুন";
         });
 
-        // ৭. ImgBB Keys ম্যানেজ
-        async function loadImgbbKeys() {
-            const container = document.getElementById('keysList');
-            const res = await fetch(`${API_URL}/admin/imgbb-keys`);
-            const data = await res.json();
-            container.innerHTML = "";
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `<p class="text-xs text-red-500 py-2">কোনো ImgBB Key যুক্ত নেই!</p>`;
-                return;
-            }
-
-            data.forEach((k, idx) => {
-                container.innerHTML += `
-                    <div class="p-3 bg-gray-50 border rounded-xl flex justify-between items-center text-xs">
-                        <span class="font-mono text-gray-700">Key ${idx + 1}: ${k.api_key.substring(0, 8)}••••••••</span>
-                        <button onclick="deleteKey(${k.id})" class="text-red-600 hover:text-red-800 font-bold px-2 py-1"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-            });
-        }
-
-        document.getElementById('addKeyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await fetch(`${API_URL}/admin/imgbb-keys`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ api_key: document.getElementById('newApiKey').value })
-            });
-            alert("ImgBB কী সফলভাবে যুক্ত হয়েছে!");
-            document.getElementById('newApiKey').value = "";
-            loadImgbbKeys();
-        });
-
-        async function deleteKey(id) {
-            if (!confirm("কীটি মুছে ফেলতে চান?")) return;
-            await fetch(`${API_URL}/admin/imgbb-keys/${id}`, { method: 'DELETE' });
-            loadImgbbKeys();
-        }
-
-        // ৮. স্ক্রিনশট প্রিভিউ লাইটবক্স
+        // ৭. লাইটবক্স মডাল
         function openPreviewModal(url) {
             document.getElementById('previewImageSrc').src = url;
             document.getElementById('previewImageLink').href = url;
