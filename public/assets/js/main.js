@@ -1,4 +1,4 @@
-// public/assets/js/main.js - TaskBee Core Utility & Live Engine
+// public/assets/js/main.js - TaskBee Master Core & Live Engine
 
 const API_URL = "/api";
 
@@ -72,7 +72,7 @@ function checkAuth() {
     }
 }
 
-// ================= ৪. লাইভ ব্যালেন্স সিঙ্ক (Live Balance Sync Engine) ================= //
+// ================= ৪. লাইভ ব্যালেন্স ও হোল্ড ব্যালেন্স সিঙ্ক ================= //
 async function syncLiveBalance() {
     const user = getUser();
     if (!user || !user.id) return;
@@ -82,28 +82,35 @@ async function syncLiveBalance() {
         if (res.ok) {
             const freshUser = await res.json();
             
-            // ১. লোকাল স্টোরেজে নতুন ব্যালেন্স আপডেট
+            // ১. লোকাল স্টোরেজে নতুন মূল ব্যালেন্স ও হোল্ড ব্যালেন্স আপডেট
             user.balance = freshUser.balance;
+            user.hold_balance = freshUser.hold_balance || 0.00;
             localStorage.setItem("tb_user", JSON.stringify(user));
 
-            // ২. পেজের সব ব্যালেন্স এলিমেন্টগুলোতে সাথে সাথে নতুন টাকা দেখানো
+            // ২. পেজের মূল ব্যালেন্স এলিমেন্টগুলোতে সাথে সাথে নতুন টাকা দেখানো
             const balElements = ["userBalance", "accBalance", "currentBal"];
             balElements.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.innerText = parseFloat(freshUser.balance).toFixed(2);
+                    el.innerText = parseFloat(freshUser.balance || 0).toFixed(2);
                 }
             });
 
-            // ৩. টপবারের ব্যালেন্স ব্যাজ থাকলে আপডেট করা
-            const topbarBal = document.querySelector("header a[href='/withdraw'] span.text-green-700");
-            if (topbarBal) {
-                topbarBal.innerText = `৳ ${parseFloat(freshUser.balance).toFixed(2)}`;
+            // ৩. রেফারেল পেজের হোল্ড ব্যালেন্স আপডেট
+            const holdEl = document.getElementById("holdRefEarn");
+            if (holdEl) {
+                holdEl.innerText = parseFloat(freshUser.hold_balance || 0).toFixed(2);
             }
 
-            // ৪. ইউজার ব্যান হয়ে গেলে সাথে সাথে লগআউট করা
+            // ৪. টপবারের ব্যালেন্স ব্যাজ থাকলে আপডেট করা
+            const topbarBal = document.querySelector("header a[href='/withdraw'] span.text-green-700");
+            if (topbarBal) {
+                topbarBal.innerText = `৳ ${parseFloat(freshUser.balance || 0).toFixed(2)}`;
+            }
+
+            // ৫. ইউজার ব্যান হয়ে গেলে সাথে সাথে লগআউট করা
             if (freshUser.is_banned) {
-                alert("আপনার একাউন্টটি ব্যান করা হয়েছে!");
+                alert("আপনার একাউন্টটি এডমিন কর্তৃক ব্যান করা হয়েছে!");
                 logout();
             }
         }
@@ -112,5 +119,5 @@ async function syncLiveBalance() {
     }
 }
 
-// পেজ লোড হওয়ার সাথে সাথে স্বয়ংক্রিয়ভাবে ডাটাবেসের সাথে ব্যালেন্স সিঙ্ক হবে
+// পেজ লোড হওয়ার সাথে সাথে স্বয়ংক্রিয়ভাবে ডাটাবেসের সাথে ব্যালেন্স ও হোল্ড ব্যালেন্স সিঙ্ক হবে
 document.addEventListener("DOMContentLoaded", syncLiveBalance);
