@@ -528,97 +528,7 @@ def add_imgbb_key(data: ImgbbKeySchema):
 def delete_imgbb_key(key_id: int):
     supabase.table("imgbb_keys").delete().eq("id", key_id).execute()
     return {"message": "কী মুছে ফেলা হয়েছে!"}
-    
-
-# ================= ৩. সম্পূর্ণ সাইনআপ / রেজিস্ট্রেশন রাউট ================= #
-@app.post("/api/auth/register")
-def register(data: RegisterSchema):
-    # ১. এক ডিভাইসে একাউন্ট লক চেক
-    device_check = supabase.table("users").select("id").eq("device_id", data.device_id).execute()
-    if device_check.data:
-        raise HTTPException(
-            status_code=400, 
-            detail="এই ডিভাইস থেকে ইতিমধ্যে একটি একাউন্ট খোলা হয়েছে! একটি ডিভাইসে কেবল একটি একাউন্টই অনুমোদিত।"
-        )
-
-    # ২. ইমেইল ডুপ্লিকেট চেক
-    email_check = supabase.table("users").select("id").eq("email", data.email).execute()
-    if email_check.data:
-        raise HTTPException(status_code=400, detail="এই ইমেইলটি দিয়ে ইতিমধ্যে একাউন্ট তৈরি করা হয়েছে!")
-
-    # ৩. ৫ ডিজিটের ইউনিক রেফার আইডি তৈরি
-    user_5digit_id = generate_unique_5digit_id()
-
-    # ৪. পাসওয়ার্ড সিকিউর হ্যাশ করা
-    password_hashed = hash_password(data.password)
-
-    # ৫. নতুন ইউজার ডাটাবেসে সেভ
-    user_payload = {
-        "user_id": user_5digit_id,
-        "name": data.name,
-        "email": data.email,
-        "password_hash": password_hashed,
-        "device_id": data.device_id,
-        "referred_by": data.referred_by if data.referred_by else None,
-        "balance": 0.00,        # মূল ব্যালেন্স ০ টাকা থাকবে
-        "hold_balance": 0.00,   # রেফারেল বোনাসের জন্য হোল্ড ব্যালেন্স
-        "role": "user"
-    }
-    insert_res = supabase.table("users").insert(user_payload).execute()
-    new_user = insert_res.data[0]
-
-    # ৬. রেফারেল বোনাস ২০ টাকা হোল্ডে রাখার লজিক (৭২ ঘণ্টার জন্য)
-    if data.referred_by:
-        # যিনি রেফার করেছেন তাকে খুঁজে বের করা
-        ref_user = supabase.table("users").select("id, hold_balance").eq("user_id", data.referred_by).execute()
         
-        if ref_user.data:
-            referrer_id = ref_user.data[0]["id"]
-            current_ref_hold = float(ref_user.data[0].get("hold_balance") or 0.0)
-
-            # রেফারারের অ্যাকাউন্টে ২০ টাকা হোল্ড ব্যালেন্সে জমা করা
-            supabase.table("users").update({"hold_balance": current_ref_hold + 20.00}).eq("id", referrer_id).execute()
-
-            # নতুন ইউজারের অ্যাকাউন্টেও ২০ টাকা হোল্ড ব্যালেন্সে জমা করা
-            supabase.table("users").update({"hold_balance": 20.00}).eq("id", new_user["id"]).execute()
-
-            # ৭২ ঘণ্টা (৩ দিন) পর রিলিজ হওয়ার টাইমস্ট্যাম্প
-            now_dt = datetime.utcnow()
-            release_dt = (now_dt + timedelta(days=3)).isoformat()
-
-            # held_referrals টেবিলে দুজনের জন্য রেকর্ড সংরক্ষণ
-            supabase.table("held_referrals").insert([
-                {
-                    "user_id": referrer_id,
-                    "friend_user_id": new_user["id"],
-                    "amount": 20.00,
-                    "status": "held",
-                    "created_at": now_dt.isoformat(),
-                    "release_at": release_dt
-                },
-                {
-                    "user_id": new_user["id"],
-                    "friend_user_id": referrer_id,
-                    "amount": 20.00,
-                    "status": "held",
-                    "created_at": now_dt.isoformat(),
-                    "release_at": release_dt
-                }
-            ]).execute()
-
-    # ৭. লগইন টোকেন তৈরি করা
-    token = create_access_token({
-        "sub": str(new_user["id"]), 
-        "user_id": user_5digit_id, 
-        "role": "user"
-    })
-
-    return {
-        "message": "নিবন্ধন সফল হয়েছে!", 
-        "token": token, 
-        "user_id": user_5digit_id
-    }
-    
 
 # ----------------- ADMIN USER MANAGEMENT APIs ----------------- #
 
@@ -788,6 +698,81 @@ def submit_typing_task(
 
     return {"message": "আপনার টাইপিং সফলভাবে জমা হয়েছে! এডমিন চেক করে ব্যালেন্স যোগ করবে।"}
 
+
+                                                                 # ================= বুলেটপ্রুফ রেজিস্ট্রেশন ও হোল্ড ব্যালেন্স রাউট ================= #
+
+@app.post("/api/auth/register")
+def register(data: RegisterSchema):
+    # ১. এক ডিভাইসে ১ একাউন্ট চেক
+    device_check = supabase.table("users").select("id").eq("device_id", data.device_id.strip()).execute()
+    if device_check.data:
+        raise HTTPException(status_code=400, detail="এই ডিভাইস থেকে ইতিমধ্যে একটি একাউন্ট খোলা হয়েছে! একটি ডিভাইসে কেবল একটি একাউন্টই অনুমোদিত।")
+
+    # ২. ইমেইল ডুপ্লিকেট চেক
+    email_check = supabase.table("users").select("id").eq("email", data.email.strip()).execute()
+    if email_check.data:
+        raise HTTPException(status_code=400, detail="এই ইমেইলটি ইতিমধ্যে ব্যবহৃত হয়েছে!")
+
+    # ৩. ৫ ডিজিট ইউনিক রেফার আইডি তৈরি
+    user_5digit_id = generate_unique_5digit_id()
+
+    # ৪. রেফারার ভ্যালিডেশন (স্পেস রিমুভ করে চেক)
+    clean_ref = data.referred_by.strip() if data.referred_by else None
+    referrer_user = None
+
+    if clean_ref:
+        ref_check = supabase.table("users").select("id, user_id, hold_balance").eq("user_id", clean_ref).execute()
+        if ref_check.data:
+            referrer_user = ref_check.data[0]
+
+    # নতুন ইউজার যদি সঠিক রেফার কোড দেয়, তবে শুরুতেই ২০ টাকা হোল্ডে ঢুকবে
+    new_user_hold_bal = 20.00 if referrer_user else 0.00
+
+    # ৫. নতুন ইউজার ডাটাবেসে একবারে সেভ (সরাসরি ২০ টাকা হোল্ড সহ)
+    user_payload = {
+        "user_id": user_5digit_id,
+        "name": data.name.strip(),
+        "email": data.email.strip(),
+        "password_hash": hash_password(data.password),
+        "device_id": data.device_id.strip(),
+        "referred_by": referrer_user["user_id"] if referrer_user else None,
+        "balance": 0.00,
+        "hold_balance": new_user_hold_bal,  # <-- এক ক্লিকেই ২০ টাকা হোল্ডে ঢুকবে
+        "role": "user"
+    }
+    insert_res = supabase.table("users").insert(user_payload).execute()
+    new_user = insert_res.data[0]
+
+    # ৬. যিনি রেফার করেছিলেন তার একাউন্টেও ২০ টাকা হোল্ড ব্যালেন্স বাড়ানো
+    if referrer_user:
+        ref_id = referrer_user["id"]
+        cur_ref_hold = float(referrer_user.get("hold_balance") or 0.0)
+        new_ref_hold = cur_ref_hold + 20.00
+
+        # রেফারারের hold_balance আপডেট
+        supabase.table("users").update({"hold_balance": new_ref_hold}).eq("id", ref_id).execute()
+
+        # ৭২ ঘণ্টার ক্রন-জব রিলিজের জন্য রেকর্ড সংরক্ষণ
+        try:
+            now_dt = datetime.utcnow()
+            release_dt = (now_dt + timedelta(days=3)).isoformat()
+            supabase.table("held_referrals").insert([
+                {"user_id": ref_id, "friend_user_id": new_user["id"], "amount": 20.00, "status": "held", "release_at": release_dt},
+                {"user_id": new_user["id"], "friend_user_id": ref_id, "amount": 20.00, "status": "held", "release_at": release_dt}
+            ]).execute()
+        except Exception as e:
+            print("Held table log error (ignored):", e)
+
+    # ৭. লগইন টোকেন প্রদান
+    token = create_access_token({"sub": str(new_user["id"]), "user_id": user_5digit_id, "role": "user"})
+
+    return {
+        "message": "নিবন্ধন সফল হয়েছে!",
+        "token": token,
+        "user_id": user_5digit_id,
+        "hold_balance": new_user_hold_bal
+    }
+    
 # ৪. এডমিনের পেন্ডিং টাইপিং সাবমিশন লিস্ট
 @app.get("/api/admin/typing/pending")
 def get_pending_typing_submissions():
