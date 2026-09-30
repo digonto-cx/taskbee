@@ -28,6 +28,10 @@
       "dest": "/public/sw.js"
     },
     {
+      "src": "/admin/type",
+      "dest": "/public/admin/type.html"
+    },
+    {
       "src": "/admin/users",
       "dest": "/public/admin/users.html"
     },
@@ -42,6 +46,14 @@
     {
       "src": "/admin/(.*)",
       "dest": "/public/admin/$1"
+    },
+    {
+      "src": "/tasks/type-details",
+      "dest": "/public/tasks/type-details.html"
+    },
+    {
+      "src": "/tasks/type",
+      "dest": "/public/tasks/type.html"
     },
     {
       "src": "/tasks/yt-details",
