@@ -760,7 +760,24 @@ def submit_typing_task(
     return {"message": "আপনার টাইপিং সফলভাবে জমা হয়েছে! এডমিন চেক করে ব্যালেন্স যোগ করবে।"}
 
 
-                                                                 # ================= বুলেটপ্রুফ রেজিস্ট্রেশন ও হোল্ড ব্যালেন্স রাউট ================= #
+
+# ----------------- TOTAL TASKS & REWARD SUMMARY API ----------------- #
+
+@app.get("/api/tasks/summary")
+def get_tasks_summary():
+    # সব সক্রিয় টাস্কের রিওয়ার্ড ও মোট সংখ্যা হিসাব
+    res = supabase.table("tasks").select("reward_amount").eq("status", "active").execute()
+    tasks = res.data or []
+    
+    total_count = len(tasks)
+    total_reward = sum(float(t.get("reward_amount") or 0.0) for t in tasks)
+
+    return {
+        "total_tasks": total_count,
+        "total_reward": total_reward
+    }
+
+# ================= বুলেটপ্রুফ রেজিস্ট্রেশন ও হোল্ড ব্যালেন্স রাউট ================= #
 
 @app.post("/api/auth/register")
 def register(data: RegisterSchema):
