@@ -496,20 +496,22 @@ def take_task_action(data: ActionSubmissionSchema):
         return {"message": "টাস্ক রিজেক্ট করা হয়েছে।"}
 
 # ================= USER AUDIT & FRAUD DETECTION API (/admin/ck) ================= #
+# ================= সম্পূর্ণ গাণিতিক অডিট ও হ্যাক ডিটেকশন API ================= #
 
 @app.get("/api/admin/user-audit")
 def audit_user_account(query: str):
-    q = query.strip()
+    q = str(query).strip()
 
     # ১. ইউজারকে Email বা 5-digit user_id দিয়ে খোঁজা
     u_res = supabase.table("users").select("*").or_(f"email.eq.{q},user_id.eq.{q}").execute()
     if not u_res.data:
-        raise HTTPException(status_code=404, detail="ব্যবহারকারী খুঁজে পাওয়া যায়নি! সঠিক Email বা 5-Digit ID দিন।")
+        raise HTTPException(status_code=404, detail="ব্যবহারকারী পাওয়া যায়নি! সঠিক Email বা 5-Digit UID দিন।")
 
     user = u_res.data[0]
     user_id = user["id"]
+    user_uid = user["user_id"]
 
-    # ২. সব ধরনের টাস্ক সাবমিশন ডাটা
+    # ২. সব ধরনের টাস্ক সাবমিশন
     subs_res = supabase.table("task_submissions")\
         .select("id, task_id, status, screenshot_url, submitted_text, admin_note, created_at, tasks(title, task_type, reward_amount)")\
         .eq("user_id", user_id)\
@@ -525,58 +527,98 @@ def audit_user_account(query: str):
         .execute()
     withdrawals = withs_res.data or []
 
-    # ৪. রেফারেল ডাটা ও হোল্ড হিসেব
+    # ৪. রেফার করা বন্ধুদের তালিকা (তাদের ব্যালেন্স সহ আনা হচ্ছে)
     refs_res = supabase.table("users")\
-        .select("id, user_id, name, email, created_at")\
-        .eq("referred_by", user["user_id"])\
+        .select("id, user_id, name, email, balance, hold_balance, created_at")\
+        .eq("referred_by", user_uid)\
         .order("created_at", desc=True)\
         .execute()
     referred_users = refs_res.data or []
 
+    # ৫. হোল্ড ডাটা আনা
     held_res = supabase.table("held_referrals").select("*").eq("user_id", user_id).execute()
     held_records = held_res.data or []
+    held_map = {r["friend_user_id"]: r for r in held_records}
 
-    # ================= ৫. গাণিতিক অডিট ও হ্যাক ডিটেকশন ফর্মুলা ================= #
-    
-    # অনুমোদিত টাস্ক থেকে মোট আয়
+    # ================= ৬. নিখুঁত গাণিতিক ফর্মুলা ক্যালকুলেশন ================= #
+
+    # (ক) এপ্রুভ হওয়া টাস্ক থেকে মোট আয় (+)
     approved_task_earnings = sum(
         float(s["tasks"].get("reward_amount") or 0.0) 
         for s in submissions 
         if s.get("status") == "approved" and s.get("tasks")
     )
 
-    # রেফারেল থেকে মূল ব্যালেন্সে যুক্ত বোনাস (রিলিজ হওয়া টাকা)
-    released_ref_earnings = sum(
-        float(r.get("amount") or 0.0) 
-        for r in held_records 
-        if r.get("status") == "released"
-    )
+    # (খ) সফল রেফারেল বোনাস (Unhold / Released) (+)
+    # রেফার করা বন্ধুদের মধ্য থেকে যাদের ৭২ ঘণ্টা শেষ হয়ে রিলিজ হয়েছে
+    released_ref_earnings = 0.0
+    for friend in referred_users:
+        f_id = friend["id"]
+        h_info = held_map.get(f_id)
+        if h_info:
+            if h_info.get("status") == "released":
+                released_ref_earnings += float(h_info.get("amount") or 20.0)
+        else:
+            # পুরনো ইউজার হলে
+            released_ref_earnings += 20.0
 
-    # যদি পুরনো ইউজার হয় যার held টেবিলে রেকর্ড নেই, তবে সাধারণ ক্যালকুলেশন
-    if not held_records and referred_users:
-        released_ref_earnings = max(0.0, (len(referred_users) * 20.0) - float(user.get("hold_balance") or 0.0))
+    # (গ) ইউজারের নিজের জয়েনিং বোনাস (Unhold / Released) (+)
+    # ইউজার যদি কারো রেফারে জয়েন করে থাকে এবং ৭২ ঘণ্টা পার হয়ে থাকে
+    released_joining_bonus = 0.0
+    if user.get("referred_by"):
+        # জয়েনিং বোনাস রিলিজ রেকর্ড চেক
+        join_held = supabase.table("held_referrals")\
+            .select("status, amount")\
+            .eq("user_id", user_id)\
+            .eq("status", "released")\
+            .execute()
+        
+        if join_held.data:
+            released_joining_bonus = 20.00
+        else:
+            # যদি একাউন্টের বয়স ৩ দিন পার হয়ে যায় তবে ২০ টাকা যোগ
+            now = datetime.utcnow()
+            join_dt = datetime.fromisoformat(user["created_at"].replace("Z", "+00:00")).replace(tzinfo=None)
+            if (now - join_dt).total_seconds() >= 259200: # ৭২ ঘণ্টা = ২৫৯২০০ সেকেন্ড
+                released_joining_bonus = 20.00
 
-    # মোট অনুমোদিত ও পেন্ডিং উইথড্রয়াল
+    # (ঘ) উইথড্রয়াল মাইনাস (-)
     approved_withdrawals = sum(float(w.get("amount") or 0.0) for w in withdrawals if w.get("status") == "approved")
     pending_withdrawals = sum(float(w.get("amount") or 0.0) for w in withdrawals if w.get("status") == "pending")
 
-    # হিসাব অনুযায়ী ইউজারের বর্তমান ব্যালেন্স যা হওয়া উচিত
-    # Expected Balance = (Task আয় + রিলিজ রেফারেল) - (পেইড উইথড্র + পেন্ডিং উইথড্র)
-    expected_balance = (approved_task_earnings + released_ref_earnings) - (approved_withdrawals + pending_withdrawals)
+    # (ঙ) ফাইনাল গাণিতিক ফর্মুলা:
+    # যা টাকা ব্যালেন্সে থাকা উচিত = (টাস্ক আয় + আনহোল্ড রেফার আয় + আনহোল্ড জয়েনিং বোনাস) - (পেইড উইথড্র + পেন্ডিং উইথড্র)
+    expected_balance = (approved_task_earnings + released_ref_earnings + released_joining_bonus) - (approved_withdrawals + pending_withdrawals)
     if expected_balance < 0:
         expected_balance = 0.0
 
     actual_balance = float(user.get("balance") or 0.0)
     discrepancy = actual_balance - expected_balance
 
-    # হ্যাক / গরমিল স্ট্যাটাস
-    is_compromised = discrepancy > 5.00  # ৫ টাকার বেশি অমিল থাকলে রেড ফ্ল্যাগ
+    # হ্যাক / গরমিল বিবেচনা (২ টাকার বেশি ব্যালেন্স অমিল হলে হ্যাক অ্যালার্ট)
+    is_compromised = discrepancy > 2.00
+
+    # রেফারেল লিস্টের বন্ধুদের সাথে তাদের বোনাস স্ট্যাটাস যুক্ত করা
+    ref_list_with_details = []
+    for f in referred_users:
+        h_info = held_map.get(f["id"])
+        is_held = (h_info.get("status") == "held") if h_info else False
+        ref_list_with_details.append({
+            "id": f["id"],
+            "name": f["name"],
+            "user_id": f["user_id"],
+            "email": f["email"],
+            "balance": float(f.get("balance") or 0.0),
+            "hold_balance": float(f.get("hold_balance") or 0.0),
+            "created_at": f["created_at"],
+            "bonus_status": "held" if is_held else "released"
+        })
 
     return {
         "user": user,
         "submissions": submissions,
         "withdrawals": withdrawals,
-        "referred_users": referred_users,
+        "referred_users": ref_list_with_details,
         "audit": {
             "actual_balance": actual_balance,
             "expected_balance": expected_balance,
@@ -584,6 +626,7 @@ def audit_user_account(query: str):
             "is_compromised": is_compromised,
             "task_earnings": approved_task_earnings,
             "released_ref_earnings": released_ref_earnings,
+            "released_joining_bonus": released_joining_bonus,
             "approved_withdrawals": approved_withdrawals,
             "pending_withdrawals": pending_withdrawals,
             "hold_balance": float(user.get("hold_balance") or 0.0)
