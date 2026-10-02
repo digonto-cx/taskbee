@@ -905,7 +905,43 @@ def cron_release_referrals():
         "message": f"সফলভাবে {released_count}টি রেফারেল বোনাস মূল ব্যালেন্সে যুক্ত হয়েছে!",
         "released_count": released_count
             }
-    
+
+
+
+# ----------------- JOB POST TASK APIs ----------------- #
+
+@app.post("/api/admin/tasks/job")
+async def create_job_post_task(
+    title: str = Form(...),
+    description: str = Form(...),
+    caption: str = Form(...),
+    reward_amount: float = Form(...),
+    image: UploadFile = File(...)
+):
+    # ImgBB Key নিয়ে পোস্টের ছবি আপলোড
+    keys_res = supabase.table("imgbb_keys").select("api_key").eq("is_active", True).execute()
+    api_keys = [k["api_key"] for k in keys_res.data]
+
+    image_bytes = await image.read()
+    image_url = upload_to_imgbb(image_bytes, api_keys)
+
+    res = supabase.table("tasks").insert({
+        "task_type": "job_post",
+        "title": title,
+        "description": description,
+        "caption": caption,
+        "image_url": image_url,
+        "keyword": "",
+        "reward_amount": reward_amount,
+        "status": "active"
+    }).execute()
+
+    return {"message": "জব পোস্ট টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
+
+@app.get("/api/tasks/job")
+def get_job_post_tasks():
+    res = supabase.table("tasks").select("*").eq("task_type", "job_post").eq("status", "active").execute()
+    return res.data
 # হেল্থ চেক
 @app.get("/api")
 def health_check():
