@@ -928,12 +928,29 @@ async def create_typing_task(
 
     return {"message": "টাইপিং টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
 
-# ২. টাইপিং টাস্ক লিস্ট ফেচ
-@app.get("/api/tasks/typing")
-def get_typing_tasks():
-    res = supabase.table("tasks").select("*").eq("task_type", "typing").eq("status", "active").execute()
-    return res.data
+# ================= টাইপিং টাস্কে কমপ্লিট টাস্ক ফিল্টার ================= #
 
+@app.get("/api/tasks/typing")
+def get_typing_tasks(user_id: Optional[int] = None):
+    # ১. সকল সক্রিয় টাইপিং কাজ আনা
+    res = supabase.table("tasks").select("*").eq("task_type", "typing").eq("status", "active").execute()
+    tasks = res.data or []
+
+    # ২. ইউজারের কমপ্লিট (approved) ও পেন্ডিং কাজগুলো বাদ দেওয়া
+    if user_id:
+        subs_res = supabase.table("task_submissions")\
+            .select("task_id, status")\
+            .eq("user_id", user_id)\
+            .in_("status", ["approved", "pending"])\
+            .execute()
+
+        completed_task_ids = {s["task_id"] for s in (subs_res.data or [])}
+
+        # শুধুমাত্র অবশিষ্ট এবং রিজেক্ট হওয়া কাজগুলো রাখা হবে
+        tasks = [t for t in tasks if t["id"] not in completed_task_ids]
+
+    return tasks
+    
 # ৩. ইউজারের টাইপ করা টেক্সট সাবমিশন
 @app.post("/api/tasks/submit-typing")
 def submit_typing_task(
@@ -1071,11 +1088,6 @@ def toggle_imgbb_key_status(key_id: int):
     supabase.table("imgbb_keys").update({"is_active": new_status}).eq("id", key_id).execute()
     return {"message": "স্ট্যাটাস পরিবর্তিত হয়েছে!", "is_active": new_status}
     
-@app.get("/api/tasks/youtube")
-def get_youtube_tasks():
-    res = supabase.table("tasks").select("*").eq("task_type", "youtube").eq("status", "active").execute()
-    return res.data
-
 # ================= CRON JOB: ৭২ ঘণ্টা পর অটো রিলিজ ================= #
 
 @app.get("/api/cron/release-referrals")
