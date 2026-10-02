@@ -28,12 +28,16 @@
       "dest": "/public/sw.js"
     },
     {
-      "src": "/admin/imgbb",
-      "dest": "/public/admin/imgbb.html"
+      "src": "/admin/job",
+      "dest": "/public/admin/job.html"
     },
     {
       "src": "/admin/type",
       "dest": "/public/admin/type.html"
+    },
+    {
+      "src": "/admin/imgbb",
+      "dest": "/public/admin/imgbb.html"
     },
     {
       "src": "/admin/users",
@@ -50,6 +54,14 @@
     {
       "src": "/admin/(.*)",
       "dest": "/public/admin/$1"
+    },
+    {
+      "src": "/tasks/job-details",
+      "dest": "/public/tasks/job-details.html"
+    },
+    {
+      "src": "/tasks/job",
+      "dest": "/public/tasks/job.html"
     },
     {
       "src": "/tasks/type-details",
