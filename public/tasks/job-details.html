@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>জব পোস্ট বিবরণ ও প্রুফ - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 pb-24 sm:pb-12">
+    <script>checkAuth();</script>
+
+    <main class="max-w-2xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <a href="/tasks/job" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-left"></i> সকল ফেসবুক জবে ফিরুন
+        </a>
+
+        <!-- ১. টাস্ক হেডার ও রিওয়ার্ড -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm flex justify-between items-start gap-4">
+            <div>
+                <span class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-md inline-flex items-center gap-1 mb-1">
+                    <i class="fa-brands fa-facebook"></i> Facebook Group Post Job
+                </span>
+                <h2 id="jobTitle" class="text-xl sm:text-2xl font-black text-gray-900">লোড হচ্ছে...</h2>
+                <p id="jobDesc" class="text-xs text-gray-500 mt-1">লোড হচ্ছে...</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <span class="text-[10px] text-gray-400 uppercase font-bold block">পুরস্কার</span>
+                <span class="text-2xl font-black text-green-600">৳ <span id="jobReward">0.00</span></span>
+            </div>
+        </div>
+
+        <div id="statusAlert" class="hidden p-4 rounded-3xl text-xs font-bold shadow-xs"></div>
+
+        <!-- ২. ৪টি ইন্টারঅ্যাক্টিভ স্টেপ গাইড -->
+        <div id="jobStepsContainer" class="space-y-4">
+            
+            <!-- স্টেপ ১: ক্যাপশন কপি বক্স -->
+            <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-800 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">১</span>
+                        পোস্টের ক্যাপশনটি কপি করুন:
+                    </span>
+                    <button onclick="copyCaption()" id="copyCapBtn" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center gap-1 shadow-xs transition">
+                        <i class="fa-regular fa-copy"></i> ক্যাপশন কপি
+                    </button>
+                </div>
+                <div class="p-3.5 bg-gray-50 border rounded-2xl font-sans text-xs text-gray-800 leading-relaxed whitespace-pre-wrap select-all" id="jobCaptionText">
+                    লোড হচ্ছে...
+                </div>
+            </div>
+
+            <!-- স্টেপ ২: ছবি ডাউনলোড বক্স -->
+            <div class="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gray-800 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">২</span>
+                        পোস্ট করার ছবিটি ডাউনলোড করুন:
+                    </span>
+                    <a id="downloadImgBtn" href="#" target="_blank" download="task_post.jpg" class="px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-bold rounded-xl text-xs flex items-center gap-1 shadow-xs transition">
+                        <i class="fa-solid fa-download"></i> ছবি ডাউনলোড
+                    </a>
+                </div>
+                <div class="border rounded-2xl p-2 bg-gray-50 flex items-center justify-center">
+                    <img id="jobPostImg" src="#" alt="Post Image" class="max-h-60 object-contain rounded-xl">
+                </div>
+            </div>
+
+            <!-- স্টেপ ৩ ও ৪: ফেসবুক পোস্ট ও স্ক্রিনশট আপলোড -->
+            <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xs font-black">৩</span>
+                    <h4 class="font-bold text-xs text-gray-800">ফেসবুকে পোস্ট করার পর সেই পোস্টের স্ক্রিনশট জমা দিন</h4>
+                </div>
+
+                <form id="jobProofForm" class="space-y-4">
+                    <div class="border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-2xl p-6 text-center cursor-pointer transition bg-gray-50/50" onclick="document.getElementById('proofFileInput').click()">
+                        <input type="file" id="proofFileInput" accept="image/*" required class="hidden" onchange="previewProof(event)">
+                        
+                        <div id="uploadPlaceholder" class="space-y-2">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-xl">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <p class="text-xs font-bold text-gray-700">ফেসবুক পোস্টের স্ক্রিনশট এখানে আপলোড করুন</p>
+                        </div>
+
+                        <div id="imagePreviewContainer" class="hidden space-y-2">
+                            <img id="imagePreview" src="#" alt="Preview" class="max-h-60 mx-auto rounded-xl shadow-xs border border-gray-200 object-contain">
+                            <p class="text-[11px] text-blue-600 font-bold">ছবি পরিবর্তন করতে আবার ক্লিক করুন</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitProofBtn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-paper-plane"></i> প্রুফ জমা দিন (Submit Proof)
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const user = getUser();
+        const taskId = new URLSearchParams(window.location.search).get('id');
+
+        if (!taskId) {
+            alert("জব টাস্ক পাওয়া যায়নি!");
+            window.location.href = "/tasks/job";
+        }
+
+        let taskData = null;
+
+        async function initJobDetails() {
+            try {
+                const res = await fetch(`${API_URL}/tasks/single/${taskId}`);
+                taskData = await res.json();
+
+                document.getElementById('jobTitle').innerText = taskData.title;
+                document.getElementById('jobReward').innerText = parseFloat(taskData.reward_amount).toFixed(2);
+                document.getElementById('jobDesc').innerText = taskData.description;
+                document.getElementById('jobCaptionText').innerText = taskData.caption;
+                document.getElementById('jobPostImg').src = taskData.image_url;
+                document.getElementById('downloadImgBtn').href = taskData.image_url;
+
+                // সাবমিশন স্ট্যাটাস চেক
+                const statusRes = await fetch(`${API_URL}/tasks/submission-status?task_id=${taskId}&user_id=${user.id}`);
+                const statusData = await statusRes.json();
+
+                if (statusData) {
+                    const alertBox = document.getElementById('statusAlert');
+                    const container = document.getElementById('jobStepsContainer');
+
+                    if (statusData.status === 'approved') {
+                        alertBox.className = "p-5 bg-green-50 border border-green-200 text-green-800 rounded-3xl text-xs";
+                        alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-sm mr-1"></i> কাজটি সফলভাবে অনুমোদিত হয়েছে এবং ব্যালেন্স যোগ হয়েছে।`;
+                        alertBox.classList.remove('hidden');
+                        container.classList.add('hidden');
+                    } else if (statusData.status === 'pending') {
+                        alertBox.className = "p-5 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-3xl text-xs";
+                        alertBox.innerHTML = `<i class="fa-solid fa-hourglass-half text-sm mr-1"></i> আপনার পোস্টের স্ক্রিনশটটি এডমিন রিভিউ করছে। অনুগ্রহ করে অপেক্ষা করুন।`;
+                        alertBox.classList.remove('hidden');
+                        container.classList.add('hidden');
+                    } else if (statusData.status === 'rejected') {
+                        alertBox.className = "p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl text-xs";
+                        alertBox.innerHTML = `<i class="fa-solid fa-xmark text-sm mr-1"></i> পূর্ববর্তী পোস্ট স্ক্রিনশট রিজেক্ট হয়েছে! <b>কারণ: ${statusData.admin_note || 'ভুল স্ক্রিনশট'}</b>। নিচে আবার সঠিক নিয়মে পোস্ট করে প্রুফ দিন।`;
+                        alertBox.classList.remove('hidden');
+                    }
+                }
+            } catch (err) {
+                alert("লোড করা যায়নি!");
+            }
+        }
+
+        function copyCaption() {
+            if (taskData && taskData.caption) {
+                navigator.clipboard.writeText(taskData.caption);
+                const btn = document.getElementById('copyCapBtn');
+                btn.innerHTML = `<i class="fa-solid fa-check"></i> কপি সম্পন্ন!`;
+                setTimeout(() => { btn.innerHTML = `<i class="fa-regular fa-copy"></i> ক্যাপশন কপি`; }, 2000);
+            }
+        }
+
+        function previewProof(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.getElementById('jobProofForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitProofBtn');
+            const file = document.getElementById('proofFileInput').files[0];
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> প্রুফ আপলোড হচ্ছে...`;
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('task_id', taskId);
+            formData.append('user_id', user.id);
+            formData.append('screenshot', file);
+
+            try {
+                const res = await fetch(`${API_URL}/tasks/submit-google-search`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(data.message);
+                window.location.reload();
+            } catch (err) {
+                alert(err.message);
+                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> প্রুফ জমা দিন (Submit Proof)`;
+                btn.disabled = false;
+            }
+        });
+
+        initJobDetails();
+    </script>
+</body>
+</html>
