@@ -177,7 +177,7 @@ def change_password(data: ChangePasswordSchema):
 def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
     clean_code = str(user_code).strip()
 
-    # ১. রেফারারের মূল একাউন্ট খোঁজা
+    # ১. রেফারারের অ্যাকাউন্ট ডাটা আনা
     ref_user_res = supabase.table("users").select("id, balance, hold_balance").eq("user_id", clean_code).execute()
     if not ref_user_res.data:
         return {"total_count": 0, "hold_balance": 0.0, "main_earned": 0.0, "users": []}
@@ -185,28 +185,26 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
     ref_user = ref_user_res.data[0]
     referrer_id = ref_user["id"]
 
-    # ২. মোট রেফার সংখ্যা
+    # ২. মোট রেফারের সংখ্যা
     count_res = supabase.table("users").select("id", count="exact").eq("referred_by", clean_code).execute()
     total_count = count_res.count if count_res.count is not None else 0
 
-    # ৩. ডাটাবেসের held_referrals টেবিল থেকে এই ইউজারের সব হোল্ড ডাটা আনা
+    # ৩. ডাটাবেসের held_referrals টেবিল থেকে লাইভ হোল্ড হিসেব করা
     held_records_res = supabase.table("held_referrals")\
         .select("friend_user_id, status, release_at, amount")\
         .eq("user_id", referrer_id)\
         .execute()
     
     held_records = held_records_res.data or []
-    
-    # { friend_user_id : record } ম্যাপ তৈরি
     held_map = {r["friend_user_id"]: r for r in held_records}
 
-    # মোট কত টাকা বর্তমানে held অবস্থায় আছে তার আসল যোগফল
+    # বর্তমানে যতগুলো রেফারেল এখনো held অবস্থায় আছে তার নিখুঁত যোগফল
     actual_hold_balance = sum(float(r["amount"]) for r in held_records if r.get("status") == "held")
 
-    # ডাটাবেসে hold_balance আপডেট রাখা
+    # ডাটাবেসে ইউজারের hold_balance আপডেট রাখা
     supabase.table("users").update({"hold_balance": actual_hold_balance}).eq("id", referrer_id).execute()
 
-    # ৪. পেজিনেশন সহ রেফার করা বন্ধুদের লিস্ট
+    # ৪. পেজিনেশন সহ রেফার করা বন্ধুদের তালিকা
     start = (page - 1) * limit
     end = start + limit - 1
     users_res = supabase.table("users")\
@@ -223,21 +221,28 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
         friend_id = u["id"]
         held_info = held_map.get(friend_id)
 
-        # যদি held_referrals টেবিলে স্ট্যাটাস 'held' থাকে, তবে এটি নিশ্চিত হোল্ড
+        # যদি ডাটাবেসের held টেবিলে স্ট্যাটাস 'held' থাকে, তবে এটি নিশ্চিত হোল্ড
         if held_info and held_info.get("status") == "held":
             is_held = True
-            remaining_hours = 72
+            time_left_str = "২ ঘণ্টা বাকি"
             if held_info.get("release_at"):
                 try:
                     rel_dt = datetime.fromisoformat(held_info["release_at"].replace("Z", "+00:00")).replace(tzinfo=None)
                     rem_sec = (rel_dt - now).total_seconds()
-                    remaining_hours = max(0, int(rem_sec / 3600))
+                    rem_hours = int(rem_sec / 3600)
+                    rem_mins = int((rem_sec % 3600) / 60)
+
+                    if rem_hours > 0:
+                        time_left_str = f"{rem_hours} ঘণ্টা বাকি"
+                    elif rem_mins > 0:
+                        time_left_str = f"{rem_mins} মিনিট বাকি"
+                    else:
+                        time_left_str = "শীঘ্রই রিলিজ হচ্ছে"
                 except:
-                    remaining_hours = 72
+                    time_left_str = "২ ঘণ্টা বাকি"
         else:
-            # যদি স্ট্যাটাস released হয় বা কোনো রেকর্ড না থাকে
             is_held = False
-            remaining_hours = 0
+            time_left_str = ""
 
         user_list.append({
             "id": u["id"],
@@ -245,7 +250,7 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
             "user_id": u["user_id"],
             "created_at": u["created_at"],
             "is_held": is_held,
-            "remaining_hours": remaining_hours
+            "remaining_time": time_left_str
         })
 
     return {
@@ -257,6 +262,52 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
         "limit": limit,
         "users": user_list
     }
+
+
+# ================= ৫. CRON JOB: ২ ঘণ্টা / ৭২ ঘণ্টা পর অটো রিলিজ API ================= #
+@app.get("/api/cron/release-referrals")
+def cron_release_referrals():
+    """cron-job.org দিয়ে প্রতি ৩০ মিনিট বা ১ ঘণ্টা পরপর কল করতে হবে"""
+    now_iso = datetime.utcnow().isoformat()
+
+    # যে রেফারেলগুলোর ভেরিফিকেশন সময় পার হয়ে গেছে এবং এখনো held আছে
+    held_res = supabase.table("held_referrals")\
+        .select("id, user_id, amount")\
+        .eq("status", "held")\
+        .lte("release_at", now_iso)\
+        .execute()
+
+    records = held_res.data or []
+    if not records:
+        return {"message": "রিলিজ করার মতো কোনো রেফারেল নেই।", "released_count": 0}
+
+    released_count = 0
+
+    for rec in records:
+        u_id = rec["user_id"]
+        amt = float(rec["amount"])
+
+        # ইউজারের ব্যালেন্স আপডেট (hold থেকে কেটে মূল ব্যালেন্সে যোগ)
+        u_res = supabase.table("users").select("balance, hold_balance").eq("id", u_id).single().execute()
+        if u_res.data:
+            cur_bal = float(u_res.data.get("balance") or 0.0)
+            cur_hold = float(u_res.data.get("hold_balance") or 0.0)
+
+            # মূল ব্যালেন্সে টাকা যোগ করা
+            supabase.table("users").update({
+                "balance": cur_bal + amt,
+                "hold_balance": max(0.0, cur_hold - amt)
+            }).eq("id", u_id).execute()
+
+            # স্ট্যাটাস রিলিজড (released) করে দেওয়া
+            supabase.table("held_referrals").update({"status": "released"}).eq("id", rec["id"]).execute()
+            released_count += 1
+
+    return {
+        "message": f"সফলভাবে {released_count}টি রেফারেল বোনাস মূল ব্যালেন্সে ট্রান্সফার হয়েছে!",
+        "released_count": released_count
+    }
+    
     # ================= ১. কমপ্লিট টাস্ক ফিল্টার সহ গুগল সার্চ API ================= #
 
 @app.get("/api/tasks/google-search")
