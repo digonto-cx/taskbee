@@ -3,7 +3,7 @@
 const BEE_LOGO = "https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png";
 
 document.addEventListener("DOMContentLoaded", () => {
-    // FontAwesome 6 ইনজেকশন
+    // ১. FontAwesome 6 ও কাস্টম স্মুথ অ্যানিমেশন ইনজেকশন
     if (!document.getElementById("fa-cdn")) {
         const faLink = document.createElement("link");
         faLink.id = "fa-cdn";
@@ -12,12 +12,31 @@ document.addEventListener("DOMContentLoaded", () => {
         document.head.appendChild(faLink);
     }
 
+    if (!document.getElementById("layout-animations")) {
+        const style = document.createElement("style");
+        style.id = "layout-animations";
+        style.innerHTML = `
+            @keyframes pulseGlow {
+                0%, 100% { transform: scale(1); opacity: 0.35; }
+                50% { transform: scale(1.15); opacity: 0.65; }
+            }
+            @keyframes popIn {
+                0% { opacity: 0; transform: scale(0.95) translateY(6px); }
+                100% { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            .animate-pulse-glow { animation: pulseGlow 2.5s infinite ease-in-out; }
+            .animate-popIn { animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        `;
+        document.head.appendChild(style);
+    }
+
     const user = getUser();
     const isAuthPage = window.location.pathname.includes("login") || 
                        window.location.pathname.includes("register") || 
                        window.location.pathname === "/" || 
                        window.location.pathname.endsWith("index.html");
 
+    // সাধারণ অথেনটিকেটেড পেজগুলোতে রেন্ডার
     if (!isAuthPage && user) {
         renderTopNavbar(user);
         renderSlideToggleMenu(user);
@@ -26,17 +45,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// ================= ১. লাক্সারি টপবার ================= //
+// ================= ১. লাক্সারি ফিনটেক টপবার ================= //
 function renderTopNavbar(user) {
     const header = document.createElement("header");
-    header.className = "bg-white/85 backdrop-blur-xl border-b border-yellow-200/50 sticky top-0 z-40 shadow-xs transition-all duration-300";
+    header.className = "bg-white/80 backdrop-blur-2xl border-b border-gray-100/90 sticky top-0 z-40 shadow-xs transition-all duration-300";
     header.innerHTML = `
-        <div class="max-w-5xl mx-auto px-4 py-2.5 flex justify-between items-center">
+        <div class="max-w-5xl mx-auto px-4 py-2 flex justify-between items-center">
             
-            <!-- মৌমাছি লোগো -->
+            <!-- ব্র্যান্ড লোগো -->
             <a href="/dashboard" class="flex items-center gap-2.5 group">
                 <div class="w-10 h-10 flex items-center justify-center group-hover:scale-110 transition duration-300">
-                    <img src="${BEE_LOGO}" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-sm">
+                    <img src="${BEE_LOGO}" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-xs">
                 </div>
                 <div class="leading-none">
                     <span class="text-xl font-black text-gray-950 tracking-tight flex items-center gap-0.5">
@@ -46,10 +65,10 @@ function renderTopNavbar(user) {
                 </div>
             </a>
 
-            <!-- ব্যালেন্স এবং মেনু টগল -->
+            <!-- ব্যালেন্স এবং মেনু বাটন -->
             <div class="flex items-center gap-2 sm:gap-3">
                 
-                <!-- ব্যালেন্স গোল্ডেন ব্যাজ (উইথড্র লিংকে যাবে) -->
+                <!-- গোল্ডেন ওয়ালেট পিল (উইথড্র পেজে যাবে) -->
                 <a href="/withdraw" class="bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:from-yellow-500 hover:to-amber-500 text-gray-950 px-3.5 py-1.5 rounded-2xl flex items-center gap-2 shadow-xs shadow-yellow-500/20 hover:scale-105 active:scale-95 transition duration-200">
                     <span class="w-5 h-5 rounded-full bg-white/40 flex items-center justify-center text-[10px]">
                         <i class="fa-solid fa-wallet"></i>
@@ -58,7 +77,7 @@ function renderTopNavbar(user) {
                 </a>
 
                 <!-- হ্যামবার্গার মেনু বাটন -->
-                <button onclick="toggleSideMenu()" class="w-10 h-10 rounded-2xl bg-gray-50 hover:bg-yellow-400 text-gray-700 hover:text-black flex items-center justify-center transition border border-gray-200/80 shadow-2xs">
+                <button onclick="toggleSideMenu()" class="w-10 h-10 rounded-2xl bg-gray-50/80 hover:bg-yellow-400 text-gray-700 hover:text-black flex items-center justify-center transition border border-gray-200/80 shadow-2xs hover:scale-105 active:scale-95">
                     <i class="fa-solid fa-bars-staggered text-sm"></i>
                 </button>
             </div>
@@ -67,14 +86,14 @@ function renderTopNavbar(user) {
     document.body.prepend(header);
 }
 
-// ================= ২. হেডফোন সাপোর্ট উইজেট (পালস রিং সহ) ================= //
+// ================= ২. হেডফোন সাপোর্ট উইজেট (পালস গ্লো সহ) ================= //
 function renderModernSupportWidget(user) {
     const supportContainer = document.createElement("div");
     supportContainer.innerHTML = `
-        <!-- ফ্লোটিং হেডফোন বাটন -->
+        <!-- ফ্লোটিং বাটন -->
         <div class="fixed bottom-24 sm:bottom-6 right-4 z-40">
             <div class="relative">
-                <span class="absolute inset-0 rounded-full bg-yellow-400 animate-ping opacity-30"></span>
+                <span class="absolute inset-0 rounded-full bg-yellow-400 animate-pulse-glow"></span>
                 <button onclick="toggleSupportModal()" title="কাস্টমার সাপোর্ট" class="relative w-12 h-12 rounded-full bg-yellow-400 hover:bg-yellow-500 text-gray-950 flex items-center justify-center shadow-lg shadow-yellow-500/25 hover:scale-105 active:scale-95 transition border-2 border-white">
                     <i class="fa-solid fa-headset text-xl"></i>
                 </button>
@@ -83,7 +102,7 @@ function renderModernSupportWidget(user) {
 
         <!-- সাপোর্ট পপআপ মডাল -->
         <div id="supportModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-popIn">
-            <div class="bg-white/95 backdrop-blur-xl rounded-[32px] max-w-xs w-full p-6 text-center space-y-4 shadow-2xl relative border border-yellow-200/70">
+            <div class="bg-white/95 backdrop-blur-2xl rounded-[32px] max-w-xs w-full p-6 text-center space-y-4 shadow-2xl relative border border-yellow-200/70">
                 <button onclick="toggleSupportModal()" class="absolute top-4 right-4 w-7 h-7 bg-gray-100 hover:bg-gray-200 text-gray-500 rounded-full flex items-center justify-center text-xs transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -99,7 +118,7 @@ function renderModernSupportWidget(user) {
                     </p>
                 </div>
 
-                <a href="https://t.me/taskbee_help" target="_blank" class="w-full py-3 bg-gray-950 hover:bg-black text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                <a href="https://t.me/your_support_username" target="_blank" class="w-full py-3.5 bg-gray-950 hover:bg-black text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition hover:scale-105 active:scale-95">
                     <i class="fa-solid fa-headphones"></i> কাস্টমার সাপোর্টে কথা বলুন
                 </a>
             </div>
@@ -142,7 +161,7 @@ function renderSlideToggleMenu(user) {
                     </div>
                     <div class="overflow-hidden">
                         <h4 class="font-black text-gray-900 text-sm truncate">${user.name}</h4>
-                        <span class="text-[11px] text-gray-500 block">রেফার ID: <b class="text-yellow-700 tracking-wider">${user.user_id}</b></span>
+                        <span class="text-[11px] text-gray-500 block">রেফার ID: <b class="text-yellow-700 tracking-wider font-mono">${user.user_id}</b></span>
                     </div>
                 </div>
 
@@ -214,7 +233,7 @@ function renderSlideToggleMenu(user) {
             </div>
 
             <!-- লগআউট বাটন -->
-            <button onclick="logout()" class="w-full mt-6 py-3.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 border border-red-200 transition">
+            <button onclick="logout()" class="w-full mt-6 py-3.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 border border-red-200 transition hover:scale-105 active:scale-95">
                 <i class="fa-solid fa-power-off text-xs"></i> লগআউট করুন
             </button>
         </div>
@@ -269,7 +288,7 @@ function renderUltraModernBottomNav(user) {
         <!-- ৩. টাস্ক সেন্টার (মাঝখানে গোল্ডেন গ্লো সহ ফ্লোটিং বাটন) -->
         <a href="/tasks" class="flex flex-col items-center -mt-7 flex-1 group">
             <div class="relative">
-                <span class="absolute inset-0 rounded-full bg-yellow-400 animate-pulse opacity-40"></span>
+                <span class="absolute inset-0 rounded-full bg-yellow-400 animate-pulse-glow"></span>
                 <div class="relative w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-amber-400 to-yellow-500 text-gray-950 flex items-center justify-center text-xl shadow-xl shadow-yellow-400/40 border-4 border-white group-hover:scale-105 active:scale-95 transition">
                     <i class="fa-solid fa-list-check"></i>
                 </div>
@@ -345,7 +364,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
         </div>
         <div class="flex items-center gap-2">
             <button onclick="dismissPWABanner()" class="text-gray-400 hover:text-white text-xs px-2 py-1">পরে</button>
-            <button onclick="installPWA()" class="px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-xl text-xs shadow-xs transition">
+            <button onclick="installPWA()" class="px-3.5 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-xl text-xs shadow-xs transition hover:scale-105 active:scale-95">
                 ইনস্টল
             </button>
         </div>
