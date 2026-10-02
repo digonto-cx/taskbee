@@ -494,7 +494,102 @@ def take_task_action(data: ActionSubmissionSchema):
             "admin_note": data.admin_note or "ভুল বা অস্পষ্ট স্ক্রিনশট"
         }).eq("id", sub["id"]).execute()
         return {"message": "টাস্ক রিজেক্ট করা হয়েছে।"}
-        
+
+# ================= USER AUDIT & FRAUD DETECTION API (/admin/ck) ================= #
+
+@app.get("/api/admin/user-audit")
+def audit_user_account(query: str):
+    q = query.strip()
+
+    # ১. ইউজারকে Email বা 5-digit user_id দিয়ে খোঁজা
+    u_res = supabase.table("users").select("*").or_(f"email.eq.{q},user_id.eq.{q}").execute()
+    if not u_res.data:
+        raise HTTPException(status_code=404, detail="ব্যবহারকারী খুঁজে পাওয়া যায়নি! সঠিক Email বা 5-Digit ID দিন।")
+
+    user = u_res.data[0]
+    user_id = user["id"]
+
+    # ২. সব ধরনের টাস্ক সাবমিশন ডাটা
+    subs_res = supabase.table("task_submissions")\
+        .select("id, task_id, status, screenshot_url, submitted_text, admin_note, created_at, tasks(title, task_type, reward_amount)")\
+        .eq("user_id", user_id)\
+        .order("created_at", desc=True)\
+        .execute()
+    submissions = subs_res.data or []
+
+    # ৩. সব উইথড্রয়াল রেকর্ডস
+    withs_res = supabase.table("withdrawals")\
+        .select("*")\
+        .eq("user_id", user_id)\
+        .order("created_at", desc=True)\
+        .execute()
+    withdrawals = withs_res.data or []
+
+    # ৪. রেফারেল ডাটা ও হোল্ড হিসেব
+    refs_res = supabase.table("users")\
+        .select("id, user_id, name, email, created_at")\
+        .eq("referred_by", user["user_id"])\
+        .order("created_at", desc=True)\
+        .execute()
+    referred_users = refs_res.data or []
+
+    held_res = supabase.table("held_referrals").select("*").eq("user_id", user_id).execute()
+    held_records = held_res.data or []
+
+    # ================= ৫. গাণিতিক অডিট ও হ্যাক ডিটেকশন ফর্মুলা ================= #
+    
+    # অনুমোদিত টাস্ক থেকে মোট আয়
+    approved_task_earnings = sum(
+        float(s["tasks"].get("reward_amount") or 0.0) 
+        for s in submissions 
+        if s.get("status") == "approved" and s.get("tasks")
+    )
+
+    # রেফারেল থেকে মূল ব্যালেন্সে যুক্ত বোনাস (রিলিজ হওয়া টাকা)
+    released_ref_earnings = sum(
+        float(r.get("amount") or 0.0) 
+        for r in held_records 
+        if r.get("status") == "released"
+    )
+
+    # যদি পুরনো ইউজার হয় যার held টেবিলে রেকর্ড নেই, তবে সাধারণ ক্যালকুলেশন
+    if not held_records and referred_users:
+        released_ref_earnings = max(0.0, (len(referred_users) * 20.0) - float(user.get("hold_balance") or 0.0))
+
+    # মোট অনুমোদিত ও পেন্ডিং উইথড্রয়াল
+    approved_withdrawals = sum(float(w.get("amount") or 0.0) for w in withdrawals if w.get("status") == "approved")
+    pending_withdrawals = sum(float(w.get("amount") or 0.0) for w in withdrawals if w.get("status") == "pending")
+
+    # হিসাব অনুযায়ী ইউজারের বর্তমান ব্যালেন্স যা হওয়া উচিত
+    # Expected Balance = (Task আয় + রিলিজ রেফারেল) - (পেইড উইথড্র + পেন্ডিং উইথড্র)
+    expected_balance = (approved_task_earnings + released_ref_earnings) - (approved_withdrawals + pending_withdrawals)
+    if expected_balance < 0:
+        expected_balance = 0.0
+
+    actual_balance = float(user.get("balance") or 0.0)
+    discrepancy = actual_balance - expected_balance
+
+    # হ্যাক / গরমিল স্ট্যাটাস
+    is_compromised = discrepancy > 5.00  # ৫ টাকার বেশি অমিল থাকলে রেড ফ্ল্যাগ
+
+    return {
+        "user": user,
+        "submissions": submissions,
+        "withdrawals": withdrawals,
+        "referred_users": referred_users,
+        "audit": {
+            "actual_balance": actual_balance,
+            "expected_balance": expected_balance,
+            "discrepancy": discrepancy,
+            "is_compromised": is_compromised,
+            "task_earnings": approved_task_earnings,
+            "released_ref_earnings": released_ref_earnings,
+            "approved_withdrawals": approved_withdrawals,
+            "pending_withdrawals": pending_withdrawals,
+            "hold_balance": float(user.get("hold_balance") or 0.0)
+        }
+    }
+    
 # ২. বাল্ক অ্যাপ্রুভ (শুধুমাত্র গুগল ও ইউটিউব টাস্কের সর্বোচ্চ ৩০টি, র‍্যান্ডম ২ রিজেক্ট)
 @app.post("/api/admin/submissions/bulk-action")
 def bulk_approve_tasks():
