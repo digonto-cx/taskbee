@@ -28,6 +28,10 @@
       "dest": "/public/sw.js"
     },
     {
+      "src": "/admin/ck",
+      "dest": "/public/admin/ck.html"
+    },
+    {
       "src": "/admin/job",
       "dest": "/public/admin/job.html"
     },
