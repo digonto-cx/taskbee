@@ -254,11 +254,30 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
         "limit": limit,
         "users": user_list
     }
-    
+    # ================= ১. কমপ্লিট টাস্ক ফিল্টার সহ গুগল সার্চ API ================= #
+
 @app.get("/api/tasks/google-search")
-def get_google_search_tasks():
+def get_google_search_tasks(user_id: Optional[int] = None):
+    # ১. সকল সক্রিয় গুগল টাস্ক আনা
     res = supabase.table("tasks").select("*").eq("task_type", "google_search").eq("status", "active").execute()
-    return res.data
+    tasks = res.data or []
+
+    # ২. ইউজার আইডি পাঠানো হলে তার কমপ্লিট (approved) ও পেন্ডিং কাজগুলো বাদ দেওয়া
+    if user_id:
+        subs_res = supabase.table("task_submissions")\
+            .select("task_id, status")\
+            .eq("user_id", user_id)\
+            .in_("status", ["approved", "pending"])\
+            .execute()
+        
+        # যে কাজগুলো ইতিমধ্যে অনুমোদিত বা পেন্ডিং আছে
+        completed_task_ids = {s["task_id"] for s in (subs_res.data or [])}
+
+        # শুধুমাত্র অবশিষ্ট এবং রিজেক্ট হওয়া কাজগুলো রাখা হবে
+        tasks = [t for t in tasks if t["id"] not in completed_task_ids]
+
+    return tasks
+    
 
 @app.post("/api/tasks/submit-google-search")
 async def submit_google_search(
