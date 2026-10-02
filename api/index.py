@@ -413,14 +413,25 @@ def get_submission_status(task_id: int, user_id: int):
     sub = supabase.table("task_submissions").select("*").eq("task_id", task_id).eq("user_id", user_id).order("id", desc=True).limit(1).execute()
     return sub.data[0] if sub.data else None
     
+
 @app.get("/api/admin/submissions/pending")
 def get_pending_submissions():
     res = supabase.table("task_submissions")\
-        .select("id, task_id, user_id, screenshot_url, status, created_at, tasks(title, reward_amount), users(name, user_id)")\
+        .select("id, task_id, user_id, screenshot_url, status, created_at, tasks(title, reward_amount, task_type), users(name, user_id)")\
         .eq("status", "pending")\
         .order("created_at", desc=True)\
         .execute()
-    return res.data
+    
+    all_pending = res.data or []
+
+    # শুধুমাত্র গুগল সার্চ এবং ইউটিউব টাস্ক ফিল্টার করা
+    filtered_submissions = [
+        s for s in all_pending 
+        if s.get("tasks") and s["tasks"].get("task_type") in ["google_search", "youtube"]
+    ]
+
+    return filtered_submissions
+
 
 # ----------------- ১. রিয়েল-টাইম লাইভ ব্যালেন্স সিঙ্ক API ----------------- #
 
@@ -484,31 +495,36 @@ def take_task_action(data: ActionSubmissionSchema):
         }).eq("id", sub["id"]).execute()
         return {"message": "টাস্ক রিজেক্ট করা হয়েছে।"}
         
-# ================= বাল্ক অ্যাপ্রুভ (সর্বোচ্চ ৩০টি, র‍্যান্ডম ২ রিজেক্ট) ================= #
+# ২. বাল্ক অ্যাপ্রুভ (শুধুমাত্র গুগল ও ইউটিউব টাস্কের সর্বোচ্চ ৩০টি, র‍্যান্ডম ২ রিজেক্ট)
 @app.post("/api/admin/submissions/bulk-action")
 def bulk_approve_tasks():
-    # সর্বোচ্চ ৩০টি পেন্ডিং কাজ আনা
-    pending_res = supabase.table("task_submissions")\
-        .select("id, user_id, task_id")\
+    res = supabase.table("task_submissions")\
+        .select("id, user_id, task_id, tasks(task_type, reward_amount)")\
         .eq("status", "pending")\
         .order("id", desc=False)\
-        .limit(30)\
         .execute()
     
-    submissions = pending_res.data
-    if not submissions:
-        return {"message": "কোনো পেন্ডিং সাবমিশন পাওয়া যায়নি!", "approved": 0, "rejected": 0}
+    all_pending = res.data or []
 
-    total_count = len(submissions)
+    # শুধুমাত্র গুগল সার্চ ও ইউটিউব টাস্কের সর্বোচ্চ ৩০টি নেওয়া
+    eligible_subs = [
+        s for s in all_pending 
+        if s.get("tasks") and s["tasks"].get("task_type") in ["google_search", "youtube"]
+    ][:30]
+
+    if not eligible_subs:
+        return {"message": "কোনো গুগল সার্চ বা ইউটিউব পেন্ডিং কাজ পাওয়া যায়নি!", "approved": 0, "rejected": 0}
+
+    total_count = len(eligible_subs)
     
-    # র‍্যান্ডম ২ জনকে রিজেক্ট করার লজিক (যদি মোট কাজ ২টি বা তার বেশি থাকে)
+    # র‍্যান্ডম ২ রিজেক্ট লজিক
     reject_count = 2 if total_count >= 2 else 0
-    rejected_items = random.sample(submissions, reject_count) if reject_count > 0 else []
+    rejected_items = random.sample(eligible_subs, reject_count) if reject_count > 0 else []
     rejected_ids = [item["id"] for item in rejected_items]
 
     approved_count = 0
 
-    for sub in submissions:
+    for sub in eligible_subs:
         if sub["id"] in rejected_ids:
             # রিজেক্ট করা
             supabase.table("task_submissions").update({
@@ -517,12 +533,12 @@ def bulk_approve_tasks():
             }).eq("id", sub["id"]).execute()
         else:
             # অ্যাপ্রুভ করা ও ইউজারের ব্যালেন্সে টাকা যোগ করা
-            task_res = supabase.table("tasks").select("reward_amount").eq("id", sub["task_id"]).single().execute()
-            reward = float(task_res.data["reward_amount"]) if task_res.data else 0.0
-
-            user_res = supabase.table("users").select("balance").eq("id", sub["user_id"]).single().execute()
+            reward = float(sub["tasks"].get("reward_amount") or 0.0) if sub.get("tasks") else 0.0
+            
+            # ইউজারের ব্যালেন্স সরাসরি ডাটাবেস থেকে এনে যোগ করা
+            user_res = supabase.table("users").select("balance").eq("id", sub["user_id"]).execute()
             if user_res.data:
-                current_bal = float(user_res.data.get("balance") or 0.0)
+                current_bal = float(user_res.data[0].get("balance") or 0.0)
                 new_bal = current_bal + reward
                 supabase.table("users").update({"balance": new_bal}).eq("id", sub["user_id"]).execute()
 
@@ -534,10 +550,11 @@ def bulk_approve_tasks():
             approved_count += 1
 
     return {
-        "message": f"বাল্ক প্রসেস সম্পন্ন! {approved_count}টি অনুমোদিত (ব্যালেন্স যুক্ত হয়েছে) এবং {len(rejected_items)}টি রিজেক্ট হয়েছে।",
+        "message": f"গুগল ও ইউটিউবের {approved_count}টি কাজ অনুমোদিত (ব্যালেন্স যুক্ত হয়েছে) এবং {len(rejected_items)}টি রিজেক্ট হয়েছে!",
         "approved": approved_count,
         "rejected": len(rejected_items)
     }
+    
     
 @app.get("/api/admin/withdrawals/pending")
 def get_pending_withdrawals():
