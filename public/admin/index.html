@@ -3,254 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskBee - সুপার এডমিন কন্ট্রোল হাব</title>
+    <title>TaskBee - Admin Control Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 
     <style>
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.96); }
-            100% { opacity: 1; transform: scale(1); }
+        .switch-toggle:checked ~ .switch-dot {
+            transform: translateX(100%);
+            background-color: #ffffff;
         }
-        .animate-popIn { animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .switch-toggle:checked ~ .switch-bg {
+            background-color: #10b981;
+        }
     </style>
 </head>
-<body class="bg-gray-100/90 min-h-screen text-gray-800 pb-24 selection:bg-yellow-400 selection:text-black">
+<body class="bg-[#f4f7f9] text-gray-800 min-h-screen pb-28 selection:bg-yellow-400">
 
-    <!-- ১. আকর্ষণীয় মডার্ন হেডার (Gorgeous Header) -->
-    <header class="bg-gradient-to-r from-gray-950 via-gray-900 to-black text-white sticky top-0 z-40 border-b border-gray-800 shadow-xl backdrop-blur-md">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <!-- ১. মিনিমাল টপবার (স্ক্রিনশটের মতো) -->
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-40 px-4 py-2.5 shadow-2xs">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
             
-            <!-- ব্র্যান্ড লোগো ও এডমিন ব্যাজ -->
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 flex items-center justify-center hover:scale-105 transition duration-200">
-                    <img src="https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-md">
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="font-black text-lg text-yellow-400 tracking-tight leading-none">TaskBee</h1>
-                        <span class="text-[9px] font-black uppercase tracking-wider bg-yellow-400 text-gray-950 px-2 py-0.5 rounded-md shadow-xs">Admin OS 2.0</span>
-                    </div>
-                    <span class="text-[10px] text-gray-400 font-bold tracking-wider mt-0.5 block">সুপার কন্ট্রোল সেন্টার</span>
-                </div>
+            <button onclick="window.location.reload()" class="w-10 h-10 rounded-2xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-600 hover:text-black">
+                <i class="fa-solid fa-bars text-sm"></i>
+            </button>
+
+            <!-- লোগো পিল -->
+            <div class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-2xl border border-gray-100">
+                <img src="https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png" alt="Logo" class="w-6 h-6 object-contain">
+                <span class="text-base font-black text-gray-900 tracking-tight">Task<span class="text-yellow-600">Bee</span></span>
             </div>
-            
-            <!-- হেডারের অ্যাকশন বাটনসমূহ -->
+
+            <!-- রাইট মেনু -->
             <div class="flex items-center gap-2.5">
-                <a href="/dashboard" class="text-xs bg-white/10 hover:bg-white/20 text-gray-200 px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 border border-white/10 shadow-2xs">
-                    <i class="fa-solid fa-eye text-yellow-400 text-xs"></i> <span class="hidden sm:inline">লাইভ</span> সাইট
+                <a href="/dashboard" title="সাইট দেখুন" class="w-10 h-10 rounded-2xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-600 hover:text-black relative">
+                    <i class="fa-regular fa-bell text-sm"></i>
+                    <span class="w-2 h-2 rounded-full bg-red-500 absolute top-2.5 right-2.5"></span>
                 </a>
-                <button onclick="logout()" class="text-xs bg-red-600 hover:bg-red-700 text-white px-3.5 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-xs">
-                    <i class="fa-solid fa-power-off text-xs"></i> লগআউট
+                <button onclick="logout()" title="লগআউট" class="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-xs">
+                    <i class="fa-solid fa-power-off text-xs"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+    <main class="max-w-4xl mx-auto p-4 space-y-6">
 
-        <!-- ২. লাইভ অ্যানালিটিক্স ও কাউন্টার কার্ডস (Analytics Overview) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- ২. সেন্ট্রাল এডমিন হিরো পোর্টাল কার্ড (স্ক্রিনশটের হুবহু স্টাইল) -->
+        <div class="bg-gradient-to-br from-[#0f5132] via-[#157347] to-[#198754] text-white p-6 sm:p-8 rounded-[32px] shadow-lg shadow-green-900/10 relative overflow-hidden space-y-5">
             
-            <!-- মোট ব্যবহারকারী -->
-            <div class="bg-white p-6 rounded-[28px] border border-gray-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition">
-                <div>
-                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">মোট ব্যবহারকারী (Total Users)</span>
-                    <h3 id="statTotalUsers" class="text-3xl font-black text-gray-900 mt-1">0</h3>
+            <div class="relative z-10 flex items-center gap-2">
+                <span class="bg-white/20 backdrop-blur-md text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider flex items-center gap-1.5 border border-white/20">
+                    <span class="w-2 h-2 rounded-full bg-green-300"></span> CENTRAL ADMINISTRATION
+                </span>
+            </div>
+
+            <div class="relative z-10 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl flex-shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
                 </div>
-                <div class="w-13 h-13 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-2xs">
-                    <i class="fa-solid fa-users"></i>
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight">Admin Control<br>Portal</h2>
                 </div>
             </div>
 
-            <!-- পেন্ডিং টাস্ক ভেরিফিকেশন -->
-            <div class="bg-white p-6 rounded-[28px] border border-gray-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition">
-                <div>
-                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">পেন্ডিং টাস্ক রিভিউ</span>
-                    <h3 id="statPendingTasks" class="text-3xl font-black text-yellow-600 mt-1">0</h3>
-                </div>
-                <div class="w-13 h-13 rounded-2xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-2xl shadow-2xs">
-                    <i class="fa-solid fa-camera"></i>
+            <!-- স্ট্যাটাস চিপস (Panel Stats & Total Users) -->
+            <div class="relative z-10 flex flex-wrap items-center gap-3 pt-2">
+                <button onclick="scrollToSection('submissionsSection')" class="px-5 py-3 bg-white text-gray-900 font-extrabold rounded-2xl text-xs flex items-center gap-2 shadow-xs hover:bg-gray-100 transition">
+                    <i class="fa-solid fa-chart-line text-green-700"></i> PANEL STATS
+                </button>
+
+                <div class="px-5 py-2.5 bg-black/25 backdrop-blur-md rounded-2xl border border-white/10 text-left min-w-[130px]">
+                    <span class="text-[9px] font-black uppercase text-green-200 tracking-wider block">TOTAL USERS</span>
+                    <span id="statTotalUsers" class="text-xl font-black tracking-tight">0</span>
                 </div>
             </div>
 
-            <!-- পেন্ডিং উইথড্রয়াল -->
-            <div class="bg-white p-6 rounded-[28px] border border-gray-200/80 shadow-xs flex items-center justify-between hover:shadow-md transition">
-                <div>
-                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">পেন্ডিং উইথড্র রিকোয়েস্ট</span>
-                    <h3 id="statPendingWithdraw" class="text-3xl font-black text-emerald-600 mt-1">0</h3>
-                </div>
-                <div class="w-13 h-13 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-2xs">
-                    <i class="fa-solid fa-money-bill-transfer"></i>
-                </div>
-            </div>
-
+            <!-- ব্যাকগ্রাউন্ড ডেকোরেশন -->
+            <div class="absolute -right-8 -bottom-8 w-44 h-44 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
         </div>
 
-        <!-- ৩. গ্লোবাল নোটিশ কন্ট্রোল বক্স (ড্যাশবোর্ড পপআপের জন্য) -->
-        <div class="bg-white p-6 rounded-[28px] border border-yellow-200 shadow-xs space-y-3 bg-gradient-to-r from-yellow-50/50 via-white to-amber-50/30">
-            <div class="flex justify-between items-center">
-                <h3 class="font-black text-gray-900 text-sm sm:text-base flex items-center gap-2">
-                    <i class="fa-solid fa-bullhorn text-yellow-500"></i> গ্লোবাল নোটিশ কন্ট্রোল (Global Notice)
-                </h3>
-                <span class="text-[11px] text-gray-500 font-bold bg-white px-2.5 py-1 rounded-xl border border-gray-100 shadow-2xs">ইউজার পপআপে দেখাবে</span>
-            </div>
+        <!-- ==================== সেকশন ১: ফিন্যান্সিয়াল ও উইথড্রয়াল ==================== -->
+        <div class="space-y-3">
+            <h3 class="text-xs font-black text-gray-700 flex items-center gap-2 px-1">
+                <span class="w-2 h-2 rounded-full bg-green-600"></span> ১. ফিন্যান্সিয়াল ও মেম্বারশিপ ম্যানেজমেন্ট
+            </h3>
 
-            <form id="adminNoticeForm" class="space-y-3">
-                <textarea id="adminNoticeText" rows="2" placeholder="ইউজারদের ওয়েলকাম পপআপে দেখানোর জন্য নোটিশ লিখুন..." required class="w-full text-xs p-3.5 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-white shadow-2xs leading-relaxed"></textarea>
+            <div class="grid grid-cols-2 gap-3">
+                
+                <!-- উইথড্রয়াল ম্যানেজমেন্ট -->
+                <button onclick="scrollToSection('withdrawSection')" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">Withdrawals</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/withdrawals</span>
+                    </div>
+                </button>
+
+                <!-- ইউজার লিস্ট ও ব্যালেন্স -->
+                <a href="/admin/users" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">All Users</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/users</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ==================== সেকশন ২: কাজ রিভিউ ও টাস্ক ক্রিয়েশন ==================== -->
+        <div class="space-y-3">
+            <h3 class="text-xs font-black text-gray-700 flex items-center gap-2 px-1">
+                <span class="w-2 h-2 rounded-full bg-blue-600"></span> ২. কাজ রিভিউ ও টাস্ক ক্রিয়েশন
+            </h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                
+                <!-- টাস্ক সাবমিশন রিভিউ -->
+                <button onclick="scrollToSection('submissionsSection')" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">Task Reviews</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/submissions</span>
+                    </div>
+                </button>
+
+                <!-- ইউটিউব টাস্ক তৈরি -->
+                <a href="/admin/yt" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-brands fa-youtube"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">YouTube Tasks</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/yt</span>
+                    </div>
+                </a>
+
+                <!-- টাইপিং টাস্ক তৈরি -->
+                <a href="/admin/type" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-keyboard"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">Typing Tasks</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/type</span>
+                    </div>
+                </a>
+
+                <!-- ফেসবুক জব পোস্ট -->
+                <a href="/admin/job" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">Social Job Post</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/job</span>
+                    </div>
+                </a>
+
+                <!-- গুগল টাস্ক তৈরি মডাল ট্রিগার -->
+                <button onclick="openCreateGoogleModal()" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-folder-plus"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">Create Task</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/google</span>
+                    </div>
+                </button>
+
+                <!-- ImgBB API Keys -->
+                <a href="/admin/imgbb" class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-2xs hover:shadow-sm transition flex flex-col items-center justify-center text-center space-y-2 group">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl group-hover:scale-105 transition">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-gray-900">ImgBB Keys</h4>
+                        <span class="text-[10px] text-gray-400 font-mono">/admin/imgbb</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- ==================== সেকশন ৩: গ্লোবাল সেটিংস ও কন্ট্রোল ==================== -->
+        <div class="bg-white p-6 rounded-[32px] border border-gray-200/80 shadow-xs space-y-5">
+            <h3 class="font-black text-gray-900 text-sm tracking-wide flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-emerald-600"></i> GLOBAL SETTINGS & CONTROLS (/ADMIN)
+            </h3>
+
+            <!-- সুইচেস বক্স (স্ক্রিনশটের মতো) -->
+            <div class="p-4 bg-gray-50/80 border border-gray-200/70 rounded-3xl space-y-4">
                 
                 <div class="flex items-center justify-between">
-                    <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
-                        <input type="checkbox" id="adminNoticeStatus" checked class="w-4 h-4 text-yellow-500 rounded focus:ring-0">
-                        নোটিশটি সক্রিয় রাখুন (Show in Popup)
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 text-sm">
+                            <i class="fa-solid fa-person-digging"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-gray-900">Maintenance Mode</h4>
+                            <p class="text-[10px] text-gray-400">সাধারণ ইউজারদের জন্য সাইট অফ থাকবে</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="maintSwitch" class="sr-only switch-toggle">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full switch-bg transition-colors duration-200"></div>
+                        <div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full transition-transform duration-200 switch-dot shadow-xs"></div>
                     </label>
-                    <button type="submit" id="saveNoticeBtn" class="px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-xl text-xs shadow-xs transition hover:scale-105 active:scale-95">
-                        নোটিশ সেভ করুন
-                    </button>
                 </div>
+
+                <div class="flex items-center justify-between pt-3 border-t border-gray-200/60">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 text-sm">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-gray-900">Activation Barrier</h4>
+                            <p class="text-[10px] text-gray-400">১ ডিভাইসে ১ একাউন্ট সুরক্ষা কার্যকর</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only switch-toggle">
+                        <div class="w-11 h-6 bg-green-500 rounded-full switch-bg"></div>
+                        <div class="absolute right-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-xs"></div>
+                    </label>
+                </div>
+
+            </div>
+
+            <!-- ড্যাশবোর্ড নোটিশ এরিয়া -->
+            <form id="adminNoticeForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1.5">ড্যাশবোর্ড স্ক্রলিং নোটিশ (Global Notice)</label>
+                    <div class="relative">
+                        <span class="absolute top-3.5 left-3.5 text-gray-400 text-xs"><i class="fa-solid fa-bullhorn"></i></span>
+                        <textarea id="adminNoticeText" rows="3" placeholder="Welcome To TaskBee..." required 
+                                  class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-green-500 focus:outline-none bg-gray-50/50"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" id="saveNoticeBtn" class="w-full py-3.5 bg-[#10b981] hover:bg-[#059669] text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition">
+                    <i class="fa-solid fa-floppy-disk"></i> সেটিংস আপডেট করুন
+                </button>
             </form>
         </div>
 
-        <!-- ৪. গোছানো কুইক নেভিগেশন এক্সেস (Quick Navs Hub) -->
-        <div>
-            <h4 class="text-xs font-black uppercase text-gray-400 tracking-wider mb-2.5 px-1">প্যানেল কুইক এক্সেস</h4>
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
-                
-                <!-- ১. টাস্ক রিভিউ (ট্যাব) -->
-                <button onclick="switchTab('tab-tasks-verify')" id="btn-tasks-verify" class="quick-nav-btn p-3 bg-yellow-400 text-gray-950 rounded-2xl font-black text-xs shadow-xs flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-list-check"></i> টাস্ক রিভিউ
-                </button>
-
-                <!-- ২. উইথড্র রিকোয়েস্ট (ট্যাব) -->
-                <button onclick="switchTab('tab-withdrawals')" id="btn-withdrawals" class="quick-nav-btn p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> উইথড্র
-                </button>
-
-                <!-- ৩. গুগল টাস্ক তৈরি (ট্যাব) -->
-                <button onclick="switchTab('tab-create-task')" id="btn-create-task" class="quick-nav-btn p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-plus-circle text-blue-600"></i> গুগল টাস্ক
-                </button>
-
-                <!-- ৪. ফেসবুক জব তৈরি (লিংক) -->
-                <a href="/admin/job" class="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
-                    <i class="fa-solid fa-share-nodes text-blue-600"></i> ফেসবুক জব
-                </a>
-
-                <!-- ৫. টাইপিং টাস্ক তৈরি (লিংক) -->
-                <a href="/admin/type" class="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
-                    <i class="fa-solid fa-keyboard text-amber-500"></i> টাইপিং জব
-                </a>
-
-                <!-- ৬. ইউটিউব টাস্ক তৈরি (লিংক) -->
-                <a href="/admin/yt" class="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
-                    <i class="fa-brands fa-youtube text-red-600"></i> ইউটিউব
-                </a>
-
-                <!-- ৭. ইউজার ম্যানেজমেন্ট (লিংক) -->
-                <a href="/admin/users" class="p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition shadow-2xs">
-                    <i class="fa-solid fa-users-gear text-purple-600"></i> ইউজার লিস্ট
-                </a>
-
-            </div>
-
-            <!-- ImgBB ডেডিকেটেড ম্যানেজার বার -->
-            <div class="mt-2.5">
-                <a href="/admin/imgbb" class="w-full p-3 bg-white border border-purple-200 text-purple-700 rounded-2xl font-bold text-xs hover:bg-purple-50 flex items-center justify-center gap-2 transition shadow-2xs">
-                    <i class="fa-solid fa-key text-purple-600"></i> ImgBB API Keys ম্যানেজার পেজে যেতে এখানে ক্লিক করুন &rarr;
-                </a>
-            </div>
-        </div>
-
-        <!-- ==================== সেকশন ১: স্ক্রিনশট রিভিউ ও বাল্ক অ্যাপ্রুভ ==================== -->
-        <div id="tab-tasks-verify" class="tab-content bg-white p-6 rounded-[28px] border border-gray-200 shadow-xs space-y-4">
-            
+        <!-- ==================== সেকশন ৪: পেন্ডিং টাস্ক ভেরিফিকেশন প্যানেল ==================== -->
+        <div id="submissionsSection" class="bg-white p-6 rounded-[32px] border border-gray-200 shadow-xs space-y-4">
             <div class="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-gray-100">
-                <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-camera text-yellow-500"></i> পেন্ডিং স্ক্রিনশট রিভিউ (গুগল, ইউটিউব ও ফেসবুক জব)
+                <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-camera text-yellow-500"></i> পেন্ডিং টাস্ক রিভিউ (<span id="statPendingTasks">0</span>)
                 </h3>
-
+                
                 <div class="flex items-center gap-2">
-                    <!-- বাল্ক অ্যাপ্রুভ বাটন (ম্যাক্স ৩০টি, র‍্যান্ডম ২ রিজেক্ট) -->
-                    <button onclick="bulkApproveTasks()" id="bulkBtn" class="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition hover:scale-105 active:scale-95">
+                    <button onclick="bulkApproveTasks()" id="bulkBtn" class="px-3.5 py-1.5 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> বাল্ক অ্যাপ্রুভ (ম্যাক্স ৩০)
                     </button>
-
-                    <button onclick="loadSubmissions()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-xl font-bold text-gray-600 transition">
-                        <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+                    <button onclick="loadSubmissions()" class="text-xs bg-gray-100 px-3 py-1.5 rounded-xl font-bold text-gray-600">
+                        <i class="fa-solid fa-rotate-right"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- সাবমিশন লিস্ট -->
             <div id="submissionsList" class="space-y-3">
-                <p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
+                <p class="text-xs text-gray-400 py-6 text-center">লোড হচ্ছে...</p>
             </div>
         </div>
 
-        <!-- ==================== সেকশন ২: উইথড্র রিকোয়েস্ট ==================== -->
-        <div id="tab-withdrawals" class="tab-content hidden bg-white p-6 rounded-[28px] border border-gray-200 shadow-xs space-y-4">
+        <!-- ==================== সেকশন ৫: পেন্ডিং উইথড্রয়াল প্যানেল ==================== -->
+        <div id="withdrawSection" class="bg-white p-6 rounded-[32px] border border-gray-200 shadow-xs space-y-4">
             <div class="flex justify-between items-center pb-3 border-b border-gray-100">
-                <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> পেন্ডিং টাকা উত্তোলনের তালিকা
+                <h3 class="font-bold text-gray-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> পেন্ডিং উইথড্র রিকোয়েস্ট (<span id="statPendingWithdraw">0</span>)
                 </h3>
-                <button onclick="loadWithdrawals()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl font-bold text-gray-600 transition">
-                    <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+                <button onclick="loadWithdrawals()" class="text-xs bg-gray-100 px-3 py-1.5 rounded-xl font-bold text-gray-600">
+                    <i class="fa-solid fa-rotate-right"></i>
                 </button>
             </div>
-            <div id="withdrawalsList" class="space-y-3">
-                <p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
-            </div>
-        </div>
 
-        <!-- ==================== সেকশন ৩: গুগল টাস্ক তৈরি ==================== -->
-        <div id="tab-create-task" class="tab-content hidden bg-white p-6 rounded-[28px] border border-gray-200 shadow-xs space-y-4">
-            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2 pb-2 border-b border-gray-100">
-                <i class="fa-solid fa-plus-circle text-blue-600"></i> নতুন গুগল সার্চ টাস্ক যোগ করুন
-            </h3>
-            
-            <form id="createTaskForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="sm:col-span-2">
-                    <label class="block text-xs font-bold text-gray-600 mb-1">টাস্ক শিরোনাম (Title)</label>
-                    <input type="text" id="taskTitle" placeholder="যেমন: Search Tech Website on Google" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">পুরস্কারের টাকা (৳)</label>
-                    <input type="number" id="taskReward" placeholder="যেমন: 2.50" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-bold">
-                </div>
-                <div class="sm:col-span-3">
-                    <label class="block text-xs font-bold text-gray-600 mb-1">সার্চ করার কীওয়ার্ড (Keyword)</label>
-                    <input type="text" id="taskKeyword" placeholder="যেমন: best hosting in bd 2024" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-mono">
-                </div>
-                <div class="sm:col-span-3 pt-2">
-                    <button type="submit" id="createTaskBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs shadow-xs transition">
-                        টাস্ক পাবলিশ করুন
-                    </button>
-                </div>
-            </form>
+            <div id="withdrawalsList" class="space-y-3">
+                <p class="text-xs text-gray-400 py-6 text-center">লোড হচ্ছে...</p>
+            </div>
         </div>
 
     </main>
 
-    <!-- স্ক্রিনশট প্রিভিউ লাইটবক্স মডাল -->
-    <div id="imagePreviewModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-popIn">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-4 space-y-3 shadow-2xl relative border border-gray-200">
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <h4 class="font-bold text-xs text-gray-800">স্ক্রিনশট প্রুফ প্রিভিউ</h4>
-                <button onclick="closePreviewModal()" class="text-gray-400 hover:text-black">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
+    <!-- ৩. স্ক্রিনশটের মতো মোবাইল ফিক্সড বটম বার -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 flex justify-around items-center z-40 shadow-lg text-[10px] font-bold text-gray-500">
+        <a href="/admin" class="flex flex-col items-center text-gray-900">
+            <i class="fa-solid fa-house text-base mb-0.5"></i> Dashboard
+        </a>
+        <button onclick="scrollToSection('submissionsSection')" class="flex flex-col items-center hover:text-black">
+            <i class="fa-solid fa-clock-rotate-left text-base mb-0.5"></i> Reviews
+        </button>
+        <button onclick="scrollToSection('submissionsSection')" class="flex flex-col items-center hover:text-black">
+            <i class="fa-solid fa-briefcase text-base mb-0.5"></i> Work
+        </button>
+        <button onclick="scrollToSection('withdrawSection')" class="flex flex-col items-center hover:text-black">
+            <i class="fa-solid fa-wallet text-base mb-0.5"></i> Withdraw
+        </button>
+        <a href="/dashboard" class="flex flex-col items-center hover:text-black">
+            <i class="fa-solid fa-bars text-base mb-0.5"></i> Site
+        </a>
+    </nav>
+
+    <!-- ফ্লোটিং টেলিগ্রাম বাটন (স্ক্রিনশটের মতো) -->
+    <a href="https://t.me/your_channel" target="_blank" class="fixed bottom-16 right-4 z-40 w-12 h-12 rounded-full bg-[#29b6f6] text-white flex items-center justify-center text-xl shadow-lg hover:scale-105 transition">
+        <i class="fa-brands fa-telegram"></i>
+    </a>
+
+    <!-- গুগল টাস্ক তৈরি মডাল -->
+    <div id="googleTaskModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center pb-2 border-b">
+                <h4 class="font-bold text-sm text-gray-900">নতুন গুগল টাস্ক তৈরি</h4>
+                <button onclick="closeCreateGoogleModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <img id="previewImageSrc" src="#" alt="Screenshot" class="w-full max-h-80 object-contain rounded-xl border border-gray-100 bg-gray-50">
-            <a id="previewImageLink" href="#" target="_blank" class="block text-center text-xs text-blue-600 font-bold hover:underline">
-                আসল ছবি নতুন ট্যাবে দেখুন <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-            </a>
+            <form id="createGoogleTaskForm" class="space-y-3">
+                <input type="text" id="gTitle" placeholder="টাস্ক শিরোনাম" required class="w-full text-xs p-3 border rounded-xl">
+                <input type="text" id="gKeyword" placeholder="সার্চ কীওয়ার্ড" required class="w-full text-xs p-3 border rounded-xl font-mono">
+                <input type="number" id="gReward" placeholder="টাকা (৳)" step="0.5" required class="w-full text-xs p-3 border rounded-xl font-bold">
+                <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl text-xs">পাবলিশ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- স্ক্রিনশট প্রিভিউ লাইটবক্স -->
+    <div id="previewModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 space-y-3 shadow-2xl relative">
+            <div class="flex justify-between items-center pb-2 border-b">
+                <h4 class="font-bold text-xs text-gray-800">স্ক্রিনশট প্রুফ প্রিভিউ</h4>
+                <button onclick="closePreviewModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <img id="previewImg" src="#" alt="Proof" class="w-full max-h-80 object-contain rounded-xl bg-gray-50">
+            <a id="previewLink" href="#" target="_blank" class="block text-center text-xs text-blue-600 font-bold hover:underline">আসল ছবি ওপেন করুন</a>
         </div>
     </div>
 
     <script>
-        // এডমিন পারমিশন চেক
         const adminUser = getUser();
         if (!adminUser || adminUser.role !== 'admin') {
             alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
@@ -266,100 +364,80 @@
                 document.getElementById('statPendingTasks').innerText = data.pending_tasks || 0;
                 document.getElementById('statPendingWithdraw').innerText = data.pending_withdrawals || 0;
             } catch (err) {
-                console.error("Stats load error:", err);
+                console.error(err);
             }
         }
 
-        // ২. কুইক নেভিগেশন সুইচিং
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-
-            document.querySelectorAll('.quick-nav-btn').forEach(btn => {
-                btn.className = "quick-nav-btn p-3 bg-white border border-gray-200 text-gray-700 rounded-2xl font-bold text-xs hover:bg-gray-50 flex items-center justify-center gap-1.5 transition";
-            });
-            const activeBtn = document.getElementById('btn-' + tabId.replace('tab-', ''));
-            if (activeBtn) {
-                activeBtn.className = "quick-nav-btn p-3 bg-yellow-400 text-gray-950 rounded-2xl font-black text-xs shadow-xs flex items-center justify-center gap-1.5 transition";
-            }
-
-            if (tabId === 'tab-tasks-verify') loadSubmissions();
-            if (tabId === 'tab-withdrawals') loadWithdrawals();
+        // ২. স্মুথ স্ক্রল হেল্পার
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ৩. গ্লোবাল নোটিশ হ্যান্ডলার
+        // ৩. নোটিশ কন্ট্রোল
         async function loadAdminNotice() {
             try {
                 const res = await fetch(`${API_URL}/notice`);
                 const data = await res.json();
                 if (data.content) {
                     document.getElementById('adminNoticeText').value = data.content;
-                    document.getElementById('adminNoticeStatus').checked = data.is_active;
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) {}
         }
 
         document.getElementById('adminNoticeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('saveNoticeBtn');
-            btn.innerText = "সেভ হচ্ছে...";
+            btn.innerText = "আপডেট হচ্ছে...";
 
             await fetch(`${API_URL}/admin/notice`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     content: document.getElementById('adminNoticeText').value,
-                    is_active: document.getElementById('adminNoticeStatus').checked
+                    is_active: true
                 })
             });
-            alert("গ্লোবাল নোটিশ সফলভাবে আপডেট হয়েছে!");
-            btn.innerText = "নোটিশ সেভ করুন";
+            alert("সেটিংস ও নোটিশ সফলভাবে আপডেট হয়েছে!");
+            btn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> সেটিংস আপডেট করুন`;
         });
 
-        // ৪. পেন্ডিং স্ক্রিনশট রিভিউ
+        // ৪. পেন্ডিং টাস্ক রিভিউ
         async function loadSubmissions() {
             const container = document.getElementById('submissionsList');
-            container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>`;
             try {
                 const res = await fetch(`${API_URL}/admin/submissions/pending`);
                 const data = await res.json();
                 container.innerHTML = "";
 
                 if (!data || data.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center"><i class="fa-solid fa-circle-check text-2xl text-green-500 mb-2 block"></i>কোনো পেন্ডিং স্ক্রিনশট নেই!</p>`;
+                    container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-circle-check text-green-500 mr-1"></i>কোনো পেন্ডিং স্ক্রিনশট নেই!</p>`;
                     return;
                 }
 
                 data.forEach(sub => {
                     container.innerHTML += `
-                        <div class="p-4 bg-gray-50/80 border border-gray-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-white transition">
+                        <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
-                                <h4 class="font-bold text-gray-900">${sub.tasks.title} &bull; <b class="text-green-600">৳${sub.tasks.reward_amount}</b></h4>
-                                <p class="text-xs text-gray-500">ইউজার: <b>${sub.users.name}</b> (ID: ${sub.users.user_id})</p>
-                                <button onclick="openPreviewModal('${sub.screenshot_url}')" class="inline-flex items-center gap-1.5 text-xs text-blue-600 font-bold hover:underline mt-1">
-                                    <i class="fa-solid fa-image"></i> স্ক্রিনশট প্রিভিউ দেখুন
+                                <h4 class="font-bold text-gray-900 text-xs">${sub.tasks.title} &bull; <b class="text-green-600">৳${sub.tasks.reward_amount}</b></h4>
+                                <p class="text-[11px] text-gray-500">ইউজার: ${sub.users.name} (ID: ${sub.users.user_id})</p>
+                                <button onclick="openPreview('${sub.screenshot_url}')" class="text-[11px] text-blue-600 font-bold hover:underline mt-1 inline-block">
+                                    <i class="fa-solid fa-image"></i> স্ক্রিনশট প্রিভিউ
                                 </button>
                             </div>
                             <div class="flex gap-2 w-full sm:w-auto">
-                                <button onclick="actionTask(${sub.id}, 'approve')" class="flex-1 sm:flex-initial px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs transition">
-                                    <i class="fa-solid fa-check mr-1"></i> Approve
-                                </button>
-                                <button onclick="actionTask(${sub.id}, 'reject')" class="flex-1 sm:flex-initial px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition">
-                                    <i class="fa-solid fa-xmark mr-1"></i> Reject
-                                </button>
+                                <button onclick="actionTask(${sub.id}, 'approve')" class="flex-1 sm:flex-initial px-3.5 py-1.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs">Approve</button>
+                                <button onclick="actionTask(${sub.id}, 'reject')" class="flex-1 sm:flex-initial px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs">Reject</button>
                             </div>
                         </div>
                     `;
                 });
-            } catch (err) {
+            } catch (e) {
                 container.innerHTML = `<p class="text-xs text-red-500 py-4 text-center">ডাটা লোড করা যায়নি!</p>`;
             }
         }
 
         async function actionTask(id, act) {
-            const note = act === 'reject' ? prompt("রিজেক্ট করার কারণ লিখুন:") : "";
+            const note = act === 'reject' ? prompt("রিজেক্টের কারণ লিখুন:") : "";
             if (act === 'reject' && note === null) return;
 
             const res = await fetch(`${API_URL}/admin/submissions/action`, {
@@ -373,69 +451,62 @@
             loadAdminStats();
         }
 
-        // বাল্ক অ্যাপ্রুভ (ম্যাক্স ৩০টি, র‍্যান্ডম ২ রিজেক্ট)
         async function bulkApproveTasks() {
-            if (!confirm("আপনি কি নিশ্চিত সর্বোচ্চ ৩০টি পেন্ডিং কাজ একসাথে প্রসেস করতে চান? (এর মধ্যে র‍্যান্ডম ২টি রিজেক্ট হবে এবং বাকিগুলো অনুমোদিত হয়ে স্বয়ংক্রিয়ভাবে ইউজারের ব্যালেন্সে টাকা যোগ হবে)")) return;
+            if (!confirm("আপনি কি নিশ্চিত সর্বোচ্চ ৩০টি পেন্ডিং কাজ একসাথে প্রসেস করতে চান? (২টি রিজেক্ট হবে এবং বাকিগুলো অ্যাপ্রুভ হয়ে ব্যালেন্স যোগ হবে)")) return;
 
             const btn = document.getElementById('bulkBtn');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> প্রসেসিং হচ্ছে...`;
+            btn.innerText = "প্রসেসিং হচ্ছে...";
             btn.disabled = true;
 
             try {
                 const res = await fetch(`${API_URL}/admin/submissions/bulk-action`, { method: 'POST' });
                 const data = await res.json();
                 alert(data.message);
-                
                 loadSubmissions();
                 loadAdminStats();
-            } catch (err) {
-                alert("বাল্ক প্রসেস করতে সমস্যা হয়েছে!");
+            } catch (e) {
+                alert("বাল্ক প্রসেসে সমস্যা হয়েছে!");
             } finally {
-                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> বাল্ক অ্যাপ্রুভ (ম্যাক্স ৩০)`;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles mr-1"></i> বাল্ক অ্যাপ্রুভ (ম্যাক্স ৩০)`;
                 btn.disabled = false;
             }
         }
 
-        // ৫. পেন্ডিং উইথড্র রিভিউ
+        // ৫. পেন্ডিং উইথড্রয়াল
         async function loadWithdrawals() {
             const container = document.getElementById('withdrawalsList');
-            container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>`;
             try {
                 const res = await fetch(`${API_URL}/admin/withdrawals/pending`);
                 const data = await res.json();
                 container.innerHTML = "";
 
                 if (!data || data.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center"><i class="fa-solid fa-circle-check text-2xl text-green-500 mb-2 block"></i>কোনো পেন্ডিং উইথড্র নেই!</p>`;
+                    container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-circle-check text-green-500 mr-1"></i>কোনো পেন্ডিং উইথড্র নেই!</p>`;
                     return;
                 }
 
                 data.forEach(w => {
                     container.innerHTML += `
-                        <div class="p-4 bg-gray-50/80 border border-gray-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-white transition">
+                        <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
-                                <h4 class="font-black text-gray-900 text-base">৳ ${parseFloat(w.amount).toFixed(2)} &bull; <span class="text-yellow-600 font-bold">${w.method}</span></h4>
-                                <p class="text-xs font-mono text-gray-800 mt-0.5">নম্বর: <b class="bg-yellow-100 px-1.5 py-0.5 rounded">${w.account_number}</b></p>
-                                <p class="text-[11px] text-gray-500 mt-0.5">ইউজার: ${w.users.name} (ID: ${w.users.user_id})</p>
+                                <h4 class="font-black text-gray-900 text-sm">৳ ${parseFloat(w.amount).toFixed(2)} &bull; <span class="text-green-700">${w.method}</span></h4>
+                                <p class="text-xs font-mono text-gray-800">নম্বর: ${w.account_number}</p>
+                                <p class="text-[10px] text-gray-400">ইউজার: ${w.users.name} (ID: ${w.users.user_id})</p>
                             </div>
                             <div class="flex gap-2 w-full sm:w-auto">
-                                <button onclick="actionWithdraw(${w.id}, 'approve')" class="flex-1 sm:flex-initial px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs transition">
-                                    <i class="fa-solid fa-check mr-1"></i> Paid (Approve)
-                                </button>
-                                <button onclick="actionWithdraw(${w.id}, 'reject')" class="flex-1 sm:flex-initial px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition">
-                                    <i class="fa-solid fa-xmark mr-1"></i> Reject (Refund)
-                                </button>
+                                <button onclick="actionWithdraw(${w.id}, 'approve')" class="flex-1 sm:flex-initial px-3.5 py-1.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs">Paid</button>
+                                <button onclick="actionWithdraw(${w.id}, 'reject')" class="flex-1 sm:flex-initial px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs">Reject</button>
                             </div>
                         </div>
                     `;
                 });
-            } catch (err) {
-                container.innerHTML = `<p class="text-xs text-red-500 py-4 text-center">উইথড্র লোড করা যায়নি!</p>`;
+            } catch (e) {
+                container.innerHTML = `<p class="text-xs text-red-500 py-4 text-center">লোড করা যায়নি!</p>`;
             }
         }
 
         async function actionWithdraw(id, act) {
-            if (!confirm(`আপনি কি নিশ্চিত এই উইথড্র রিকোয়েস্টটি ${act === 'approve' ? 'Paid করবেন' : 'Reject করবেন'}?`)) return;
+            if (!confirm(`উইথড্র রিকোয়েস্টটি ${act === 'approve' ? 'Paid করবেন' : 'Reject করবেন'}?`)) return;
 
             await fetch(`${API_URL}/admin/withdrawals/action`, {
                 method: 'POST',
@@ -447,42 +518,38 @@
             loadAdminStats();
         }
 
-        // ৬. নতুন গুগল টাস্ক তৈরি
-        document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('createTaskBtn');
-            btn.innerText = "পাবলিশ হচ্ছে...";
+        // মডাল ও প্রিভিউ ফাংশনস
+        function openCreateGoogleModal() { document.getElementById('googleTaskModal').classList.remove('hidden'); }
+        function closeCreateGoogleModal() { document.getElementById('googleTaskModal').classList.add('hidden'); }
 
+        document.getElementById('createGoogleTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             await fetch(`${API_URL}/admin/tasks/google-search`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    title: document.getElementById('taskTitle').value,
-                    keyword: document.getElementById('taskKeyword').value,
-                    reward_amount: parseFloat(document.getElementById('taskReward').value)
+                    title: document.getElementById('gTitle').value,
+                    keyword: document.getElementById('gKeyword').value,
+                    reward_amount: parseFloat(document.getElementById('gReward').value)
                 })
             });
-
             alert("টাস্ক সফলভাবে তৈরি হয়েছে!");
-            document.getElementById('createTaskForm').reset();
-            btn.innerText = "টাস্ক পাবলিশ করুন";
+            closeCreateGoogleModal();
+            document.getElementById('createGoogleTaskForm').reset();
         });
 
-        // ৭. লাইটবক্স মডাল
-        function openPreviewModal(url) {
-            document.getElementById('previewImageSrc').src = url;
-            document.getElementById('previewImageLink').href = url;
-            document.getElementById('imagePreviewModal').classList.remove('hidden');
+        function openPreview(url) {
+            document.getElementById('previewImg').src = url;
+            document.getElementById('previewLink').href = url;
+            document.getElementById('previewModal').classList.remove('hidden');
         }
+        function closePreviewModal() { document.getElementById('previewModal').classList.add('hidden'); }
 
-        function closePreviewModal() {
-            document.getElementById('imagePreviewModal').classList.add('hidden');
-        }
-
-        // ইনিশিয়ালাইজেশন
+        // পেজ লোড
         loadAdminStats();
         loadAdminNotice();
         loadSubmissions();
+        loadWithdrawals();
     </script>
 </body>
-</html>
+        </html>
