@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইউজার অডিট ও ফ্রড ডিটেক্টর - TaskBee Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-20 selection:bg-yellow-400">
+
+    <header class="bg-gray-950 text-white px-6 py-3.5 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-yellow-400 text-gray-950 flex items-center justify-center font-black"><i class="fa-solid fa-magnifying-glass-chart"></i></span>
+            <h1 class="font-black text-lg text-yellow-400">User Deep Inspector (/admin/ck)</h1>
+        </div>
+        <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3.5 py-1.5 rounded-xl font-bold text-gray-300">
+            &larr; মূল এডমিন প্যানেল
+        </a>
+    </header>
+
+    <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. ইউজার সার্চ বার -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-3">
+            <h3 class="text-xs font-black uppercase text-gray-400 tracking-wider">ব্যবহারকারী যাচাই ও অডিট সার্চ</h3>
+            <form id="auditSearchForm" class="flex gap-2.5">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 text-xs">
+                        <i class="fa-solid fa-user-tag"></i>
+                    </span>
+                    <input type="text" id="searchInput" placeholder="ইউজারের ইমেইল (Email) অথবা ৫ ডিজিটের UID দিন..." required 
+                           class="w-full text-xs pl-9 pr-3 py-3 border rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/50">
+                </div>
+                <button type="submit" id="searchBtn" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs shadow-xs transition flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i> অডিট করুন
+                </button>
+            </form>
+        </div>
+
+        <div id="loadingState" class="hidden text-center py-12 text-gray-400 text-xs">
+            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 block text-yellow-500"></i> পুরো ডাটাবেস অডিট করা হচ্ছে...
+        </div>
+
+        <!-- রেজাল্ট কন্টেইনার -->
+        <div id="resultContainer" class="hidden space-y-6">
+
+            <!-- ২. গাণিতিক হ্যাক ডিটেকশন ও ব্যালেন্স অডিট কার্ড -->
+            <div id="auditVerdictBox" class="p-6 rounded-3xl border shadow-sm space-y-4">
+                <!-- ডায়নামিক ডাটা -->
+            </div>
+
+            <!-- ৩. অ্যাকাউন্ট প্রোফাইল ও সিকিউরিটি তথ্য -->
+            <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+                <h4 class="font-bold text-gray-900 text-sm flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-id-card text-blue-600"></i> ১. মূল অ্যাকাউন্ট ও সিকিউরিটি প্রোফাইল
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs" id="profileGrid">
+                    <!-- ডায়নামিক -->
+                </div>
+            </div>
+
+            <!-- ৪. সকল টাস্ক সাবমিশন হিস্টোরি -->
+            <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+                <h4 class="font-bold text-gray-900 text-sm flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-list-check text-yellow-500"></i> ২. জমাকৃত সকল টাস্কের বিবরণী ও স্ট্যাটাস
+                </h4>
+                <div id="submissionsContainer" class="space-y-3">
+                    <!-- ডায়নামিক -->
+                </div>
+            </div>
+
+            <!-- ৫. সকল উইথড্রয়াল রেকর্ড -->
+            <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+                <h4 class="font-bold text-gray-900 text-sm flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-money-bill-transfer text-emerald-600"></i> ৩. টাকা উত্তোলনের সকল রেকর্ড (Pending/Paid/Reject)
+                </h4>
+                <div id="withdrawalsContainer" class="space-y-3">
+                    <!-- ডায়নামিক -->
+                </div>
+            </div>
+
+            <!-- ৬. রেফারেল লিস্ট ও বোনাস হিসেব -->
+            <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+                <h4 class="font-bold text-gray-900 text-sm flex items-center gap-2 border-b pb-3">
+                    <i class="fa-solid fa-users text-purple-600"></i> ৪. এই ইউজারের মাধ্যমে রেফার হওয়া বন্ধুদের তালিকা
+                </h4>
+                <div id="referralsContainer" class="space-y-3">
+                    <!-- ডায়নামিক -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.replace("/login");
+        }
+
+        document.getElementById('auditSearchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            const btn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loadingState');
+            const results = document.getElementById('resultContainer');
+
+            btn.disabled = true;
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            try {
+                const res = await fetch(`${API_URL}/admin/user-audit?query=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                renderAuditData(data);
+                results.classList.remove('hidden');
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.disabled = false;
+                loading.classList.add('hidden');
+            }
+        });
+
+        function renderAuditData(data) {
+            const u = data.user;
+            const a = data.audit;
+
+            // ১. গাণিতিক হ্যাক ডিটেকশন বক্স
+            const verdictBox = document.getElementById('auditVerdictBox');
+            if (a.is_compromised) {
+                verdictBox.className = "p-6 rounded-3xl border bg-red-50 border-red-300 text-red-900 shadow-sm space-y-4";
+                verdictBox.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center text-2xl flex-shrink-0 animate-pulse">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </span>
+                        <div>
+                            <h3 class="font-black text-base text-red-700">🚨 সতর্কতা: ব্যালেন্সে গরমিল পাওয়া গেছে! (Possible Hack/Manipulation)</h3>
+                            <p class="text-xs text-red-600 mt-0.5">কাজের আয়ের তুলনায় অতিরিক্ত <b>৳${a.discrepancy.toFixed(2)}</b> ব্যালেন্স রয়েছে যা সিস্টেমের হিসাব বহির্ভূত!</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                verdictBox.className = "p-6 rounded-3xl border bg-green-50 border-green-300 text-green-900 shadow-sm space-y-4";
+                verdictBox.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-green-600 text-white flex items-center justify-center text-2xl flex-shrink-0">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </span>
+                        <div>
+                            <h3 class="font-black text-base text-green-800">✅ অ্যাকাউন্ট সম্পূর্ণ নিরাপদ ও ক্লিয়ার (No Hack Found)</h3>
+                            <p class="text-xs text-green-700 mt-0.5">টাস্ক ও রেফারেলের মোট হিসাব ডেটাবেসের ব্যালেন্সের সাথে সম্পূর্ণ মিল রয়েছে।</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ব্যালেন্স অডিট ম্যাথমেটিক্যাল কার্ডস
+            verdictBox.innerHTML += `
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-3 border-t border-black/10">
+                    <div class="bg-white/80 p-3 rounded-2xl">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">হিসাব অনুযায়ী হওয়া উচিত</span>
+                        <span class="text-base font-black text-blue-600">৳ ${a.expected_balance.toFixed(2)}</span>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-2xl">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">বর্তমান ডাটাবেস ব্যালেন্স</span>
+                        <span class="text-base font-black ${a.is_compromised ? 'text-red-600' : 'text-green-600'}">৳ ${a.actual_balance.toFixed(2)}</span>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-2xl">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">হোল্ড ব্যালেন্স (যাচাই চলছে)</span>
+                        <span class="text-base font-black text-yellow-600">৳ ${a.hold_balance.toFixed(2)}</span>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-2xl">
+                        <span class="text-[10px] text-gray-400 font-bold block uppercase">টাস্ক থেকে মোট আয়</span>
+                        <span class="text-base font-black text-gray-800">৳ ${a.task_earnings.toFixed(2)}</span>
+                    </div>
+                </div>
+            `;
+
+            // ২. প্রোফাইল গ্রিড
+            document.getElementById('profileGrid').innerHTML = `
+                <div><span class="text-gray-400 block text-[10px]">নাম:</span> <b>${u.name}</b></div>
+                <div><span class="text-gray-400 block text-[10px]">ইমেইল:</span> <b>${u.email}</b></div>
+                <div><span class="text-gray-400 block text-[10px]">৫ ডিজিট UID:</span> <b class="font-mono text-yellow-600">${u.user_id}</b></div>
+                <div><span class="text-gray-400 block text-[10px]">ডিভাইস আইডি:</span> <span class="font-mono text-[11px]">${u.device_id}</span></div>
+                <div><span class="text-gray-400 block text-[10px]">কার রেফারে জয়েন:</span> <b>${u.referred_by || 'সরাসরি (None)'}</b></div>
+                <div><span class="text-gray-400 block text-[10px]">পাসওয়ার্ড হ্যাশ:</span> <span class="font-mono text-[9px] text-gray-500 truncate block">${u.password_hash}</span></div>
+            `;
+
+            // ৩. সাবমিশনস
+            const subBox = document.getElementById('submissionsContainer');
+            subBox.innerHTML = data.submissions.length === 0 ? `<p class="text-xs text-gray-400 py-3">কোনো কাজ জমা দেওয়া হয়নি।</p>` : "";
+            data.submissions.forEach(s => {
+                subBox.innerHTML += `
+                    <div class="p-3 bg-gray-50 rounded-2xl border flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold">${s.tasks ? s.tasks.title : 'টাস্ক'} &bull; ৳${s.tasks ? s.tasks.reward_amount : '0'}</p>
+                            <span class="text-[10px] text-gray-400">${new Date(s.created_at).toLocaleString('bn-BD')}</span>
+                            ${s.screenshot_url ? `<a href="${s.screenshot_url}" target="_blank" class="block text-blue-600 text-[10px] underline">স্ক্রিনশট দেখুন</a>` : ''}
+                            ${s.submitted_text ? `<p class="font-mono bg-white p-1 rounded mt-1 text-[11px]">${s.submitted_text}</p>` : ''}
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${s.status === 'approved' ? 'bg-green-100 text-green-700' : (s.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800')}">
+                            ${s.status.toUpperCase()}
+                        </span>
+                    </div>
+                `;
+            });
+
+            // ৪. উইথড্রয়াল
+            const withBox = document.getElementById('withdrawalsContainer');
+            withBox.innerHTML = data.withdrawals.length === 0 ? `<p class="text-xs text-gray-400 py-3">কোনো উইথড্র রিকোয়েস্ট নেই।</p>` : "";
+            data.withdrawals.forEach(w => {
+                withBox.innerHTML += `
+                    <div class="p-3 bg-gray-50 rounded-2xl border flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold">৳${w.amount} (${w.method}) &bull; ${w.account_number}</p>
+                            <span class="text-[10px] text-gray-400">${new Date(w.created_at).toLocaleString('bn-BD')}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${w.status === 'approved' ? 'bg-green-100 text-green-700' : (w.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-800')}">
+                            ${w.status.toUpperCase()}
+                        </span>
+                    </div>
+                `;
+            });
+
+            // ৫. রেফারেল লিস্ট
+            const refBox = document.getElementById('referralsContainer');
+            refBox.innerHTML = data.referred_users.length === 0 ? `<p class="text-xs text-gray-400 py-3">কাউকে রেফার করা হয়নি।</p>` : "";
+            data.referred_users.forEach(r => {
+                refBox.innerHTML += `
+                    <div class="p-3 bg-gray-50 rounded-2xl border flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold">${r.name} (ID: ${r.user_id})</p>
+                            <span class="text-[10px] text-gray-400">জয়েন: ${new Date(r.created_at).toLocaleDateString('bn-BD')}</span>
+                        </div>
+                        <span class="text-xs font-black text-green-600">+৳২০</span>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+  </html>
