@@ -170,6 +170,9 @@ def change_password(data: ChangePasswordSchema):
 
 # ================= ১. সরাসরি ডাটাবেস থেকে হোল্ড রিড করার ফিক্সড API ================= #
 
+# ================= ১. কমপ্লিট টাস্ক ফিল্টার সহ গুগল সার্চ API ================= #
+
+
 @app.get("/api/user/referrals")
 def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
     clean_code = str(user_code).strip()
@@ -840,6 +843,29 @@ def create_youtube_task(data: CreateYoutubeTaskSchema):
     }).execute()
     return {"message": "ইউটিউব টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
 
+# ================= ইউটিউব টাস্কে কমপ্লিট টাস্ক ফিল্টার ================= #
+
+@app.get("/api/tasks/youtube")
+def get_youtube_tasks(user_id: Optional[int] = None):
+    # ১. সকল সক্রিয় ইউটিউব কাজ আনা
+    res = supabase.table("tasks").select("*").eq("task_type", "youtube").eq("status", "active").execute()
+    tasks = res.data or []
+
+    # ২. ইউজারের কমপ্লিট (approved) ও পেন্ডিং কাজগুলো বাদ দেওয়া
+    if user_id:
+        subs_res = supabase.table("task_submissions")\
+            .select("task_id, status")\
+            .eq("user_id", user_id)\
+            .in_("status", ["approved", "pending"])\
+            .execute()
+
+        completed_task_ids = {s["task_id"] for s in (subs_res.data or [])}
+
+        # শুধুমাত্র অবশিষ্ট এবং রিজেক্ট হওয়া কাজগুলো রাখা হবে
+        tasks = [t for t in tasks if t["id"] not in completed_task_ids]
+
+    return tasks
+    
 # ----------------- IMGBB ADVANCED MANAGEMENT APIs ----------------- #
 
 @app.post("/api/admin/imgbb-keys/test-all")
