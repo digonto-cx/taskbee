@@ -27,6 +27,7 @@
             <span class="text-xs bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-xl">সহজ ইনকাম</span>
         </div>
 
+        <!-- টাস্ক গ্রিড -->
         <div id="ytTaskList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <p class="text-center text-gray-400 text-xs py-10 col-span-2"><i class="fa-solid fa-spinner fa-spin"></i> কাজগুলো লোড হচ্ছে...</p>
         </div>
@@ -34,15 +35,32 @@
     </main>
 
     <script>
+        const user = getUser();
+
         async function loadYtTasks() {
             const container = document.getElementById('ytTaskList');
             try {
-                const res = await fetch(`${API_URL}/tasks/youtube`);
+                // ইউজারের আইডি পাঠানো হচ্ছে যাতে সম্পন্ন হওয়া কাজগুলো বাদ দিয়ে আসে
+                const res = await fetch(`${API_URL}/tasks/youtube?user_id=${user.id}`);
                 const tasks = await res.json();
                 container.innerHTML = "";
 
+                // যদি ইউজার সব কাজ সম্পন্ন করে ফেলে
                 if (tasks.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-8 rounded-3xl text-center text-gray-400 text-sm shadow-sm border col-span-2"><i class="fa-brands fa-youtube text-4xl text-gray-300 mb-2 block"></i>বর্তমানে কোনো নতুন ইউটিউব টাস্ক নেই।</div>`;
+                    container.innerHTML = `
+                        <div class="bg-white p-8 sm:p-10 rounded-3xl text-center text-gray-500 shadow-sm border border-gray-100 col-span-2 space-y-3">
+                            <div class="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-2xs">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <h3 class="font-black text-base text-gray-800">অভিনন্দন! আপনি সকল ইউটিউব কাজ সম্পন্ন করেছেন</h3>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                আপনার জন্য বর্তমানে কোনো নতুন ইউটিউব কাজ অবশিষ্ট নেই। নতুন কাজ আসা পর্যন্ত অপেক্ষা করুন অথবা অন্যান্য টাস্কগুলো সম্পন্ন করুন।
+                            </p>
+                            <a href="/tasks" class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-bold rounded-xl text-xs shadow-xs transition">
+                                <i class="fa-solid fa-list-check"></i> অন্যান্য কাজসমূহ দেখুন
+                            </a>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -54,7 +72,7 @@
                                     <h4 class="font-bold text-gray-900 text-base flex items-center gap-1.5">
                                         <i class="fa-brands fa-youtube text-red-600"></i> ${t.title}
                                     </h4>
-                                    <span class="bg-green-100 text-green-700 font-black px-2.5 py-1 rounded-xl text-xs">৳ ${t.reward_amount}</span>
+                                    <span class="bg-green-100 text-green-700 font-black px-2.5 py-1 rounded-xl text-xs">৳ ${parseFloat(t.reward_amount).toFixed(2)}</span>
                                 </div>
                                 <p class="text-xs text-gray-500 line-clamp-2">${t.description}</p>
                             </div>
