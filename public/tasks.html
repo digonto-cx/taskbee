@@ -18,29 +18,42 @@
 
     <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6 relative z-10">
 
-        <!-- ১. টাস্ক সেন্টার হেডার ব্যানার -->
-        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-7 rounded-[32px] border border-yellow-200/70 shadow-xl shadow-yellow-500/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <!-- ১. টাস্ক সেন্টার মোট কাজ ও মোট টাকার ব্যানার -->
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-7 rounded-[32px] border border-yellow-200/70 shadow-xl shadow-yellow-500/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
             <div>
                 <a href="/dashboard" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1.5 mb-1.5">
                     <i class="fa-solid fa-arrow-left"></i> ড্যাশবোর্ডে ফিরুন
                 </a>
                 <h2 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-yellow-500"></i> টাস্ক সেন্টার (All Tasks)
+                    <i class="fa-solid fa-list-check text-yellow-500"></i> টাস্ক সেন্টার (Task Center)
                 </h2>
                 <p class="text-xs text-gray-500 mt-0.5">সহজ কাজগুলো সম্পন্ন করে সরাসরি আপনার একাউন্টে টাকা যোগ করুন।</p>
             </div>
             
-            <div class="flex items-center gap-2">
-                <span class="text-xs bg-green-100 text-green-800 font-black px-3.5 py-1.5 rounded-2xl flex items-center gap-2 shadow-2xs border border-green-200">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span> ৩টি কাজ লাইভ সক্রিয়
-                </span>
+            <!-- মোট কাজ ও মোট রিওয়ার্ডের গোল্ডেন ব্যাজ -->
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <div class="bg-yellow-50 border border-yellow-200 px-4 py-2 rounded-2xl shadow-2xs flex items-center gap-2 flex-1 sm:flex-initial">
+                    <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
+                    <div>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">মোট কাজ উপলব্ধ</span>
+                        <span class="text-sm font-black text-gray-900"><b id="summaryTaskCount">0</b> টি কাজ</span>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border border-green-200 px-4 py-2 rounded-2xl shadow-2xs flex items-center gap-2 flex-1 sm:flex-initial">
+                    <i class="fa-solid fa-wallet text-green-600 text-sm"></i>
+                    <div>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">মোট আয় সম্ভব</span>
+                        <span class="text-sm font-black text-green-700">৳ <b id="summaryTotalReward">0.00</b></span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- ২. কুইক ক্যাটাগরি ফিল্টার মেনু (মোবাইলে মসৃণ স্ক্রল হবে) -->
+        <!-- ২. কুইক ফিল্টার মেনু (কোনো সংখ্যা বা কাউন্ট ছাড়া) -->
         <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
             <button onclick="filterTasks('all')" class="filter-btn active-filter px-4 py-2.5 bg-yellow-400 text-gray-950 font-black rounded-2xl whitespace-nowrap shadow-xs transition flex items-center gap-1.5">
-                <i class="fa-solid fa-border-all"></i> সব কাজ (৯)
+                <i class="fa-solid fa-border-all"></i> সব কাজ
             </button>
             <button onclick="filterTasks('active')" class="filter-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-check text-green-500"></i> সক্রিয় কাজ
@@ -54,12 +67,15 @@
             <button onclick="filterTasks('typing')" class="filter-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-keyboard text-yellow-500"></i> টাইপিং জব
             </button>
+            <button onclick="filterTasks('job')" class="filter-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-share-nodes text-blue-600"></i> ফেসবুক জব
+            </button>
             <button onclick="filterTasks('maintenance')" class="filter-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
                 <i class="fa-solid fa-tools text-amber-500"></i> আপকামিং
             </button>
         </div>
 
-        <!-- ৩. টাস্ক কার্ড গ্রিড -->
+        <!-- ৩. টাস্ক কার্ড গ্রিড (কোনো কাজের ভেতরের কাউন্ট ছাড়া) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="taskGrid">
 
             <!-- ১. Google Search (সক্রিয়) -->
@@ -128,7 +144,29 @@
                 </div>
             </div>
 
-            <!-- ৪. Refer & Earn (সক্রিয়) -->
+            <!-- ৪. Facebook Job Post (সক্রিয়) -->
+            <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-blue-500 shadow-2xs flex flex-col justify-between hover:shadow-md transition" data-category="active job">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </span>
+                        <span class="bg-green-100 text-green-700 text-xs font-black px-2.5 py-1 rounded-xl flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check text-[10px]"></i> Active
+                        </span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-base">সোশ্যাল জব পোস্ট (Job Post)</h3>
+                    <p class="text-xs text-gray-500 mt-1">ক্যাপশন কপি ও ছবি ডাউনলোড করে ফেসবুক গ্রুপে পোস্ট করে আয় করুন।</p>
+                </div>
+                <div class="mt-5 pt-3.5 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-bold text-gray-400">পুরস্কার: <b class="text-green-600">৳ ২ - ৳ ৫</b></span>
+                    <a href="/tasks/job" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition">
+                        কাজ করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ৫. Refer & Earn (সক্রিয়) -->
             <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-gray-200 shadow-2xs flex flex-col justify-between hover:shadow-md transition" data-category="active">
                 <div>
                     <div class="flex justify-between items-start mb-3">
@@ -148,7 +186,7 @@
                 </div>
             </div>
 
-            <!-- ৫. Google Review (Maintenance) -->
+            <!-- ৬. Google Review (Maintenance) -->
             <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-gray-200 shadow-2xs opacity-65 flex flex-col justify-between hover:opacity-100 transition" data-category="maintenance">
                 <div>
                     <div class="flex justify-between items-start mb-3">
@@ -166,7 +204,7 @@
                 </div>
             </div>
 
-            <!-- ৬. AI Image Generator (Maintenance) -->
+            <!-- ৭. AI Image Generator (Maintenance) -->
             <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-gray-200 shadow-2xs opacity-65 flex flex-col justify-between hover:opacity-100 transition" data-category="maintenance">
                 <div>
                     <div class="flex justify-between items-start mb-3">
@@ -184,7 +222,7 @@
                 </div>
             </div>
 
-            <!-- ৭. Gmail Create (Maintenance) -->
+            <!-- ৮. Gmail Create (Maintenance) -->
             <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-gray-200 shadow-2xs opacity-65 flex flex-col justify-between hover:opacity-100 transition" data-category="maintenance">
                 <div>
                     <div class="flex justify-between items-start mb-3">
@@ -202,7 +240,7 @@
                 </div>
             </div>
 
-            <!-- ৮. Email Send (Maintenance) -->
+            <!-- ৯. Email Send (Maintenance) -->
             <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-gray-200 shadow-2xs opacity-65 flex flex-col justify-between hover:opacity-100 transition" data-category="maintenance">
                 <div>
                     <div class="flex justify-between items-start mb-3">
@@ -220,38 +258,32 @@
                 </div>
             </div>
 
-            <!-- ৯. Micro Job Post (Maintenance) -->
-            <div class="task-card-item bg-white/95 backdrop-blur-md p-6 rounded-3xl border border-gray-200 shadow-2xs opacity-65 flex flex-col justify-between hover:opacity-100 transition" data-category="maintenance">
-                <div>
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="w-12 h-12 rounded-2xl bg-gray-100 text-gray-600 flex items-center justify-center text-2xl">
-                            <i class="fa-solid fa-briefcase"></i>
-                        </span>
-                        <span class="bg-red-50 text-red-600 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Maintenance</span>
-                    </div>
-                    <h3 class="font-bold text-gray-800 text-base">Micro Job Post</h3>
-                    <p class="text-xs text-gray-400 mt-1">নিজের কাজের জন্য অন্যদের হায়ার করে কাজ করিয়ে নেওয়ার সিস্টেম।</p>
-                </div>
-                <div class="mt-5 pt-3.5 border-t border-gray-100 flex items-center justify-between">
-                    <span class="text-xs text-gray-400 font-semibold">শীঘ্রই আসছে</span>
-                    <a href="/tasks/maintenance" class="px-3.5 py-1.5 bg-gray-100 text-gray-600 font-bold rounded-xl text-xs hover:bg-gray-200 transition">অপেক্ষা করুন</a>
-                </div>
-            </div>
-
         </div>
 
     </main>
 
-    <!-- ক্যাটাগরি ফিল্টারিং স্ক্রিপ্ট -->
+    <!-- স্ক্রিপ্ট লজিক -->
     <script>
+        // ১. সব সক্রিয় টাস্কের মোট সংখ্যা ও মোট রিওয়ার্ড যোগফল লোড
+        async function loadTaskSummary() {
+            try {
+                const res = await fetch(`${API_URL}/tasks/summary`);
+                const data = await res.json();
+                
+                document.getElementById('summaryTaskCount').innerText = data.total_tasks || 0;
+                document.getElementById('summaryTotalReward').innerText = parseFloat(data.total_reward || 0).toFixed(2);
+            } catch (err) {
+                console.error("Task summary load error:", err);
+            }
+        }
+
+        // ২. ক্যাটাগরি ফিল্টারিং
         function filterTasks(cat) {
-            // বাটন এক্টিভ স্টাইল টগল
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.className = "filter-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5";
             });
             event.currentTarget.className = "filter-btn px-4 py-2.5 bg-yellow-400 text-gray-950 font-black rounded-2xl whitespace-nowrap shadow-xs transition flex items-center gap-1.5";
 
-            // কার্ড শো/হাইড লজিক
             const cards = document.querySelectorAll('.task-card-item');
             cards.forEach(card => {
                 if (cat === 'all') {
@@ -266,6 +298,8 @@
                 }
             });
         }
+
+        loadTaskSummary();
     </script>
 </body>
 </html>
