@@ -1110,6 +1110,26 @@ async def create_job_post_task(
 
     return {"message": "জব পোস্ট টাস্ক সফলভাবে তৈরি হয়েছে!", "data": res.data}
 
+
+# ================= শুধুমাত্র ফেসবুক জব পোস্ট পেন্ডিং API ================= #
+
+@app.get("/api/admin/job/pending")
+def get_pending_job_submissions():
+    res = supabase.table("task_submissions")\
+        .select("id, task_id, user_id, screenshot_url, status, created_at, tasks(title, reward_amount, task_type, image_url, caption), users(name, user_id)")\
+        .eq("status", "pending")\
+        .order("created_at", desc=True)\
+        .execute()
+
+    all_pending = res.data or []
+    # শুধুমাত্র job_post টাস্কের সাবমিশন ফিল্টার করা
+    job_pending = [
+        s for s in all_pending 
+        if s.get("tasks") and s["tasks"].get("task_type") == "job_post"
+    ]
+    return job_pending
+    
+
 @app.get("/api/tasks/job")
 def get_job_post_tasks():
     res = supabase.table("tasks").select("*").eq("task_type", "job_post").eq("status", "active").execute()
