@@ -9,128 +9,164 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/layout.js"></script>
+
+    <style>
+        @keyframes cardPop {
+            0% { opacity: 0; transform: scale(0.97) translateY(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-card-pop { animation: cardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-amber-50/30 via-white to-yellow-50/40 min-h-screen text-gray-800 pb-28 sm:pb-14 selection:bg-yellow-400">
+<body class="bg-gradient-to-br from-amber-50/20 via-white to-yellow-50/30 min-h-screen text-gray-800 pb-28 sm:pb-14 selection:bg-yellow-400">
     <script>checkAuth();</script>
 
-    <!-- ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট লাইট -->
+    <!-- ব্যাকগ্রাউন্ড সফট গ্লো -->
     <div class="fixed top-8 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-400/15 rounded-full blur-3xl pointer-events-none"></div>
 
-    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 relative z-10">
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 relative z-10 animate-card-pop">
 
         <!-- হেডার ও ব্যাক বাটন -->
         <div class="flex justify-between items-center">
-            <a href="/account" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1.5">
+            <a href="/account" class="text-xs font-bold text-yellow-700 hover:text-black flex items-center gap-1.5 transition">
                 <i class="fa-solid fa-arrow-left"></i> অ্যাকাউন্টে ফিরুন
             </a>
-            <span class="text-xs text-gray-500 font-bold flex items-center gap-1.5 bg-white/90 border border-gray-200 px-3 py-1 rounded-xl shadow-2xs">
-                <i class="fa-solid fa-shield-check text-green-500"></i> নিরাপদ পেআউট
-            </span>
+            <div class="flex items-center gap-1.5 px-3 py-1 bg-white/90 border border-gray-200/80 rounded-full text-xs font-bold text-gray-600 shadow-2xs">
+                <i class="fa-solid fa-shield-halved text-green-500"></i> নিরাপদ পেআউট গেটওয়ে
+            </div>
         </div>
 
-        <!-- ১. ব্যালেন্স ও শর্ত প্রগ্রেস কার্ড -->
-        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-7 rounded-[32px] border border-yellow-200/70 shadow-xl shadow-yellow-500/5 space-y-5">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-100">
-                <div>
-                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">বর্তমান ব্যালেন্স</span>
-                    <span class="text-3xl font-black text-green-600">৳ <span id="currentBal">0.00</span></span>
+        <!-- ১. ব্যালেন্স ও শর্ত প্রগ্রেস কার্ড (Modern Fintech Style) -->
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] border border-yellow-200/70 shadow-xl shadow-yellow-500/5 space-y-6">
+            
+            <!-- ব্যালেন্স এবং রেফার কাউন্টার -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-5 border-b border-gray-100">
+                <div class="space-y-0.5">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">উত্তোলনযোগ্য ব্যালেন্স</span>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-3xl sm:text-4xl font-black text-green-600 tracking-tight">৳ <span id="currentBal">0.00</span></span>
+                    </div>
                 </div>
-                <div class="text-left sm:text-right">
-                    <span class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider block">আপনার সফল রেফার</span>
-                    <span class="text-2xl font-black text-blue-600"><span id="currentRef">0</span> টি</span>
+
+                <div class="text-left sm:text-right space-y-0.5">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest block">আপনার সফল রেফার</span>
+                    <span class="text-2xl sm:text-3xl font-black text-blue-600"><span id="currentRef">0</span> টি</span>
                 </div>
             </div>
 
-            <!-- শর্ত চেকলিস্ট -->
-            <div class="space-y-2.5">
+            <!-- উত্তোলনের শর্তসমূহ -->
+            <div class="space-y-3">
                 <h4 class="text-xs font-black uppercase text-gray-400 tracking-wider">উত্তোলনের আবশ্যিক শর্তাবলী:</h4>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <!-- শর্ত ১: ৩৫০৳ ব্যালেন্স -->
-                    <div id="condBalBox" class="p-3.5 rounded-2xl border flex items-center justify-between bg-gray-50/70 border-gray-200 transition">
-                        <div class="flex items-center gap-2.5">
-                            <span id="condBalIcon" class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-bold">
+                    
+                    <!-- শর্ত ১: নূন্যতম ব্যালেন্স ৩৫০৳ -->
+                    <div id="condBalBox" class="p-4 rounded-2xl border flex items-center justify-between bg-gray-50/80 border-gray-200 transition duration-200">
+                        <div class="flex items-center gap-3">
+                            <span id="condBalIcon" class="w-7 h-7 rounded-xl bg-gray-200 text-gray-600 flex items-center justify-center text-xs flex-shrink-0">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </span>
-                            <span>নূন্যতম ব্যালেন্স: <b>৳ ৩৫০.০০</b></span>
+                            <span class="text-gray-700">নূন্যতম ব্যালেন্স: <b>৳ ৩৫০.০০</b></span>
                         </div>
-                        <span id="condBalStatus" class="font-bold text-[11px]">যাচাই হচ্ছে...</span>
+                        <span id="condBalStatus" class="font-black text-[11px]">যাচাই হচ্ছে...</span>
                     </div>
 
-                    <!-- শর্ত ২: ৫টি রেফার -->
-                    <div id="condRefBox" class="p-3.5 rounded-2xl border flex items-center justify-between bg-gray-50/70 border-gray-200 transition">
-                        <div class="flex items-center gap-2.5">
-                            <span id="condRefIcon" class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs">
+                    <!-- শর্ত ২: নূন্যতম ৫টি রেফার -->
+                    <div id="condRefBox" class="p-4 rounded-2xl border flex items-center justify-between bg-gray-50/80 border-gray-200 transition duration-200">
+                        <div class="flex items-center gap-3">
+                            <span id="condRefIcon" class="w-7 h-7 rounded-xl bg-gray-200 text-gray-600 flex items-center justify-center text-xs flex-shrink-0">
                                 <i class="fa-solid fa-ellipsis"></i>
                             </span>
-                            <span>নূন্যতম রেফার: <b>৫টি আইডি</b></span>
+                            <span class="text-gray-700">নূন্যতম রেফার: <b>৫টি আইডি</b></span>
                         </div>
-                        <span id="condRefStatus" class="font-bold text-[11px]">যাচাই হচ্ছে...</span>
+                        <span id="condRefStatus" class="font-black text-[11px]">যাচাই হচ্ছে...</span>
                     </div>
+
                 </div>
             </div>
 
-            <!-- টাইমলাইন ইনফো গাইড -->
-            <div class="p-3.5 bg-yellow-50/60 border border-yellow-200/70 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-[11px] font-semibold text-gray-600">
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-hourglass-start text-yellow-600"></i> ০-৮ ঘণ্টা: পেন্ডিং</span>
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-magnifying-glass-chart text-blue-600"></i> ৮-২৪ ঘণ্টা: রিভিউ চলছে</span>
-                <span class="flex items-center gap-1.5"><i class="fa-solid fa-money-bill-transfer text-purple-600"></i> ২৪ ঘণ্টা পর: দেওয়া হচ্ছে</span>
+            <!-- স্মার্ট টাইমলাইন চেইন গাইড -->
+            <div class="p-4 bg-yellow-50/60 border border-yellow-200/70 rounded-2xl flex flex-wrap items-center justify-between gap-2.5 text-[11px] font-bold text-gray-700">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-hourglass-start text-yellow-600"></i> ০-৮ ঘণ্টা: পেন্ডিং</span>
+                <span class="text-gray-300 hidden sm:inline">&bull;</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-magnifying-glass-chart text-blue-600"></i> ৮-২৪ ঘণ্টা: রিভিউ চলছে</span>
+                <span class="text-gray-300 hidden sm:inline">&bull;</span>
+                <span class="flex items-center gap-2"><i class="fa-solid fa-money-bill-transfer text-purple-600"></i> ২৪ ঘণ্টা পর: দেওয়া হচ্ছে...</span>
             </div>
         </div>
 
-        <!-- ২. উত্তোলন ফর্ম -->
-        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-7 rounded-[32px] border border-gray-200/80 shadow-xl shadow-yellow-500/5 space-y-4">
-            <h3 class="font-black text-gray-900 text-base flex items-center gap-2">
-                <i class="fa-solid fa-money-bill-transfer text-yellow-500"></i> উইথড্র রিকোয়েস্ট পাঠান
-            </h3>
+        <!-- ২. উত্তোলন ফর্ম (Minimal & Clean Form) -->
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] border border-gray-200/80 shadow-xl shadow-yellow-500/5 space-y-5">
+            
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-sm font-bold">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                </div>
+                <h3 class="font-black text-gray-900 text-base">উইথড্র রিকোয়েস্ট পাঠান</h3>
+            </div>
 
             <!-- শর্ত পূরণ না হলে অ্যালার্ট -->
-            <div id="lockAlert" class="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 flex items-start gap-2.5">
-                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
-                <p>টাকা তোলার জন্য নূন্যতম ৩৫০ টাকা ব্যালেন্স এবং কমপক্ষে ৫টি সফল রেফার থাকতে হবে। শর্ত পূরণ হলেই কেবল সাবমিট বাটনটি আনলক হবে।</p>
+            <div id="lockAlert" class="p-4 bg-amber-50/90 border border-amber-200/90 rounded-2xl text-xs text-amber-900 flex items-start gap-3">
+                <i class="fa-solid fa-lock text-amber-600 text-sm mt-0.5 flex-shrink-0"></i>
+                <p class="leading-relaxed">
+                    টাকা তুলতে নূন্যতম <b>৳৩৫০ ব্যালেন্স</b> এবং <b>৫টি সফল রেফার</b> থাকতে হবে। শর্ত দুটি পূরণ হওয়ার সাথে সাথে নিচের সাবমিট বাটনটি সক্রিয় হবে।
+                </p>
             </div>
 
             <form id="withdrawForm" class="space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider mb-1">পেমেন্ট মেথড</label>
-                        <select id="payMethod" required class="w-full text-xs p-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60 focus:bg-white">
+                    
+                    <!-- পেমেন্ট মেথড -->
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">পেমেন্ট মেথড</label>
+                        <select id="payMethod" required class="w-full text-xs p-3.5 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60 focus:bg-white transition font-medium">
                             <option value="bKash">বিকাশ (bKash Personal)</option>
                             <option value="Nagad">নগদ (Nagad Personal)</option>
                             <option value="Rocket">রকেট (Rocket Personal)</option>
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider mb-1">অ্যাকাউন্ট নম্বর</label>
-                        <input type="text" id="accNumber" placeholder="যেমন: 017xxxxxxxx" required class="w-full text-xs p-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60 focus:bg-white font-mono">
+                    <!-- অ্যাকাউন্ট নম্বর -->
+                    <div class="space-y-1">
+                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">অ্যাকাউন্ট নম্বর</label>
+                        <input type="text" id="accNumber" placeholder="যেমন: 017xxxxxxxx" required 
+                               class="w-full text-xs p-3.5 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60 focus:bg-white font-mono tracking-wider transition">
                     </div>
 
-                    <div class="sm:col-span-2">
-                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider mb-1">টাকার পরিমাণ (নূন্যতম ৩৫০৳)</label>
-                        <input type="number" id="withdrawAmount" placeholder="350" min="350" required class="w-full text-xs p-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60 focus:bg-white font-bold">
+                    <!-- টাকার পরিমাণ -->
+                    <div class="sm:col-span-2 space-y-1">
+                        <label class="block text-[11px] font-extrabold text-gray-600 uppercase tracking-wider">টাকার পরিমাণ (নূন্যতম ৩৫০৳)</label>
+                        <input type="number" id="withdrawAmount" placeholder="350" min="350" required 
+                               class="w-full text-xs p-3.5 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60 focus:bg-white font-bold text-gray-900 transition">
                     </div>
                 </div>
 
-                <button type="submit" id="submitWithdrawBtn" disabled class="w-full py-3.5 bg-gray-200 text-gray-400 font-black rounded-2xl text-xs cursor-not-allowed transition shadow-sm">
-                    উত্তোলন সাবমিট করুন
+                <!-- সাবমিট বাটন -->
+                <button type="submit" id="submitWithdrawBtn" disabled 
+                        class="w-full py-4 bg-gray-200 text-gray-400 font-black rounded-2xl text-xs sm:text-sm cursor-not-allowed transition duration-200 shadow-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> উত্তোলন সাবমিট করুন
                 </button>
             </form>
         </div>
 
-        <!-- ৩. উত্তোলন হিস্টোরি (Smart Time-Based Status) -->
-        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-7 rounded-[32px] border border-gray-200/80 shadow-xl shadow-yellow-500/5 space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="font-black text-gray-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-yellow-500"></i> উত্তোলনের ইতিহাস (History)
-                </h3>
-                <button onclick="checkConditionsAndInit()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-xl font-bold text-gray-600 transition">
-                    <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+        <!-- ৩. উত্তোলন হিস্টোরি (Smart Dynamic Status History) -->
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] border border-gray-200/80 shadow-xl shadow-yellow-500/5 space-y-4">
+            
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <h3 class="font-black text-gray-900 text-base">উত্তোলনের ইতিহাস (History)</h3>
+                </div>
+                <button onclick="checkConditionsAndInit()" class="text-xs bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-xl font-bold text-gray-600 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-right text-[10px]"></i> রিফ্রেশ
                 </button>
             </div>
 
+            <!-- হিস্টোরি লিস্ট -->
             <div id="historyList" class="space-y-3">
-                <p class="text-xs text-gray-400 text-center py-6"><i class="fa-solid fa-spinner fa-spin"></i> হিস্টোরি লোড হচ্ছে...</p>
+                <p class="text-xs text-gray-400 text-center py-8"><i class="fa-solid fa-spinner fa-spin"></i> হিস্টোরি লোড হচ্ছে...</p>
             </div>
         </div>
 
@@ -141,7 +177,7 @@
         let userBal = 0;
         let userRefs = 0;
 
-        // ১. শর্তাবলী ও তথ্য যাচাই
+        // ১. শর্তাবলী ও ডেটা ভ্যালিডেশন
         async function checkConditionsAndInit() {
             try {
                 // ব্যালেন্স ফেচ
@@ -161,13 +197,13 @@
                 const condBalStatus = document.getElementById('condBalStatus');
 
                 if (userBal >= 350) {
-                    condBalBox.className = "p-3.5 rounded-2xl border flex items-center justify-between bg-green-50/70 border-green-200 text-green-800";
-                    condBalIcon.className = "w-6 h-6 rounded-full bg-green-200 text-green-800 flex items-center justify-center text-xs";
+                    condBalBox.className = "p-4 rounded-2xl border flex items-center justify-between bg-green-50/80 border-green-200 text-green-900 transition";
+                    condBalIcon.className = "w-7 h-7 rounded-xl bg-green-200 text-green-900 flex items-center justify-center text-xs";
                     condBalIcon.innerHTML = `<i class="fa-solid fa-check"></i>`;
                     condBalStatus.innerText = "সম্পন্ন";
                 } else {
-                    condBalBox.className = "p-3.5 rounded-2xl border flex items-center justify-between bg-red-50/70 border-red-200 text-red-700";
-                    condBalIcon.className = "w-6 h-6 rounded-full bg-red-200 text-red-700 flex items-center justify-center text-xs";
+                    condBalBox.className = "p-4 rounded-2xl border flex items-center justify-between bg-red-50/80 border-red-200 text-red-900 transition";
+                    condBalIcon.className = "w-7 h-7 rounded-xl bg-red-200 text-red-700 flex items-center justify-center text-xs";
                     condBalIcon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
                     condBalStatus.innerText = `বাকি ৳${(350 - userBal).toFixed(2)}`;
                 }
@@ -178,23 +214,23 @@
                 const condRefStatus = document.getElementById('condRefStatus');
 
                 if (userRefs >= 5) {
-                    condRefBox.className = "p-3.5 rounded-2xl border flex items-center justify-between bg-green-50/70 border-green-200 text-green-800";
-                    condRefIcon.className = "w-6 h-6 rounded-full bg-green-200 text-green-800 flex items-center justify-center text-xs";
+                    condRefBox.className = "p-4 rounded-2xl border flex items-center justify-between bg-green-50/80 border-green-200 text-green-900 transition";
+                    condRefIcon.className = "w-7 h-7 rounded-xl bg-green-200 text-green-900 flex items-center justify-center text-xs";
                     condRefIcon.innerHTML = `<i class="fa-solid fa-check"></i>`;
                     condRefStatus.innerText = "সম্পন্ন";
                 } else {
-                    condRefBox.className = "p-3.5 rounded-2xl border flex items-center justify-between bg-red-50/70 border-red-200 text-red-700";
-                    condRefIcon.className = "w-6 h-6 rounded-full bg-red-200 text-red-700 flex items-center justify-center text-xs";
+                    condRefBox.className = "p-4 rounded-2xl border flex items-center justify-between bg-red-50/80 border-red-200 text-red-900 transition";
+                    condRefIcon.className = "w-7 h-7 rounded-xl bg-red-200 text-red-700 flex items-center justify-center text-xs";
                     condRefIcon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
                     condRefStatus.innerText = `বাকি ${5 - userRefs}টি`;
                 }
 
-                // উভয় শর্ত পূরণ হলে সাবমিট বাটন আনলক
+                // উভয় শর্ত পূরণ হলে বাটন আনলক
                 const btn = document.getElementById('submitWithdrawBtn');
                 if (userBal >= 350 && userRefs >= 5) {
                     document.getElementById('lockAlert').classList.add('hidden');
                     btn.disabled = false;
-                    btn.className = "w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs shadow-md shadow-yellow-500/20 cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition";
+                    btn.className = "w-full py-4 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-yellow-500/25 cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition flex items-center justify-center gap-2";
                 }
 
                 loadWithdrawHistory();
@@ -203,7 +239,7 @@
             }
         }
 
-        // ২. রিকোয়েস্ট সাবমিট
+        // ২. রিকোয়েস্ট সাবমিট হ্যান্ডলার
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitWithdrawBtn');
@@ -237,12 +273,12 @@
                 window.location.reload();
             } catch (err) {
                 alert(err.message);
-                btn.innerHTML = `উত্তোলন সাবমিট করুন`;
+                btn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> উত্তোলন সাবমিট করুন`;
                 btn.disabled = false;
             }
         });
 
-        // ৩. হিস্টোরি ও স্বয়ংক্রিয় সময়ভিত্তিক স্ট্যাটাস ক্যালকুলেশন
+        // ৩. সময়ভিত্তিক স্মার্ট হিস্টোরি রেন্ডার
         async function loadWithdrawHistory() {
             const container = document.getElementById('historyList');
             try {
@@ -251,7 +287,12 @@
                 container.innerHTML = "";
 
                 if (!data || data.length === 0) {
-                    container.innerHTML = `<p class="text-center text-gray-400 text-xs py-6">এখনো কোনো উত্তোলনের রিকোয়েস্ট নেই।</p>`;
+                    container.innerHTML = `
+                        <div class="text-center py-10 text-gray-400 space-y-2 bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
+                            <i class="fa-solid fa-money-bill-transfer text-3xl text-gray-300"></i>
+                            <p class="text-xs">এখনো কোনো উত্তোলনের রিকোয়েস্ট নেই।</p>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -262,30 +303,39 @@
                     const createdTime = new Date(item.created_at).getTime();
                     const elapsedHours = (now - createdTime) / (1000 * 60 * 60);
 
-                    // স্ট্যাটাস লজিক
+                    // নির্ভুল সময়ভিত্তিক স্ট্যাটাস লজিক
                     if (item.status === 'approved') {
-                        badge = `<span class="bg-green-100 text-green-800 text-[11px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1 border border-green-200">
-                                    <i class="fa-solid fa-check"></i> পরিশোধিত (পেইড)
-                                 </span>`;
+                        badge = `
+                            <span class="bg-green-100 text-green-800 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-green-200 shadow-2xs">
+                                <i class="fa-solid fa-check"></i> পরিশোধিত (পেইড)
+                            </span>
+                        `;
                     } else if (item.status === 'rejected') {
-                        badge = `<span class="bg-red-100 text-red-700 text-[11px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1 border border-red-200">
-                                    <i class="fa-solid fa-xmark"></i> রিজেক্টেড (বাতিল)
-                                 </span>`;
+                        badge = `
+                            <span class="bg-red-100 text-red-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-red-200 shadow-2xs">
+                                <i class="fa-solid fa-xmark"></i> রিজেক্টেড (বাতিল)
+                            </span>
+                        `;
                     } else {
-                        // পেন্ডিং রিকোয়েস্টের সময়ভিত্তিক স্ট্যাটাস
+                        // পেন্ডিং রিকোয়েস্টের টাইমিং
                         if (elapsedHours < 8) {
-                            badge = `<span class="bg-yellow-100 text-yellow-800 text-[11px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1 border border-yellow-200">
-                                        <i class="fa-solid fa-hourglass-start animate-spin"></i> পেন্ডিং
-                                     </span>`;
+                            badge = `
+                                <span class="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-yellow-300 shadow-2xs">
+                                    <i class="fa-solid fa-hourglass-start animate-spin text-[10px]"></i> পেন্ডিং
+                                </span>
+                            `;
                         } else if (elapsedHours >= 8 && elapsedHours < 24) {
-                            badge = `<span class="bg-blue-100 text-blue-700 text-[11px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1 border border-blue-200">
-                                        <i class="fa-solid fa-magnifying-glass-chart"></i> রিভিউ চলছে
-                                     </span>`;
+                            badge = `
+                                <span class="bg-blue-100 text-blue-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-blue-200 shadow-2xs">
+                                    <i class="fa-solid fa-magnifying-glass-chart"></i> রিভিউ চলছে
+                                </span>
+                            `;
                         } else {
-                            // ২৪ ঘণ্টার বেশি পার হলে
-                            badge = `<span class="bg-purple-100 text-purple-700 text-[11px] font-black px-2.5 py-1 rounded-xl flex items-center gap-1 border border-purple-200 animate-pulse">
-                                        <i class="fa-solid fa-money-bill-transfer"></i> দেওয়া হচ্ছে...
-                                     </span>`;
+                            badge = `
+                                <span class="bg-purple-100 text-purple-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-purple-200 shadow-2xs animate-pulse">
+                                    <i class="fa-solid fa-money-bill-transfer"></i> দেওয়া হচ্ছে...
+                                </span>
+                            `;
                         }
                     }
 
@@ -294,11 +344,11 @@
                     });
 
                     container.innerHTML += `
-                        <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-white transition">
+                        <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 hover:bg-white transition duration-200">
                             <div>
                                 <h4 class="font-black text-gray-900 text-sm">৳ ${parseFloat(item.amount).toFixed(2)} &bull; <span class="text-yellow-600 font-bold">${item.method}</span></h4>
                                 <p class="text-xs font-mono text-gray-600 mt-0.5">নম্বর: ${item.account_number} &bull; <span class="text-[11px] text-gray-400 font-sans">${dateStr}</span></p>
-                                ${item.status === 'rejected' && item.admin_note ? `<p class="text-[10px] text-red-600 font-bold mt-1">কারণ: ${item.admin_note}</p>` : ''}
+                                ${item.status === 'rejected' && item.admin_note ? `<p class="text-[11px] text-red-600 font-bold mt-1">কারণ: ${item.admin_note}</p>` : ''}
                             </div>
                             <div>${badge}</div>
                         </div>
