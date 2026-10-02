@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>গুগল সার্চ টাস্ক - TaskBee</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/layout.js"></script>
@@ -26,6 +27,7 @@
             <span class="text-xs bg-yellow-100 text-yellow-800 font-bold px-3 py-1.5 rounded-xl">সহজ কাজ</span>
         </div>
 
+        <!-- টাস্ক গ্রিড -->
         <div id="taskList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <p class="text-center text-gray-400 text-xs py-10 col-span-2"><i class="fa-solid fa-spinner fa-spin"></i> কাজগুলো লোড হচ্ছে...</p>
         </div>
@@ -33,15 +35,32 @@
     </main>
 
     <script>
+        const user = getUser();
+
         async function fetchTasks() {
             try {
-                const res = await fetch(`${API_URL}/tasks/google-search`);
+                // ইউজারের আইডি ব্যাকএন্ডে পাঠানো হচ্ছে যাতে সম্পন্ন হওয়া কাজগুলো বাদ দিয়ে আসে
+                const res = await fetch(`${API_URL}/tasks/google-search?user_id=${user.id}`);
                 const tasks = await res.json();
                 const container = document.getElementById('taskList');
                 container.innerHTML = "";
 
+                // যদি ইউজার সব কাজ সম্পন্ন করে ফেলে
                 if (tasks.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-8 rounded-3xl text-center text-gray-400 text-sm shadow-sm border col-span-2"><i class="fa-solid fa-inbox text-3xl mb-2 block"></i>বর্তমানে কোনো নতুন সার্চ টাস্ক নেই।</div>`;
+                    container.innerHTML = `
+                        <div class="bg-white p-8 sm:p-10 rounded-3xl text-center text-gray-500 shadow-sm border border-gray-100 col-span-2 space-y-3">
+                            <div class="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-2xs">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                            <h3 class="font-black text-base text-gray-800">অভিনন্দন! আপনি সকল গুগল সার্চ কাজ সম্পন্ন করেছেন</h3>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                আপনার জন্য বর্তমানে কোনো নতুন কাজ অবশিষ্ট নেই। নতুন কাজ আসা পর্যন্ত অপেক্ষা করুন অথবা অন্যান্য টাস্কগুলো সম্পন্ন করুন।
+                            </p>
+                            <a href="/tasks" class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-bold rounded-xl text-xs shadow-xs transition">
+                                <i class="fa-solid fa-list-check"></i> অন্যান্য কাজসমূহ দেখুন
+                            </a>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -51,12 +70,12 @@
                             <div class="space-y-2">
                                 <div class="flex justify-between items-start">
                                     <h4 class="font-bold text-gray-900 text-base">${t.title}</h4>
-                                    <span class="bg-green-100 text-green-700 font-black px-2.5 py-1 rounded-xl text-xs">৳ ${t.reward_amount}</span>
+                                    <span class="bg-green-100 text-green-700 font-black px-2.5 py-1 rounded-xl text-xs">৳ ${parseFloat(t.reward_amount).toFixed(2)}</span>
                                 </div>
                                 <p class="text-xs text-gray-500">কীওয়ার্ডটি গুগলে সার্চ করে প্রুফ হিসেবে স্ক্রিনশট জমা দিন।</p>
                             </div>
                             
-                            <!-- Start Task বাটন -> ডিটেইলস পেজে নিয়ে যাবে -->
+                            <!-- Start Task বাটন -->
                             <div class="pt-4 mt-3 border-t border-gray-100">
                                 <a href="/tasks/task-details?id=${t.id}" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 font-extrabold rounded-xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-xs transition">
                                     Start Task (কাজ শুরু করুন) <i class="fa-solid fa-arrow-right text-[10px]"></i>
