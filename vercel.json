@@ -24,6 +24,14 @@
       "dest": "/public/manifest.json"
     },
     {
+      "src": "/tasks/v2",
+      "dest": "/public/tasks/v2.html"
+    },
+    {
+      "src": "/task/v2",
+      "dest": "/public/tasks/v2.html"
+    },
+    {
       "src": "/sw.js",
       "dest": "/public/sw.js"
     },
