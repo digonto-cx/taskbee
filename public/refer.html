@@ -11,93 +11,74 @@
     <script src="/assets/js/layout.js"></script>
 
     <style>
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-        }
         @keyframes cardPop {
-            0% { opacity: 0; transform: scale(0.96) translateY(10px); }
+            0% { opacity: 0; transform: scale(0.97) translateY(8px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .animate-float { animation: floatSlow 4s ease-in-out infinite; }
         .animate-card-pop { animation: cardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-amber-50/30 via-white to-yellow-50/40 min-h-screen text-gray-800 pb-28 sm:pb-14 selection:bg-yellow-400">
     <script>checkAuth();</script>
 
-    <!-- ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট গ্লো -->
+    <!-- ব্যাকগ্রাউন্ড গ্লো -->
     <div class="fixed top-8 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-400/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 relative z-10 animate-card-pop">
 
-        <!-- ১. রেফারেল হিরো ব্যানার (Modern Amber Gradient) -->
+        <!-- ১. রেফারেল হিরো ব্যানার -->
         <div class="bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 p-6 sm:p-8 rounded-[32px] text-gray-950 shadow-xl shadow-yellow-500/15 relative overflow-hidden flex flex-col justify-between">
             <div class="relative z-10 space-y-2 max-w-lg">
                 <span class="bg-black/10 text-gray-950 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider inline-flex items-center gap-1.5 shadow-2xs">
-                    <i class="fa-solid fa-gift"></i> আনলিমিটেড রেফার বোনাস
+                    <i class="fa-solid fa-bolt"></i> ইনস্ট্যান্ট বোনাস
                 </span>
                 <h2 class="text-2xl sm:text-3xl font-black tracking-tight leading-tight">বন্ধুদের রেফার করে আয় করুন!</h2>
                 <p class="text-xs sm:text-sm font-medium text-gray-900 leading-relaxed">
-                    আপনার রেফারেল কোড দিয়ে বন্ধু একাউন্ট খুললেই <b>আপনি পাবেন ২০ টাকা</b> এবং আপনার <b>বন্ধুও পাবে ২০ টাকা</b>!
+                    আপনার রেফারেল কোড দিয়ে বন্ধু একাউন্ট খুললেই <b>আপনি পাবেন ১০ টাকা</b> এবং আপনার <b>বন্ধুও পাবে ১০ টাকা</b> সরাসরি মূল ব্যালেন্সে!
                 </p>
             </div>
 
-            <!-- ভাসমান ব্যাকগ্রাউন্ড আইকন -->
-            <div class="absolute -right-4 -bottom-4 text-black/5 text-9xl pointer-events-none animate-float">
+            <div class="absolute -right-4 -bottom-4 text-black/5 text-9xl pointer-events-none">
                 <i class="fa-solid fa-gift"></i>
             </div>
         </div>
 
-        <!-- ২. প্রথম ৫টি রেফার ২ ঘণ্টায় ভেরিফিকেশন স্পেশাল নোটিশ -->
-        <div class="bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-3xl border border-yellow-200/80 shadow-xs flex items-start gap-3.5">
-            <div class="w-10 h-10 rounded-2xl bg-yellow-400 text-gray-950 flex items-center justify-center text-base font-black flex-shrink-0 shadow-xs mt-0.5">
-                ⚡
-            </div>
-            <div class="space-y-0.5">
-                <h4 class="font-black text-gray-900 text-xs sm:text-sm">সুপারফাস্ট উইথড্র সুবিধা!</h4>
-                <p class="text-xs text-gray-500 leading-relaxed">
-                    আপনার <b>প্রথম ৫টি রেফার মাত্র ২ ঘণ্টার মধ্যে ভেরিফাই</b> হয়ে যাবে যাতে আপনি দ্রুত টাকা তুলতে পারেন! ষষ্ঠ রেফার থেকে পরবর্তী রেফারগুলো স্বাভাবিক ৭২ ঘণ্টায় ভেরিফাই হবে।
-                </p>
-            </div>
-        </div>
-
-        <!-- ৩. রেফারেল আর্নিং ও হোল্ড কার্ডস (৩টি রিয়েল-টাইম স্ট্যাটাস) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            
+        <!-- ২. রেফারেল আর্নিং কার্ডস (ইনস্ট্যান্ট আর্নিং) -->
+        <div class="grid grid-cols-2 gap-3.5">
             <!-- মোট রেফার -->
             <div class="bg-white/95 backdrop-blur-xl p-5 rounded-3xl border border-gray-200/80 shadow-2xs flex items-center gap-4 hover:shadow-xs transition">
-                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shadow-2xs">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shadow-2xs flex-shrink-0">
                     <i class="fa-solid fa-users"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider block">মোট রেফার</span>
+                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider block">মোট সফল রেফার</span>
                     <span id="totalRefCount" class="text-2xl font-black text-gray-900">0</span>
                 </div>
             </div>
 
-            <!-- মূল ব্যালেন্সে যুক্ত টাকা -->
+            <!-- রেফার থেকে সরাসরি আয় -->
             <div class="bg-white/95 backdrop-blur-xl p-5 rounded-3xl border border-gray-200/80 shadow-2xs flex items-center gap-4 hover:shadow-xs transition">
-                <div class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-xl font-bold shadow-2xs">
+                <div class="w-12 h-12 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-xl font-bold shadow-2xs flex-shrink-0">
                     <i class="fa-solid fa-wallet"></i>
                 </div>
                 <div>
-                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider block">মূল ব্যালেন্সে যুক্ত</span>
-                    <span class="text-2xl font-black text-green-600">৳ <span id="mainRefEarn">0.00</span></span>
+                    <span class="text-[10px] text-gray-400 font-extrabold uppercase tracking-wider block">রেফারেল মোট আয়</span>
+                    <span class="text-2xl font-black text-green-600">৳ <span id="totalRefEarn">0.00</span></span>
                 </div>
             </div>
+        </div>
 
-            <!-- হোল্ড ব্যালেন্স (যাচাই চলছে) -->
-            <div class="bg-white/95 backdrop-blur-xl p-5 rounded-3xl border border-yellow-200 shadow-2xs flex items-center gap-4 bg-yellow-50/30 hover:shadow-xs transition">
-                <div class="w-12 h-12 rounded-2xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xl font-bold shadow-2xs animate-pulse">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                </div>
-                <div>
-                    <span class="text-[10px] text-yellow-700 font-extrabold uppercase tracking-wider block">যাচাই চলছে (হোল্ড)</span>
-                    <span class="text-2xl font-black text-yellow-600">৳ <span id="holdRefEarn">0.00</span></span>
-                </div>
+        <!-- ৩. সিকিউরিটি পলিসি নোটিশ -->
+        <div class="bg-white/95 backdrop-blur-xl p-4 sm:p-5 rounded-3xl border border-yellow-200/80 shadow-xs flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-2xl bg-yellow-100 text-yellow-800 flex items-center justify-center text-base font-black flex-shrink-0 shadow-xs">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-
+            <div class="space-y-0.5">
+                <h4 class="font-black text-gray-900 text-xs sm:text-sm">ডিভাইস পলিসি ও সুরক্ষা</h4>
+                <p class="text-xs text-gray-500 leading-relaxed">
+                    সুরক্ষার স্বার্থে একই মডেলের ডিভাইসের মধ্যে রেফার গ্রহণযোগ্য নয়। সফল রেফারের বোনাস <b>১০ টাকা সরাসরি মূল অ্যাকাউন্টে যুক্ত হয়ে যায়</b> (কোনো হোল্ড নেই)।
+                </p>
+            </div>
         </div>
 
         <!-- ৪. রেফারেল কোড ও লিঙ্ক শেয়ারিং হাব -->
@@ -118,7 +99,7 @@
                     </button>
                 </div>
 
-                <!-- ডিরেক্ট ইনভাইট লিঙ্ক -->
+                <!-- ইনভাইট লিঙ্ক -->
                 <div class="sm:col-span-2 bg-gray-50/80 border border-gray-200 p-3.5 rounded-2xl flex justify-between items-center gap-2">
                     <div class="overflow-hidden">
                         <span class="text-[10px] text-gray-400 uppercase font-black block">ইনভাইট লিঙ্ক</span>
@@ -184,7 +165,7 @@
             setTimeout(() => { btn.innerHTML = `<i class="fa-solid fa-link mr-1"></i> লিঙ্ক কপি`; }, 2000);
         }
 
-        // ২. ডাটা ফেচিং (লাইভ হোল্ড ও ভেরিফিকেশন টাইমস্ট্যাম্প সহ)
+        // ২. ডাটা ফেচিং (ইনস্ট্যান্ট ১০৳ বোনাস রেন্ডার)
         async function fetchReferrals(page = 1) {
             const container = document.getElementById('userListContainer');
             container.innerHTML = `<p class="text-center text-gray-400 text-xs py-8"><i class="fa-solid fa-spinner fa-spin"></i> ডাটা লোড হচ্ছে...</p>`;
@@ -195,8 +176,7 @@
 
                 totalItems = data.total_count;
                 document.getElementById('totalRefCount').innerText = data.total_count;
-                document.getElementById('mainRefEarn').innerText = parseFloat(data.main_earned || 0).toFixed(2);
-                document.getElementById('holdRefEarn').innerText = parseFloat(data.hold_balance || 0).toFixed(2);
+                document.getElementById('totalRefEarn').innerText = parseFloat(data.total_earnings || 0).toFixed(2);
                 document.getElementById('pageIndicator').innerText = `পেজ ${page} / ${Math.ceil(totalItems / limit) || 1}`;
 
                 container.innerHTML = "";
@@ -217,22 +197,6 @@
                         day: 'numeric', month: 'short', year: 'numeric'
                     });
 
-                    // লাইভ হোল্ড স্ট্যাটাস ব্যাজ
-                    let statusBadge = "";
-                    if (u.is_held === true) {
-                        statusBadge = `
-                            <span class="bg-yellow-100 text-yellow-800 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-yellow-300 shadow-2xs">
-                                <i class="fa-solid fa-hourglass-start animate-spin text-[10px]"></i> যাচাই চলছে (${u.remaining_time || '২ ঘণ্টা বাকি'})
-                            </span>
-                        `;
-                    } else {
-                        statusBadge = `
-                            <span class="bg-green-100 text-green-700 text-[11px] font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-green-200 shadow-2xs">
-                                <i class="fa-solid fa-circle-check"></i> ব্যালেন্সে যোগ হয়েছে (+২০৳)
-                            </span>
-                        `;
-                    }
-
                     container.innerHTML += `
                         <div class="p-4 bg-gray-50/80 border border-gray-200/80 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-white transition duration-200">
                             <div class="flex items-center gap-3">
@@ -244,7 +208,9 @@
                                     <p class="text-[10px] text-gray-400 mt-0.5">UID: ${u.user_id} &bull; জয়েন: ${joinDate}</p>
                                 </div>
                             </div>
-                            <div>${statusBadge}</div>
+                            <span class="bg-green-100 text-green-700 text-[11px] font-black px-3 py-1 rounded-xl flex items-center gap-1.5 border border-green-200 shadow-2xs">
+                                <i class="fa-solid fa-circle-check"></i> ব্যালেন্সে যোগ হয়েছে (+১০৳)
+                            </span>
                         </div>
                     `;
                 });
@@ -256,13 +222,13 @@
             }
         }
 
-        // ৩. পেজিনেশন বাটন স্টেট হ্যান্ডলার
+        // ৩. পেজিনেশন বাটন হ্যান্ডলার
         function updatePaginationButtons() {
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
             const totalPages = Math.ceil(totalItems / limit);
 
-            // Previous বাটন
+            // Previous
             if (currentPage > 1) {
                 prevBtn.disabled = false;
                 prevBtn.className = "px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-black rounded-xl cursor-pointer shadow-xs flex items-center gap-1.5 transition";
@@ -271,7 +237,7 @@
                 prevBtn.className = "px-4 py-2 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed flex items-center gap-1.5";
             }
 
-            // Next বাটন
+            // Next
             if (currentPage < totalPages) {
                 nextBtn.disabled = false;
                 nextBtn.className = "px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-black rounded-xl cursor-pointer shadow-xs flex items-center gap-1.5 transition";
