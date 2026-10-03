@@ -174,7 +174,7 @@ function renderSlideToggleMenu(user) {
                                 <span class="w-7 h-7 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center text-xs"><i class="fa-solid fa-house"></i></span>
                                 হোম ড্যাশবোর্ড
                             </a>
-                            <a href="/tasks" class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl hover:bg-yellow-50 hover:text-yellow-800 transition">
+                            <a href="https://www.taskbee.shop/task/v2" class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl hover:bg-yellow-50 hover:text-yellow-800 transition">
                                 <span class="w-7 h-7 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xs"><i class="fa-solid fa-list-check"></i></span>
                                 টাস্ক সেন্টার
                             </a>
@@ -286,7 +286,7 @@ function renderUltraModernBottomNav(user) {
         </a>
 
         <!-- ৩. টাস্ক সেন্টার (মাঝখানে গোল্ডেন গ্লো সহ ফ্লোটিং বাটন) -->
-        <a href="/tasks" class="flex flex-col items-center -mt-7 flex-1 group">
+        <a href="https://www.taskbee.shop/task/v2" class="flex flex-col items-center -mt-7 flex-1 group">
             <div class="relative">
                 <span class="absolute inset-0 rounded-full bg-yellow-400 animate-pulse-glow"></span>
                 <div class="relative w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-amber-400 to-yellow-500 text-gray-950 flex items-center justify-center text-xl shadow-xl shadow-yellow-400/40 border-4 border-white group-hover:scale-105 active:scale-95 transition">
