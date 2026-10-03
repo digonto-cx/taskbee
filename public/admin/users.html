@@ -3,49 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ইউজার ম্যানেজমেন্ট - Admin</title>
+    <title>ইউজার ম্যানেজমেন্ট - TaskBee Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800 pb-16">
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-20 selection:bg-yellow-400">
 
     <!-- হেডার -->
     <header class="bg-gray-950 text-white sticky top-0 z-40 border-b border-gray-800 shadow-md">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white"><i class="fa-solid fa-users-gear"></i></span>
-                <h1 class="font-black text-lg text-yellow-400">User Management</h1>
+                <span class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold"><i class="fa-solid fa-users-gear"></i></span>
+                <h1 class="font-black text-lg text-yellow-400 leading-none">User Management</h1>
             </div>
-            <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-xl font-bold text-gray-300 transition">
-                &larr; মূল এডমিন প্যানেল
+            <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3.5 py-1.5 rounded-xl font-bold text-gray-300 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-xs"></i> মূল এডমিন প্যানেল
             </a>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <!-- সার্চ ও ফিল্টার বার -->
-        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-gray-200 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div class="relative w-full sm:w-80">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs">
+        <!-- সার্চ ও রিয়েল-টাইম ফিল্টার বার -->
+        <div class="bg-white p-5 rounded-[28px] border border-gray-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="relative w-full sm:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 text-xs">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </span>
-                <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="নাম, ইমেইল বা ৫ ডিজিট আইডি..." 
-                       class="w-full text-xs pl-8 pr-3 py-2.5 border rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50">
+                <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="নাম, ইমেইল বা ৫ ডিজিট আইডি দিয়ে খুঁজুন..." 
+                       class="w-full text-xs pl-9 pr-3 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/60">
             </div>
             
-            <div class="text-xs text-gray-500 font-bold">
-                মোট ইউজার: <span id="totalUsersCount" class="text-gray-900 font-black">0</span> জন
+            <div class="flex items-center gap-3 text-xs text-gray-500 font-bold">
+                <span>মোট ইউজার: <b id="totalUsersCount" class="text-gray-900 font-black">0</b> জন</span>
+                <span class="text-gray-300">|</span>
+                <span id="pageIndicator" class="bg-yellow-50 text-yellow-800 border border-yellow-200 px-2.5 py-1 rounded-xl">পেজ ১ / ১</span>
             </div>
         </div>
 
-        <!-- ইউজার টেবিল/লিস্ট -->
-        <div class="bg-white rounded-3xl border border-gray-200 shadow-xs overflow-hidden">
+        <!-- ইউজার টেবিল -->
+        <div class="bg-white rounded-[28px] border border-gray-200/80 shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-gray-50 border-b border-gray-200 text-gray-400 uppercase font-black tracking-wider">
+                    <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-400 uppercase font-black tracking-wider">
                         <tr>
                             <th class="p-4">ব্যবহারকারী (User)</th>
                             <th class="p-4">৫ ডিজিট ID</th>
@@ -56,12 +58,27 @@
                     </thead>
                     <tbody id="userTableBody" class="divide-y divide-gray-100">
                         <tr>
-                            <td colspan="5" class="p-8 text-center text-gray-400">
+                            <td colspan="5" class="p-10 text-center text-gray-400">
                                 <i class="fa-solid fa-spinner fa-spin mr-1"></i> ইউজার লোড হচ্ছে...
                             </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- পেজিনেশন কন্ট্রোল (Previous & Next - ২০ জন করে) -->
+            <div class="p-4 bg-gray-50/60 border-t border-gray-100 flex justify-between items-center">
+                <button id="prevBtn" onclick="changePage(-1)" disabled 
+                        class="px-4 py-2 bg-gray-200 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i> Previous (পূর্ববর্তী)
+                </button>
+
+                <span class="text-xs font-bold text-gray-500 hidden sm:inline">প্রতি পেজে ২০ জন প্রদর্শিত হচ্ছে</span>
+
+                <button id="nextBtn" onclick="changePage(1)" disabled 
+                        class="px-4 py-2 bg-gray-200 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed transition flex items-center gap-1.5">
+                    Next (পরবর্তী) <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
             </div>
         </div>
 
@@ -79,15 +96,15 @@
             <form id="balanceForm" class="space-y-3 text-left">
                 <input type="hidden" id="targetUserId">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">অ্যাকশন সিলেক্ট করুন</label>
-                    <select id="balAction" class="w-full text-xs p-2.5 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">অ্যাকশন</label>
+                    <select id="balAction" class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50">
                         <option value="add">+ ব্যালেন্স যোগ করুন (Add)</option>
                         <option value="deduct">- ব্যালেন্স কেটে নিন (Deduct)</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">টাকার পরিমাণ (৳)</label>
-                    <input type="number" id="balAmount" placeholder="যেমন: 50" step="1" required class="w-full text-xs p-2.5 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                    <input type="number" id="balAmount" placeholder="যেমন: 50" step="1" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
                 </div>
 
                 <div class="flex gap-2 pt-2">
@@ -102,20 +119,34 @@
         const adminUser = getUser();
         if (!adminUser || adminUser.role !== 'admin') {
             alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
-            window.location.href = "/login";
+            window.location.replace("/login");
         }
 
-        let allUsersData = [];
+        let currentPage = 1;
+        const limit = 20;
+        let totalPages = 1;
+        let searchTimeout = null;
 
-        // ১. সব ইউজার ফেচ
-        async function fetchUsers() {
+        // ১. ২০ জন করে ইউজার ফেচ করা
+        async function fetchUsers(page = 1, searchQuery = "") {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> ইউজার লোড হচ্ছে...</td></tr>`;
+
             try {
-                const res = await fetch(`${API_URL}/admin/users`);
-                allUsersData = await res.json();
-                document.getElementById('totalUsersCount').innerText = allUsersData.length;
-                renderUsers(allUsersData);
+                const res = await fetch(`${API_URL}/admin/users?page=${page}&limit=${limit}&search=${encodeURIComponent(searchQuery)}`);
+                const data = await res.json();
+
+                currentPage = data.page;
+                totalPages = data.total_pages;
+
+                document.getElementById('totalUsersCount').innerText = data.total;
+                document.getElementById('pageIndicator').innerText = `পেজ ${data.page} / ${data.total_pages}`;
+
+                renderUsers(data.users);
+                updatePaginationButtons();
             } catch (err) {
                 console.error(err);
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">ইউজার লোড করা যায়নি!</td></tr>`;
             }
         }
 
@@ -139,7 +170,7 @@
                     <tr class="hover:bg-gray-50/80 transition">
                         <td class="p-4">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 font-bold flex items-center justify-center text-xs">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 font-bold flex items-center justify-center text-xs flex-shrink-0">
                                     ${u.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
@@ -153,8 +184,8 @@
                         <td class="p-4">${statusBadge}</td>
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-1.5">
-                                <!-- ব্যালেন্স যোগ/কাটা -->
-                                <button onclick="openBalanceModal(${u.id}, '${u.name}')" title="ব্যালেন্স এডিট" class="w-7 h-7 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-lg flex items-center justify-center">
+                                <!-- ব্যালেন্স এডিট -->
+                                <button onclick="openBalanceModal(${u.id}, '${u.name}')" title="ব্যালেন্স নিয়ন্ত্রণ" class="w-7 h-7 bg-yellow-100 text-yellow-800 hover:bg-yellow-200 rounded-lg flex items-center justify-center">
                                     <i class="fa-solid fa-coins"></i>
                                 </button>
                                 
@@ -175,18 +206,47 @@
             });
         }
 
-        // ৩. সার্চ ফিল্টার
-        function filterUsers() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allUsersData.filter(u => 
-                u.name.toLowerCase().includes(query) ||
-                u.email.toLowerCase().includes(query) ||
-                u.user_id.includes(query)
-            );
-            renderUsers(filtered);
+        // ৩. পেজিনেশন বাটন হ্যান্ডলার (Previous & Next)
+        function updatePaginationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Previous বাটন
+            if (currentPage > 1) {
+                prevBtn.disabled = false;
+                prevBtn.className = "px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold rounded-xl cursor-pointer shadow-xs flex items-center gap-1.5 transition";
+            } else {
+                prevBtn.disabled = true;
+                prevBtn.className = "px-4 py-2 bg-gray-200 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed flex items-center gap-1.5";
+            }
+
+            // Next বাটন
+            if (currentPage < totalPages) {
+                nextBtn.disabled = false;
+                nextBtn.className = "px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-950 text-xs font-bold rounded-xl cursor-pointer shadow-xs flex items-center gap-1.5 transition";
+            } else {
+                nextBtn.disabled = true;
+                nextBtn.className = "px-4 py-2 bg-gray-200 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed flex items-center gap-1.5";
+            }
         }
 
-        // ৪. ব্যালেন্স মডাল ও সাবমিট
+        function changePage(step) {
+            currentPage += step;
+            const query = document.getElementById('searchInput').value.trim();
+            fetchUsers(currentPage, query);
+        }
+
+        // ৪. সার্চ ফিল্টার হ্যান্ডলার (Debounce সহ)
+        function handleSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = document.getElementById('searchInput').value.trim();
+                currentPage = 1; // সার্চ দিলে পেজ ১ এ যাবে
+                fetchUsers(1, query);
+            }, 300);
+        }
+
+        // ৫. ব্যালেন্স মডাল ও সাবমিশন
         function openBalanceModal(id, name) {
             document.getElementById('targetUserId').value = id;
             document.getElementById('targetUserName').innerText = `ইউজার: ${name}`;
@@ -215,10 +275,10 @@
             alert("ব্যালেন্স আপডেট সম্পন্ন হয়েছে!");
             btn.innerText = "সেভ করুন";
             closeBalanceModal();
-            fetchUsers();
+            fetchUsers(currentPage);
         });
 
-        // ৫. ব্যান / আনব্যান
+        // ৬. ব্যান / আনব্যান
         async function toggleBan(id, currentStatus) {
             if (!confirm(`আপনি কি নিশ্চিত এই ব্যবহারকারীকে ${currentStatus ? 'আনব্যান' : 'ব্যান'} করতে চান?`)) return;
 
@@ -229,19 +289,19 @@
             });
             const data = await res.json();
             alert(data.message);
-            fetchUsers();
+            fetchUsers(currentPage);
         }
 
-        // ৬. ডিলিট একাউন্ট
+        // ৭. ডিলিট একাউন্ট
         async function deleteUser(id, name) {
             if (!confirm(`সতর্কতা: ${name}-এর অ্যাকাউন্ট স্থায়ীভাবে মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা যাবে না!`)) return;
 
             await fetch(`${API_URL}/admin/users/${id}`, { method: 'DELETE' });
             alert("ইউজার ডিলিট করা হয়েছে!");
-            fetchUsers();
+            fetchUsers(currentPage);
         }
 
-        fetchUsers();
+        fetchUsers(1);
     </script>
 </body>
-  </html>
+</html>
