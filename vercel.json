@@ -28,6 +28,10 @@
       "dest": "/public/sw.js"
     },
     {
+      "src": "/admin/micro",
+      "dest": "/public/admin/micro.html"
+    },
+    {
       "src": "/admin/ck",
       "dest": "/public/admin/ck.html"
     },
@@ -58,6 +62,14 @@
     {
       "src": "/admin/(.*)",
       "dest": "/public/admin/$1"
+    },
+    {
+      "src": "/tasks/micro-details",
+      "dest": "/public/tasks/micro-details.html"
+    },
+    {
+      "src": "/tasks/micro",
+      "dest": "/public/tasks/micro.html"
     },
     {
       "src": "/tasks/job-details",
