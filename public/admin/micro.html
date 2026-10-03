@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মাইক্রো জব কন্ট্রোল - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+
+    <style>
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.96); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-popIn { animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-20 selection:bg-yellow-400">
+
+    <header class="bg-gray-950 text-white px-6 py-3.5 flex justify-between items-center shadow-md sticky top-0 z-40">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black"><i class="fa-solid fa-briefcase"></i></span>
+            <h1 class="font-black text-lg text-yellow-400">Micro Job Manager</h1>
+        </div>
+        <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3.5 py-1.5 rounded-xl font-bold text-gray-300">
+            &larr; মূল এডমিন প্যানেল
+        </a>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. নতুন মাইক্রো জব তৈরি ফর্ম -->
+        <div class="bg-white p-6 sm:p-7 rounded-[28px] border border-gray-200/80 shadow-xs space-y-4">
+            <h3 class="font-bold text-gray-900 text-base flex items-center gap-2 border-b pb-3 border-gray-100">
+                <i class="fa-solid fa-plus-circle text-indigo-600"></i> নতুন মাইক্রো জব তৈরি করুন
+            </h3>
+
+            <form id="createMicroForm" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-1">কাজের শিরোনাম (Title)</label>
+                        <input type="text" id="mTitle" placeholder="যেমন: টেলিগ্রাম চ্যানেলে জয়েন করুন" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">পুরস্কারের টাকা (৳ Price)</label>
+                        <input type="number" id="mReward" placeholder="যেমন: 2.00" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">কাজের লিংক (Target Website / Action Link)</label>
+                    <input type="url" id="mLink" placeholder="https://..." required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">কাজের সম্পূর্ণ বিবরণ ও নির্দেশনা (Description)</label>
+                    <textarea id="mDesc" rows="3" placeholder="ইউজার কীভাবে কাজটি করবে বিস্তারিত লিখুন..." required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <button type="submit" id="mBtn" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl text-xs shadow-xs transition">
+                    মাইক্রো জব পাবলিশ করুন
+                </button>
+            </form>
+        </div>
+
+        <!-- ২. পেন্ডিং মাইক্রো জব প্রুফ ভেরিফিকেশন প্যানেল -->
+        <div class="bg-white p-6 sm:p-7 rounded-[28px] border border-gray-200/80 shadow-xs space-y-4">
+            <div class="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-gray-100">
+                <h3 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-indigo-600"></i> পেন্ডিং মাইক্রো জব প্রুফ রিভিউ
+                </h3>
+                <button onclick="loadPendingMicroSubmissions()" class="text-xs bg-gray-100 hover:bg-gray-200 px-3.5 py-1.5 rounded-xl font-bold text-gray-600 transition">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> রিফ্রেশ
+                </button>
+            </div>
+
+            <div id="microSubmissionsList" class="space-y-4">
+                <p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- স্ক্রিনশট প্রিভিউ লাইটবক্স -->
+    <div id="previewModal" class="hidden fixed inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-popIn">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-4 space-y-3 shadow-2xl relative border border-gray-200">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h4 class="font-bold text-xs text-gray-800">স্ক্রিনশট প্রুফ</h4>
+                <button onclick="closePreviewModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark text-sm"></i></button>
+            </div>
+            <img id="previewImgSrc" src="#" alt="Proof" class="w-full max-h-80 object-contain rounded-xl bg-gray-50">
+            <a id="previewImgLink" href="#" target="_blank" class="block text-center text-xs text-blue-600 font-bold hover:underline">আসল ছবি ওপেন করুন</a>
+        </div>
+    </div>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.replace("/login");
+        }
+
+        // জব তৈরি
+        document.getElementById('createMicroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('mBtn');
+            btn.innerText = "পাবলিশ হচ্ছে...";
+
+            try {
+                const res = await fetch(`${API_URL}/admin/tasks/micro`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        title: document.getElementById('mTitle').value,
+                        link: document.getElementById('mLink').value,
+                        description: document.getElementById('mDesc').value,
+                        reward_amount: parseFloat(document.getElementById('mReward').value)
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(data.message);
+                document.getElementById('createMicroForm').reset();
+            } catch (err) {
+                alert(err.message);
+            } finally {
+                btn.innerText = "মাইক্রো জব পাবলিশ করুন";
+            }
+        });
+
+        // পেন্ডিং প্রুফ লোড
+        async function loadPendingMicroSubmissions() {
+            const container = document.getElementById('microSubmissionsList');
+            container.innerHTML = `<p class="text-xs text-gray-400 py-6 text-center"><i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/micro/pending`);
+                const data = await res.json();
+                container.innerHTML = "";
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-gray-400 py-8 text-center"><i class="fa-solid fa-circle-check text-2xl text-indigo-500 mb-2 block"></i>কোনো পেন্ডিং মাইক্রো জব প্রুফ নেই!</p>`;
+                    return;
+                }
+
+                data.forEach(sub => {
+                    container.innerHTML += `
+                        <div class="p-4 sm:p-5 bg-gray-50 border border-gray-200 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-white transition">
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-gray-900 text-sm flex items-center gap-1.5">
+                                    <i class="fa-solid fa-briefcase text-indigo-600"></i> ${sub.tasks.title} - <b class="text-green-600">৳${sub.tasks.reward_amount}</b>
+                                </h4>
+                                <p class="text-xs text-gray-500">ইউজার: <b>${sub.users.name}</b> (UID: ${sub.users.user_id})</p>
+                                <button onclick="openPreview('${sub.screenshot_url}')" class="text-xs text-blue-600 font-bold hover:underline inline-block mt-1">
+                                    <i class="fa-solid fa-image"></i> স্ক্রিনশট প্রিভিউ দেখুন
+                                </button>
+                            </div>
+
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <button onclick="actionMicro(${sub.id}, 'approve')" class="flex-1 sm:flex-initial px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-xs transition">
+                                    <i class="fa-solid fa-check mr-1"></i> Approve
+                                </button>
+                                <button onclick="actionMicro(${sub.id}, 'reject')" class="flex-1 sm:flex-initial px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition">
+                                    <i class="fa-solid fa-xmark mr-1"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                container.innerHTML = `<p class="text-xs text-red-500 py-4 text-center">ডাটা লোড করা যায়নি!</p>`;
+            }
+        }
+
+        async function actionMicro(id, act) {
+            const note = act === 'reject' ? prompt("রিজেক্টের কারণ লিখুন:") : "";
+            if (act === 'reject' && note === null) return;
+
+            const res = await fetch(`${API_URL}/admin/submissions/action`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ submission_id: id, action: act, admin_note: note || "" })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadPendingMicroSubmissions();
+        }
+
+        function openPreview(url) {
+            document.getElementById('previewImgSrc').src = url;
+            document.getElementById('previewImgLink').href = url;
+            document.getElementById('previewModal').classList.remove('hidden');
+        }
+        function closePreviewModal() { document.getElementById('previewModal').classList.add('hidden'); }
+
+        loadPendingMicroSubmissions();
+    </script>
+</body>
+  </html>
