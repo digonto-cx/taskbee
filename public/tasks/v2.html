@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অল-ইন-ওয়ান টাস্ক ফিড - TaskBee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+</head>
+<body class="bg-gradient-to-br from-amber-50/30 via-white to-yellow-50/40 min-h-screen text-gray-800 pb-28 sm:pb-14 selection:bg-yellow-400">
+    <script>checkAuth();</script>
+
+    <!-- ব্যাকগ্রাউন্ড গ্লো -->
+    <div class="fixed top-8 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-400/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6 relative z-10">
+
+        <!-- ১. টপ ব্যানার (মোট কাজ ও মোট টাকার রিয়েল-টাইম হিসাব) -->
+        <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-7 rounded-[32px] border border-yellow-200/70 shadow-xl shadow-yellow-500/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5">
+            <div>
+                <a href="/dashboard" class="text-xs font-bold text-yellow-600 hover:underline flex items-center gap-1.5 mb-1.5">
+                    <i class="fa-solid fa-arrow-left"></i> ড্যাশবোর্ডে ফিরুন
+                </a>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-bolt text-yellow-500"></i> অল-ইন-ওয়ান টাস্ক ফিড (Task Feed v2)
+                </h2>
+                <p class="text-xs text-gray-500 mt-0.5">সব ধরনের কাজ এক সাথে। যে কাজগুলো আপনি সম্পন্ন করেননি কেবল সেগুলোই এখানে দেখাবে।</p>
+            </div>
+            
+            <!-- মোট কাজ ও মোট টাকার ব্যাজ -->
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                <div class="bg-yellow-50 border border-yellow-200 px-4 py-2 rounded-2xl shadow-2xs flex items-center gap-2 flex-1 sm:flex-initial">
+                    <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
+                    <div>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">অবশিষ্ট কাজ</span>
+                        <span class="text-sm font-black text-gray-900"><b id="v2TaskCount">0</b> টি কাজ</span>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border border-green-200 px-4 py-2 rounded-2xl shadow-2xs flex items-center gap-2 flex-1 sm:flex-initial">
+                    <i class="fa-solid fa-wallet text-green-600 text-sm"></i>
+                    <div>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">মোট আয় সম্ভব</span>
+                        <span class="text-sm font-black text-green-700">৳ <b id="v2TotalReward">0.00</b></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ২. ক্যাটাগরি ফিল্টার মেনু -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-bold">
+            <button onclick="filterCategory('all')" class="cat-btn active-cat px-4 py-2.5 bg-yellow-400 text-gray-950 font-black rounded-2xl whitespace-nowrap shadow-xs transition flex items-center gap-1.5">
+                <i class="fa-solid fa-border-all"></i> সব কাজ একসাথে
+            </button>
+            <button onclick="filterCategory('google_search')" class="cat-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
+                <i class="fa-brands fa-google text-blue-500"></i> গুগল সার্চ
+            </button>
+            <button onclick="filterCategory('youtube')" class="cat-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
+                <i class="fa-brands fa-youtube text-red-500"></i> ইউটিউব
+            </button>
+            <button onclick="filterCategory('typing')" class="cat-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-keyboard text-yellow-500"></i> টাইপিং জব
+            </button>
+            <button onclick="filterCategory('job_post')" class="cat-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
+                <i class="fa-brands fa-facebook text-blue-600"></i> ফেসবুক জব
+            </button>
+            <button onclick="filterCategory('micro')" class="cat-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-briefcase text-indigo-600"></i> মাইক্রো জব
+            </button>
+        </div>
+
+        <!-- ৩. অল-ইন-ওয়ান টাস্ক গ্রিড -->
+        <div id="v2TaskGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p class="text-center text-gray-400 text-xs py-12 col-span-full"><i class="fa-solid fa-spinner fa-spin mr-1"></i> কাজগুলো লোড হচ্ছে...</p>
+        </div>
+
+    </main>
+
+    <script>
+        const user = getUser();
+        let currentCategory = "all";
+
+        // ১. সব কাজ ফেচ করা (পেন্ডিং ও অ্যাপ্রুভড কাজগুলো বাদ দিয়ে)
+        async function loadUnifiedTasks(category = "all") {
+            const container = document.getElementById('v2TaskGrid');
+            container.innerHTML = `<p class="text-center text-gray-400 text-xs py-12 col-span-full"><i class="fa-solid fa-spinner fa-spin mr-1"></i> কাজগুলো লোড হচ্ছে...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/tasks/v2?user_id=${user.id}&category=${category}`);
+                const data = await res.json();
+
+                // টপ ব্যানার কাউন্ট আপডেট
+                document.getElementById('v2TaskCount').innerText = data.total || 0;
+                document.getElementById('v2TotalReward').innerText = parseFloat(data.total_reward || 0).toFixed(2);
+
+                container.innerHTML = "";
+
+                // যদি কোনো অবশিষ্ট কাজ না থাকে
+                if (!data.tasks || data.tasks.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-white/95 backdrop-blur-xl p-8 sm:p-12 rounded-[32px] text-center text-gray-500 shadow-sm border border-gray-200 col-span-full space-y-3">
+                            <div class="w-16 h-16 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-2xs">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <h3 class="font-black text-lg text-gray-900">দারুণ! আপনার কোনো কাজ বাকি নেই</h3>
+                            <p class="text-xs text-gray-400 max-w-sm mx-auto">
+                                আপনি এই ক্যাটাগরির সকল কাজ ইতিমধ্যে সম্পন্ন করেছেন। নতুন কাজ আসা পর্যন্ত অপেক্ষা করুন অথবা রেফার করে আয় করুন।
+                            </p>
+                            <a href="/refer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-bold rounded-xl text-xs shadow-xs transition">
+                                <i class="fa-solid fa-gift"></i> বন্ধুদের রেফার করুন (২০৳)
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // কাজগুলো রেন্ডার করা
+                data.tasks.forEach(t => {
+                    let typeBadge = "";
+                    let iconBox = "";
+                    let targetUrl = "";
+                    let borderClass = "border-gray-200";
+
+                    // ক্যাটাগরি অনুযায়ী ডায়নামিক রিডাইরেক্ট লিঙ্ক ও আইকন
+                    if (t.task_type === "google_search") {
+                        typeBadge = `<span class="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Google Search</span>`;
+                        iconBox = `<div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-brands fa-google"></i></div>`;
+                        targetUrl = `/tasks/task-details?id=${t.id}`;
+                        borderClass = "border-yellow-300";
+                    } else if (t.task_type === "youtube") {
+                        typeBadge = `<span class="bg-red-100 text-red-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">YouTube Job</span>`;
+                        iconBox = `<div class="w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-brands fa-youtube"></i></div>`;
+                        targetUrl = `/tasks/yt-details?id=${t.id}`;
+                        borderClass = "border-red-300";
+                    } else if (t.task_type === "typing") {
+                        typeBadge = `<span class="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Typing Job</span>`;
+                        iconBox = `<div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-keyboard"></i></div>`;
+                        targetUrl = `/tasks/type-details?id=${t.id}`;
+                        borderClass = "border-yellow-400";
+                    } else if (t.task_type === "job_post") {
+                        typeBadge = `<span class="bg-blue-100 text-blue-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">FB Job Post</span>`;
+                        iconBox = `<div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-brands fa-facebook"></i></div>`;
+                        targetUrl = `/tasks/job-details?id=${t.id}`;
+                        borderClass = "border-blue-300";
+                    } else if (t.task_type === "micro") {
+                        typeBadge = `<span class="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Micro Task</span>`;
+                        iconBox = `<div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-briefcase"></i></div>`;
+                        targetUrl = `/tasks/micro-details?id=${t.id}`;
+                        borderClass = "border-indigo-300";
+                    } else {
+                        typeBadge = `<span class="bg-gray-100 text-gray-700 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Task</span>`;
+                        iconBox = `<div class="w-11 h-11 rounded-2xl bg-gray-100 text-gray-700 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-bolt"></i></div>`;
+                        targetUrl = `/tasks/task-details?id=${t.id}`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="bg-white/95 backdrop-blur-md p-5 rounded-3xl border-2 ${borderClass} shadow-2xs hover:shadow-md transition flex flex-col justify-between">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-start gap-3">
+                                    ${iconBox}
+                                    <div class="text-right">
+                                        <span class="text-[9px] text-gray-400 font-bold block uppercase">রিওয়ার্ড</span>
+                                        <span class="text-base font-black text-green-600">৳ ${parseFloat(t.reward_amount).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="mb-1">${typeBadge}</div>
+                                    <h4 class="font-bold text-gray-900 text-sm leading-snug line-clamp-1">${t.title}</h4>
+                                    <p class="text-xs text-gray-500 mt-1 line-clamp-2">${t.description || t.keyword || 'নির্দেশনা মোতাবেক কাজটি সম্পন্ন করে প্রুফ দিন।'}</p>
+                                </div>
+                            </div>
+
+                            <!-- Start Task বাটন (স্বয়ংক্রিয়ভাবে ক্যাটাগরির সঠিক ডিটেইলস পেজে নিয়ে যাবে) -->
+                            <div class="pt-4 mt-3 border-t border-gray-100">
+                                <a href="${targetUrl}" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 font-black rounded-xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-xs transition hover:scale-[1.01]">
+                                    Start Task (কাজ শুরু করুন) <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="text-center text-red-500 text-xs py-10 col-span-full">কাজগুলো লোড করা যায়নি!</p>`;
+            }
+        }
+
+        // ২. ক্যাটাগরি ফিল্টার টগল
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-4 py-2.5 bg-white/90 border border-gray-200 text-gray-600 rounded-2xl whitespace-nowrap hover:bg-gray-50 transition flex items-center gap-1.5";
+            });
+            event.currentTarget.className = "cat-btn active-cat px-4 py-2.5 bg-yellow-400 text-gray-950 font-black rounded-2xl whitespace-nowrap shadow-xs transition flex items-center gap-1.5";
+
+            loadUnifiedTasks(cat);
+        }
+
+        loadUnifiedTasks("all");
+    </script>
+</body>
+              </html>
