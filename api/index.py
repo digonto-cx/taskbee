@@ -1395,6 +1395,41 @@ def toggle_task_status(data: ToggleTaskStatusSchema):
 def delete_task(task_id: int):
     supabase.table("tasks").delete().eq("id", task_id).execute()
     return {"message": "টাস্কটি স্থায়ীভাবে মুছে ফেলা হয়েছে!"}
+
+# ================= UNIFIED ALL-IN-ONE TASK FEED API (/tasks/v2) ================= #
+
+@app.get("/api/tasks/v2")
+def get_unified_task_feed(user_id: Optional[int] = None, category: Optional[str] = "all"):
+    # ১. ডেটাবেস থেকে সব সক্রিয় টাস্ক আনা
+    query = supabase.table("tasks").select("*").eq("status", "active")
+    
+    if category and category != "all":
+        query = query.eq("task_type", category)
+        
+    res = query.order("created_at", desc=True).execute()
+    tasks = res.data or []
+
+    # ২. ইউজারের পেন্ডিং ও অ্যাপ্রুভড কাজগুলো বাদ দেওয়া
+    if user_id:
+        subs_res = supabase.table("task_submissions")\
+            .select("task_id, status")\
+            .eq("user_id", user_id)\
+            .in_("status", ["approved", "pending"])\
+            .execute()
+
+        completed_task_ids = {s["task_id"] for s in (subs_res.data or [])}
+        
+        # শুধুমাত্র অবশিষ্ট ও রিজেক্ট হওয়া কাজগুলো ফিল্টার করা
+        tasks = [t for t in tasks if t["id"] not in completed_task_ids]
+
+    total_tasks = len(tasks)
+    total_reward = sum(float(t.get("reward_amount") or 0.0) for t in tasks)
+
+    return {
+        "total": total_tasks,
+        "total_reward": total_reward,
+        "tasks": tasks
+    }
     
 @app.get("/api/tasks/job")
 def get_job_post_tasks():
