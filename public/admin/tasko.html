@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>টাস্ক ওভারভিউ ও ম্যানেজার - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 pb-20 selection:bg-yellow-400">
+
+    <!-- হেডার -->
+    <header class="bg-gray-950 text-white sticky top-0 z-40 border-b border-gray-800 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-yellow-400 text-gray-950 flex items-center justify-center font-bold"><i class="fa-solid fa-layer-group"></i></span>
+                <div>
+                    <h1 class="font-black text-lg text-yellow-400 leading-none">Task Overview & Manager</h1>
+                    <span class="text-[9px] text-gray-400 font-extrabold uppercase tracking-widest">Master Task Control (/admin/tasko)</span>
+                </div>
+            </div>
+            <a href="/admin" class="text-xs bg-gray-800 hover:bg-gray-700 px-3.5 py-1.5 rounded-xl font-bold text-gray-300 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-xs"></i> মূল এডমিন প্যানেল
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. মোট টাকার অংক ও টাস্ক স্ট্যাটাস কার্ডস -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            
+            <!-- মোট টাস্কের টাকার পরিমাণ -->
+            <div class="bg-gradient-to-tr from-gray-950 to-gray-900 text-white p-5 rounded-[28px] shadow-sm col-span-2 sm:col-span-1 border border-gray-800">
+                <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 block">মোট টাস্কের ভ্যালু</span>
+                <span class="text-2xl sm:text-3xl font-black text-yellow-400 mt-1 block">৳ <span id="statTotalMoney">0.00</span></span>
+            </div>
+
+            <!-- মোট টাস্ক সংখ্যা -->
+            <div class="bg-white p-5 rounded-[28px] border border-gray-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">মোট টাস্ক</span>
+                    <span id="statTotalCount" class="text-2xl font-black text-gray-900 mt-0.5 block">0 টি</span>
+                </div>
+                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+            </div>
+
+            <!-- সক্রিয় টাস্ক -->
+            <div class="bg-white p-5 rounded-[28px] border border-gray-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">সক্রিয় (Active)</span>
+                    <span id="statActiveCount" class="text-2xl font-black text-green-600 mt-0.5 block">0 টি</span>
+                </div>
+                <div class="w-10 h-10 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+
+            <!-- বন্ধ / পজ টাস্ক -->
+            <div class="bg-white p-5 rounded-[28px] border border-gray-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">পজ (Inactive)</span>
+                    <span id="statInactiveCount" class="text-2xl font-black text-amber-600 mt-0.5 block">0 টি</span>
+                </div>
+                <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-circle-pause"></i>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ২. ফিল্টার ও সার্চ বার -->
+        <div class="bg-white p-4 sm:p-5 rounded-[28px] border border-gray-200 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="relative w-full sm:w-80">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="searchInput" onkeyup="filterTasks()" placeholder="টাস্কের নাম বা কীওয়ার্ড খুঁজুন..." 
+                       class="w-full text-xs pl-9 pr-3 py-2.5 border rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50/50">
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <select id="typeFilter" onchange="filterTasks()" class="text-xs p-2.5 border rounded-2xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50 w-full sm:w-auto font-medium">
+                    <option value="all">সব টাইপের টাস্ক (All Types)</option>
+                    <option value="google_search">গুগল সার্চ টাস্ক</option>
+                    <option value="youtube">ইউটিউব টাস্ক</option>
+                    <option value="typing">টাইপিং জব</option>
+                    <option value="job_post">ফেসবুক জব পোস্ট</option>
+                    <option value="micro">মাইক্রো জব</option>
+                </select>
+                <button onclick="loadTasksOverview()" class="p-2.5 bg-gray-100 hover:bg-gray-200 rounded-2xl text-xs font-bold text-gray-600">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ৩. টাস্ক টেবিল লিস্ট -->
+        <div class="bg-white rounded-[28px] border border-gray-200 shadow-xs overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-400 uppercase font-black tracking-wider">
+                        <tr>
+                            <th class="p-4">টাস্ক বিবরণ</th>
+                            <th class="p-4">ক্যাটাগরি</th>
+                            <th class="p-4">রিওয়ার্ড (৳)</th>
+                            <th class="p-4">স্ট্যাটাস</th>
+                            <th class="p-4 text-center">অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="taskTableBody" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="5" class="p-8 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> টাস্ক লোড হচ্ছে...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ৪. টাস্ক এডিট মডাল (Edit Modal) -->
+    <div id="editModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                <h4 class="font-bold text-sm text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-yellow-500"></i> টাস্ক তথ্য আপডেট করুন
+                </h4>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-black"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="editTaskForm" class="space-y-3.5">
+                <input type="hidden" id="editTaskId">
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">টাস্ক শিরোনাম (Title)</label>
+                    <input type="text" id="editTitle" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">পুরস্কারের টাকা (৳)</label>
+                        <input type="number" id="editReward" step="0.5" required class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">স্ট্যাটাস</label>
+                        <select id="editStatus" class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none bg-gray-50 font-bold">
+                            <option value="active">Active (চালু)</option>
+                            <option value="inactive">Inactive (পজ/বন্ধ)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">কাজের লিংক / কীওয়ার্ড</label>
+                    <input type="text" id="editLinkKeyword" class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">কাজের বর্ণনা (Description)</label>
+                    <textarea id="editDesc" rows="3" class="w-full text-xs p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeEditModal()" class="w-1/2 py-2.5 bg-gray-100 text-gray-700 font-bold rounded-xl text-xs">বাতিল</button>
+                    <button type="submit" id="saveEditBtn" class="w-1/2 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-black rounded-xl text-xs shadow-xs">আপডেট সেভ করুন</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.replace("/login");
+        }
+
+        let allTasksList = [];
+
+        // ১. সকল টাস্ক ফেচ ও স্ট্যাটাস ক্যালকুলেশন
+        async function loadTasksOverview() {
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> টাস্ক লোড হচ্ছে...</td></tr>`;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/tasks/all`);
+                const data = await res.json();
+
+                allTasksList = data.tasks || [];
+
+                document.getElementById('statTotalMoney').innerText = parseFloat(data.total_reward_sum || 0).toFixed(2);
+                document.getElementById('statTotalCount').innerText = `${data.total_tasks} টি`;
+                document.getElementById('statActiveCount').innerText = `${data.active_count} টি`;
+                document.getElementById('statInactiveCount').innerText = `${data.inactive_count} টি`;
+
+                renderTasksTable(allTasksList);
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">ডাটা লোড করা যায়নি!</td></tr>`;
+            }
+        }
+
+        // ২. টেবিল রেন্ডার
+        function renderTasksTable(tasks) {
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = "";
+
+            if (!tasks || tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-400">কোনো টাস্ক পাওয়া যায়নি।</td></tr>`;
+                return;
+            }
+
+            tasks.forEach(t => {
+                const isActive = t.status === "active";
+                let typeBadge = "";
+
+                if (t.task_type === "google_search") typeBadge = `<span class="bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-lg font-bold">Google</span>`;
+                else if (t.task_type === "youtube") typeBadge = `<span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-lg font-bold">YouTube</span>`;
+                else if (t.task_type === "typing") typeBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-lg font-bold">Typing</span>`;
+                else if (t.task_type === "job_post") typeBadge = `<span class="bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-lg font-bold">FB Job</span>`;
+                else if (t.task_type === "micro") typeBadge = `<span class="bg-purple-100 text-purple-700 px-2.5 py-0.5 rounded-lg font-bold">Micro</span>`;
+                else typeBadge = `<span class="bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-lg font-bold">${t.task_type}</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="p-4">
+                            <h4 class="font-bold text-gray-900">${t.title}</h4>
+                            <p class="text-[11px] text-gray-400 font-mono mt-0.5 truncate max-w-xs">${t.keyword || t.link || t.caption || '—'}</p>
+                        </td>
+                        <td class="p-4">${typeBadge}</td>
+                        <td class="p-4 font-black text-green-600">৳ ${parseFloat(t.reward_amount).toFixed(2)}</td>
+                        <td class="p-4">
+                            <button onclick="toggleStatus(${t.id})" class="px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}">
+                                <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                                ${isActive ? 'Active' : 'Paused'}
+                            </button>
+                        </td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="openEditModal(${t.id})" class="w-8 h-8 rounded-xl bg-yellow-100 text-yellow-800 hover:bg-yellow-200 flex items-center justify-center" title="এডিট">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteTaskItem(${t.id})" class="w-8 h-8 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 flex items-center justify-center" title="মুছে ফেলুন">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ৩. সার্চ ও ফিল্টারিং
+        function filterTasks() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const type = document.getElementById('typeFilter').value;
+
+            const filtered = allTasksList.filter(t => {
+                const matchesQuery = t.title.toLowerCase().includes(query) || (t.keyword && t.keyword.toLowerCase().includes(query));
+                const matchesType = type === "all" || t.task_type === type;
+                return matchesQuery && matchesType;
+            });
+
+            renderTasksTable(filtered);
+        }
+
+        // ৪. স্ট্যাটাস টগল (Active / Paused)
+        async function toggleStatus(id) {
+            await fetch(`${API_URL}/admin/tasks/toggle-status`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ task_id: id })
+            });
+            loadTasksOverview();
+        }
+
+        // ৫. এডিট মডাল ও আপডেট
+        function openEditModal(id) {
+            const task = allTasksList.find(t => t.id === id);
+            if (!task) return;
+
+            document.getElementById('editTaskId').value = task.id;
+            document.getElementById('editTitle').value = task.title;
+            document.getElementById('editReward').value = task.reward_amount;
+            document.getElementById('editStatus').value = task.status;
+            document.getElementById('editLinkKeyword').value = task.link || task.keyword || task.caption || "";
+            document.getElementById('editDesc').value = task.description || "";
+
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveEditBtn');
+            btn.innerText = "আপডেট হচ্ছে...";
+
+            await fetch(`${API_URL}/admin/tasks/edit`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    task_id: parseInt(document.getElementById('editTaskId').value),
+                    title: document.getElementById('editTitle').value,
+                    reward_amount: parseFloat(document.getElementById('editReward').value),
+                    status: document.getElementById('editStatus').value,
+                    link: document.getElementById('editLinkKeyword').value,
+                    keyword: document.getElementById('editLinkKeyword').value,
+                    description: document.getElementById('editDesc').value
+                })
+            });
+
+            alert("টাস্ক সফলভাবে আপডেট হয়েছে!");
+            btn.innerText = "আপডেট সেভ করুন";
+            closeEditModal();
+            loadTasksOverview();
+        });
+
+        // ৬. টাস্ক ডিলিট
+        async function deleteTaskItem(id) {
+            if (!confirm("আপনি কি নিশ্চিত এই টাস্কটি মুছে ফেলতে চান?")) return;
+            await fetch(`${API_URL}/admin/tasks/${id}`, { method: 'DELETE' });
+            alert("টাস্ক মুছে ফেলা হয়েছে!");
+            loadTasksOverview();
+        }
+
+        loadTasksOverview();
+    </script>
+</body>
+                  </html>
