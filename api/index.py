@@ -1275,7 +1275,58 @@ def get_pending_job_submissions():
     ]
     return job_pending
     
+# ================= MICRO JOB TASK APIs ================= #
 
+class CreateMicroTaskSchema(BaseModel):
+    title: str
+    link: str
+    description: str
+    reward_amount: float
+
+# ১. এডমিন কর্তৃক মাইক্রো জব তৈরি
+@app.post("/api/admin/tasks/micro")
+def create_micro_task(data: CreateMicroTaskSchema):
+    res = supabase.table("tasks").insert({
+        "task_type": "micro",
+        "title": data.title,
+        "link": data.link,
+        "description": data.description,
+        "keyword": data.link,
+        "reward_amount": data.reward_amount,
+        "status": "active"
+    }).execute()
+    return {"message": "মাইক্রো জব সফলভাবে তৈরি হয়েছে!", "data": res.data}
+
+# ২. ইউজারদের জন্য মাইক্রো জব লিস্ট (কমপ্লিট কাজ ফিল্টার সহ)
+@app.get("/api/tasks/micro")
+def get_micro_tasks(user_id: Optional[int] = None):
+    res = supabase.table("tasks").select("*").eq("task_type", "micro").eq("status", "active").execute()
+    tasks = res.data or []
+
+    if user_id:
+        subs_res = supabase.table("task_submissions")\
+            .select("task_id, status")\
+            .eq("user_id", user_id)\
+            .in_("status", ["approved", "pending"])\
+            .execute()
+        
+        completed_task_ids = {s["task_id"] for s in (subs_res.data or [])}
+        tasks = [t for t in tasks if t["id"] not in completed_task_ids]
+
+    return tasks
+
+# ৩. এডমিনের পেন্ডিং মাইক্রো জব প্রুফ লিস্ট
+@app.get("/api/admin/micro/pending")
+def get_pending_micro_submissions():
+    res = supabase.table("task_submissions")\
+        .select("id, task_id, user_id, screenshot_url, status, created_at, tasks(title, reward_amount, task_type, link, description), users(name, user_id)")\
+        .eq("status", "pending")\
+        .order("created_at", desc=True)\
+        .execute()
+
+    all_pending = res.data or []
+    return [s for s in all_pending if s.get("tasks") and s["tasks"].get("task_type") == "micro"]
+    
 @app.get("/api/tasks/job")
 def get_job_post_tasks():
     res = supabase.table("tasks").select("*").eq("task_type", "job_post").eq("status", "active").execute()
