@@ -1326,6 +1326,75 @@ def get_pending_micro_submissions():
 
     all_pending = res.data or []
     return [s for s in all_pending if s.get("tasks") and s["tasks"].get("task_type") == "micro"]
+
+# ================= ADMIN TASK OVERVIEW & EDIT APIs (/admin/tasko) ================= #
+
+class EditTaskSchema(BaseModel):
+    task_id: int
+    title: str
+    reward_amount: float
+    status: str
+    link: Optional[str] = ""
+    description: Optional[str] = ""
+    keyword: Optional[str] = ""
+
+class ToggleTaskStatusSchema(BaseModel):
+    task_id: int
+
+# ১. সকল টাস্কের তালিকা ও মোট টাকার হিসাব
+@app.get("/api/admin/tasks/all")
+def get_all_admin_tasks():
+    res = supabase.table("tasks").select("*").order("created_at", desc=True).execute()
+    tasks = res.data or []
+
+    total_tasks = len(tasks)
+    total_reward_sum = sum(float(t.get("reward_amount") or 0.0) for t in tasks)
+    active_count = sum(1 for t in tasks if t.get("status") == "active")
+    inactive_count = total_tasks - active_count
+
+    return {
+        "total_tasks": total_tasks,
+        "total_reward_sum": total_reward_sum,
+        "active_count": active_count,
+        "inactive_count": inactive_count,
+        "tasks": tasks
+    }
+
+# ২. টাস্ক এডিট বা আপডেট করা
+@app.post("/api/admin/tasks/edit")
+def edit_task(data: EditTaskSchema):
+    update_payload = {
+        "title": data.title,
+        "reward_amount": data.reward_amount,
+        "status": data.status
+    }
+    if data.link:
+        update_payload["link"] = data.link
+    if data.description:
+        update_payload["description"] = data.description
+    if data.keyword:
+        update_payload["keyword"] = data.keyword
+
+    res = supabase.table("tasks").update(update_payload).eq("id", data.task_id).execute()
+    return {"message": "টাস্ক সফলভাবে আপডেট হয়েছে!", "data": res.data}
+
+# ৩. টাস্ক একটিভ / পজ (Toggle)
+@app.post("/api/admin/tasks/toggle-status")
+def toggle_task_status(data: ToggleTaskStatusSchema):
+    t_res = supabase.table("tasks").select("status").eq("id", data.task_id).single().execute()
+    if not t_res.data:
+        raise HTTPException(status_code=404, detail="টাস্ক পাওয়া যায়নি!")
+
+    new_status = "inactive" if t_res.data["status"] == "active" else "active"
+    supabase.table("tasks").update({"status": new_status}).eq("id", data.task_id).execute()
+
+    return {"message": f"টাস্কটি সফলভাবে {'চালু' if new_status == 'active' else 'বন্ধ (Paused)'} করা হয়েছে!", "status": new_status}
+
+# ৪. টাস্ক ডিলিট
+@app.delete("/api/admin/tasks/{task_id}")
+def delete_task(task_id: int):
+    supabase.table("tasks").delete().eq("id", task_id).execute()
+    return {"message": "টাস্কটি স্থায়ীভাবে মুছে ফেলা হয়েছে!"}
     
 @app.get("/api/tasks/job")
 def get_job_post_tasks():
