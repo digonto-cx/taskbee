@@ -28,6 +28,10 @@
       "dest": "/public/sw.js"
     },
     {
+      "src": "/admin/tasko",
+      "dest": "/public/admin/tasko.html"
+    },
+    {
       "src": "/admin/micro",
       "dest": "/public/admin/micro.html"
     },
