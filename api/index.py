@@ -829,14 +829,33 @@ class AdjustBalanceSchema(BaseModel):
 class ToggleBanSchema(BaseModel):
     user_id: int
 
-@app.get("/api/admin/users")
-def get_all_users():
-    res = supabase.table("users")\
-        .select("id, user_id, name, email, balance, is_banned, role, created_at")\
-        .order("created_at", desc=True)\
-        .execute()
-    return res.data
+# ================= এডমিন ইউজার লিস্ট (২০ জন পেজিনেশন ও সার্চ) ================= #
 
+@app.get("/api/admin/users")
+def get_all_users(page: int = 1, limit: int = 20, search: Optional[str] = None):
+    query = supabase.table("users").select("id, user_id, name, email, balance, is_banned, role, created_at", count="exact")
+
+    # সার্চ ফিল্টার (নাম, ইমেইল বা ৫ ডিজিট আইডি)
+    if search and search.strip():
+        s = search.strip()
+        query = query.or_(f"name.ilike.%{s}%,email.ilike.%{s}%,user_id.eq.{s}")
+
+    start = (page - 1) * limit
+    end = start + limit - 1
+
+    res = query.order("created_at", desc=True).range(start, end).execute()
+
+    total_count = res.count if res.count is not None else 0
+    total_pages = max(1, (total_count + limit - 1) // limit)
+
+    return {
+        "total": total_count,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages,
+        "users": res.data or []
+}
+    
 @app.post("/api/admin/users/balance")
 def adjust_user_balance(data: AdjustBalanceSchema):
     u = supabase.table("users").select("balance").eq("id", data.user_id).single().execute()
