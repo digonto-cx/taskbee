@@ -118,7 +118,7 @@ function renderModernSupportWidget(user) {
                     </p>
                 </div>
 
-                <a href="https://t.me/your_support_username" target="_blank" class="w-full py-3.5 bg-gray-950 hover:bg-black text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition hover:scale-105 active:scale-95">
+                <a href="https://t.me/taskbee_help" target="_blank" class="w-full py-3.5 bg-gray-950 hover:bg-black text-white font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm transition hover:scale-105 active:scale-95">
                     <i class="fa-solid fa-headphones"></i> কাস্টমার সাপোর্টে কথা বলুন
                 </a>
             </div>
