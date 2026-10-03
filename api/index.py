@@ -87,6 +87,7 @@ class RegisterSchema(BaseModel):
     email: str
     password: str
     device_id: str
+    device_model: Optional[str] = "Unknown"
     referred_by: Optional[str] = None
 
 class LoginSchema(BaseModel):
@@ -1064,10 +1065,9 @@ def get_tasks_summary():
         "total_reward": total_reward
     }
 
-
 @app.post("/api/auth/register")
 def register(data: RegisterSchema):
-    # ১. এক ডিভাইসে ১ একাউন্ট লক চেক
+    # ১. এক ডিভাইসে একাউন্ট চেক
     device_id_clean = data.device_id.strip()
     device_check = supabase.table("users").select("id").eq("device_id", device_id_clean).execute()
     if device_check.data:
@@ -1082,64 +1082,62 @@ def register(data: RegisterSchema):
     if email_check.data:
         raise HTTPException(status_code=400, detail="এই ইমেইলটি দিয়ে ইতিমধ্যে একাউন্ট তৈরি করা হয়েছে!")
 
-    # ৩. ৫ ডিজিটের ইউনিক রেফার আইডি তৈরি
+    # ৩. ৫ ডিজিট ইউনিক রেফার আইডি তৈরি
     user_5digit_id = generate_unique_5digit_id()
 
-    # ৪. রেফারার ভ্যালিডেশন (স্পেস রিমুভ করে চেক)
+    # ডিভাইস মডেল ও রেফার কোড প্রসেসিং
     clean_ref = data.referred_by.strip() if data.referred_by else None
+    client_model = (data.device_model or "Unknown").strip()
     referrer_user = None
 
+    # ================= ৪. রেফারেল সিকিউরিটি (শুধুমাত্র রেফার কোড থাকলে কাজ করবে) ================= #
     if clean_ref:
-        ref_check = supabase.table("users").select("id, user_id, hold_balance").eq("user_id", clean_ref).execute()
-        if ref_check.data:
-            referrer_user = ref_check.data[0]
+        ref_check = supabase.table("users").select("id, user_id, device_model, balance").eq("user_id", clean_ref).execute()
+        if not ref_check.data:
+            raise HTTPException(status_code=400, detail="ভুল বা অকার্যকর রেফারেল কোড দেওয়া হয়েছে!")
 
-    # নতুন ইউজার যদি সঠিক রেফার কোড দেয়, তবে শুরুতেই তার ২০ টাকা হোল্ডে ঢুকবে
-    new_user_hold_bal = 20.00 if referrer_user else 0.00
+        referrer_user = ref_check.data[0]
+        referrer_model = (referrer_user.get("device_model") or "Unknown").strip()
 
-    # ৫. নতুন ইউজার ডাটাবেসে সেভ
+        # নিজের কোড নিজে দেওয়া বন্ধ
+        if referrer_user["user_id"] == user_5digit_id:
+            raise HTTPException(status_code=400, detail="নিজের রেফারেল কোড নিজে ব্যবহার করা নিষিদ্ধ!")
+
+        # একই ডিভাইস মডেলের মধ্যে রেফার ব্লক করার কড়া নিয়ম
+        # উদাহরণ: X20 মডেলের ফোন থেকে X20 মডেলের ফোনে রেফার গ্রহণযোগ্য নয়
+        if client_model != "Unknown" and referrer_model != "Unknown":
+            if client_model.lower() == referrer_model.lower():
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"নিরাপত্তাজনিত কারণে একই মডেলের ডিভাইসের ({client_model}) মধ্যে রেফার গ্রহণযোগ্য নয়!"
+                )
+
+    # বোনাস সরাসরি মূল ব্যালেন্সে যাবে (কোনো হোল্ড নেই)
+    new_user_initial_balance = 10.00 if referrer_user else 0.00
+
+    # ৫. নতুন ইউজার সেভ (ডিভাইস মডেল সহ)
     user_payload = {
         "user_id": user_5digit_id,
         "name": data.name.strip(),
         "email": email_clean,
         "password_hash": hash_password(data.password),
         "device_id": device_id_clean,
+        "device_model": client_model,
         "referred_by": referrer_user["user_id"] if referrer_user else None,
-        "balance": 0.00,
-        "hold_balance": new_user_hold_bal,
+        "balance": new_user_initial_balance,  # সরাসরি ১০ টাকা মূল ব্যালেন্সে
+        "hold_balance": 0.00,                 # কোনো হোল্ড নেই
         "role": "user"
     }
     insert_res = supabase.table("users").insert(user_payload).execute()
     new_user = insert_res.data[0]
 
-    # ৬. স্মার্ট রেফারেল বোনাস হোল্ড (প্রথম ৫টি মাত্র ২ ঘণ্টায় ভেরিফাই হবে!)
+    # ৬. যিনি রেফার করেছেন তাকেও সরাসরি ১০ টাকা মূল ব্যালেন্সে দেওয়া
     if referrer_user:
-        referrer_id = referrer_user["id"]
-        ref_code = referrer_user["user_id"]
-        current_ref_hold = float(referrer_user.get("hold_balance") or 0.0)
-
-        # রেফারারের বর্তমানে মোট কয়টি রেফার আছে তা চেক করা
-        existing_refs = supabase.table("users").select("id", count="exact").eq("referred_by", ref_code).execute()
-        ref_count = existing_refs.count if existing_refs.count is not None else 0
-
-        # প্রথম ৫টি রেফার হলে মাত্র ২ ঘণ্টা, এর পরের রেফারগুলো স্বাভাবিক ৭২ ঘণ্টা হোল্ড থাকবে
-        hold_hours = 2 if ref_count <= 5 else 72
-
-        # রেফারারের hold_balance আপডেট (+২০৳)
-        supabase.table("users").update({"hold_balance": current_ref_hold + 20.00}).eq("id", referrer_id).execute()
-
-        # রিলিজের টাইমস্ট্যাম্প হিসাব
-        now_dt = datetime.utcnow()
-        release_dt = (now_dt + timedelta(hours=hold_hours)).isoformat()
-
-        # held_referrals টেবিলে দুজনের জন্য রেকর্ড সংরক্ষণ
-        try:
-            supabase.table("held_referrals").insert([
-                {"user_id": referrer_id, "friend_user_id": new_user["id"], "amount": 20.00, "status": "held", "release_at": release_dt},
-                {"user_id": new_user["id"], "friend_user_id": referrer_id, "amount": 20.00, "status": "held", "release_at": release_dt}
-            ]).execute()
-        except Exception as e:
-            print("Held log error:", e)
+        ref_id = referrer_user["id"]
+        cur_ref_bal = float(referrer_user.get("balance") or 0.0)
+        
+        # রেফারারের মূল ব্যালেন্স ১০ টাকা বৃদ্ধি
+        supabase.table("users").update({"balance": cur_ref_bal + 10.00}).eq("id", ref_id).execute()
 
     # ৭. লগইন টোকেন প্রদান
     token = create_access_token({
@@ -1149,13 +1147,12 @@ def register(data: RegisterSchema):
     })
 
     return {
-        "message": "নিবন্ধন সফল হয়েছে!", 
+        "message": "নিবন্ধন সফল হয়েছে এবং বোনাস মূল ব্যালেন্সে যুক্ত হয়েছে!", 
         "token": token, 
         "user_id": user_5digit_id,
-        "hold_balance": new_user_hold_bal
-    }
-
-
+        "balance": new_user_initial_balance
+}
+    
 
 # ৪. এডমিনের পেন্ডিং টাইপিং সাবমিশন লিস্ট
 @app.get("/api/admin/typing/pending")
