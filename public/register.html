@@ -9,31 +9,33 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
 
+    <!-- কাস্টম স্মুথ অ্যানিমেশন সিএসএস -->
     <style>
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-5px); }
         }
         @keyframes cardPop {
-            0% { opacity: 0; transform: scale(0.96) translateY(10px); }
+            0% { opacity: 0; transform: scale(0.96) translateY(12px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         .animate-float { animation: floatSlow 4s ease-in-out infinite; }
-        .animate-card-pop { animation: cardPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-card-pop { animation: cardPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-amber-50/40 via-white to-yellow-50/50 min-h-screen flex items-center justify-center p-4 text-gray-800 selection:bg-yellow-400 selection:text-black">
 
-    <!-- পেজ ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট গ্লো -->
+    <!-- ব্যাকগ্রাউন্ড অ্যাম্বিয়েন্ট লাইট ব্লার গ্লো -->
     <div class="fixed top-12 left-1/2 -translate-x-1/2 w-80 h-80 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
     <div class="max-w-md w-full my-6 relative z-10 animate-card-pop">
 
-        <!-- মেইন গ্লাস-স্টাইল কার্ড -->
+        <!-- মেইন প্রিমিয়াম গ্লাস কার্ড -->
         <div class="bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-[32px] shadow-2xl shadow-yellow-500/10 border border-yellow-200/70 space-y-6 relative overflow-hidden">
             
-            <!-- ব্র্যান্ড লোগো ও হেডার (কোনো প্রমোশনাল ব্যানার ছাড়া) -->
+            <!-- টপ ব্র্যান্ড লোগো ও হেডার -->
             <div class="text-center space-y-2">
+                <!-- মৌমাছি লোগো (স্মুথ ভাসমান অ্যানিমেশন) -->
                 <div class="w-16 h-16 mx-auto flex items-center justify-center animate-float">
                     <img src="https://i.ibb.co.com/ZZ1GyTp/3011-removebg-preview.png" alt="TaskBee" class="w-full h-full object-contain filter drop-shadow-sm">
                 </div>
@@ -103,16 +105,16 @@
                 <!-- ডিভাইস সুরক্ষা নোট -->
                 <div class="p-3 bg-gray-50/80 rounded-2xl border border-gray-100 flex items-center gap-2.5 text-[11px] text-gray-500">
                     <i class="fa-solid fa-shield-halved text-yellow-600 text-xs flex-shrink-0"></i>
-                    <span>একটি ডিভাইস থেকে কেবল একটি অ্যাকাউন্ট খোলা অনুমোদিত।</span>
+                    <span>একটি ডিভাইস থেকে কেবল ১টি অ্যাকাউন্ট এবং একই মডেলের ডিভাইসে রেফার নিষিদ্ধ।</span>
                 </div>
 
-                <!-- সাবমিট বাটন -->
+                <!-- সাবমিট বাটন (ইন্টারেক্টিভ অ্যানিমেশন সহ) -->
                 <button type="submit" id="regBtn" class="w-full py-3.5 bg-yellow-400 hover:bg-yellow-500 font-black rounded-2xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-md shadow-yellow-500/25 hover:shadow-yellow-500/35 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200">
                     একাউন্ট তৈরি করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>
                 </button>
             </form>
 
-            <!-- লগইন ফুটার রিডাইরেক্ট -->
+            <!-- লগইন লিঙ্ক ফুটার -->
             <p class="text-xs text-center text-gray-400 pt-3 border-t border-gray-100">
                 ইতিমধ্যে একাউন্ট আছে? <a href="/login" class="text-yellow-600 font-black hover:underline ml-1">লগইন করুন</a>
             </p>
@@ -121,6 +123,7 @@
 
     </div>
 
+    <!-- স্ক্রিপ্ট লজিক -->
     <script>
         // ১. লিংক থেকে রেফার কোড অটো-ডিটেক্ট (?ref=XXXXX)
         const urlParams = new URLSearchParams(window.location.search);
@@ -129,7 +132,34 @@
             document.getElementById('referred_by').value = refParam;
         }
 
-        // ২. পাসওয়ার্ড শো / হাইড টগল
+        // ২. আসল হার্ডওয়্যার ডিভাইস মডেল ডিটেকশন ইঞ্জিন (Real Device Engine)
+        async function getRealDeviceModel() {
+            // হাই-এন্ট্রপি ক্লায়েন্ট হিন্টস (আধুনিক অ্যান্ড্রয়েড ও ক্রোম)
+            if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+                try {
+                    const hints = await navigator.userAgentData.getHighEntropyValues(['model', 'platform']);
+                    if (hints.model && hints.model.trim() !== "") {
+                        return hints.model.trim(); // যেমন: SM-G998B, Redmi Note 10, Pixel 7
+                    }
+                } catch (e) {}
+            }
+
+            // ব্রাউজার ইউজার এজেন্ট থেকে আসল মডেল বের করা
+            const ua = navigator.userAgent;
+            const androidMatch = ua.match(/Android.*?; (.*?)(?: Build|\))/i);
+            if (androidMatch && androidMatch[1]) {
+                return androidMatch[1].trim(); // যেমন: M2101K7AG, Infinix X688B
+            }
+
+            if (/iPhone/i.test(ua)) return "iPhone";
+            if (/iPad/i.test(ua)) return "iPad";
+            if (/Windows/i.test(ua)) return "Windows PC";
+            if (/Macintosh/i.test(ua)) return "Mac PC";
+
+            return "Unknown Device";
+        }
+
+        // ৩. পাসওয়ার্ড শো / হাইড টগল
         function togglePassVisibility() {
             const passInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
@@ -142,18 +172,22 @@
             }
         }
 
-        // ৩. ফর্ম সাবমিশন ও ডিভাইস লক চেক
+        // ৪. ফর্ম সাবমিশন ও সিকিউরিটি পাস
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('regBtn');
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> একাউন্ট তৈরি হচ্ছে...`;
             btn.disabled = true;
 
+            // আসল ফোন মডেল ডিটেক্ট করা
+            const detectedModel = await getRealDeviceModel();
+
             const payload = {
                 name: document.getElementById('name').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 password: document.getElementById('password').value,
-                device_id: getDeviceFingerprint(), // ১ ডিভাইসে ১ একাউন্ট লক
+                device_id: getDeviceFingerprint(),
+                device_model: detectedModel, // শনাক্তকৃত আসল ফোন মডেল
                 referred_by: document.getElementById('referred_by').value.trim() || null
             };
 
@@ -169,7 +203,7 @@
                 alert(`অভিনন্দন! আপনার একাউন্ট সফলভাবে তৈরি হয়েছে। আপনার ৫ ডিজিটের রেফারেল আইডি হলো: ${data.user_id}`);
                 window.location.replace("/login");
             } catch (err) {
-                alert(err.message);
+                alert(err.message); // একই মডেলের ফোনে রেফার করলে এখানে এরর দেখাবে
                 btn.innerHTML = `একাউন্ট তৈরি করুন <i class="fa-solid fa-arrow-right text-[10px]"></i>`;
                 btn.disabled = false;
             }
