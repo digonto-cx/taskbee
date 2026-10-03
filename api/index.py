@@ -173,41 +173,20 @@ def change_password(data: ChangePasswordSchema):
 
 # ================= ১. কমপ্লিট টাস্ক ফিল্টার সহ গুগল সার্চ API ================= #
 
+# ================= ইনস্ট্যান্ট ১০৳ রেফারেল আর্নিং API ================= #
 
 @app.get("/api/user/referrals")
 def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
     clean_code = str(user_code).strip()
 
-    # ১. রেফারারের অ্যাকাউন্ট ডাটা আনা
-    ref_user_res = supabase.table("users").select("id, balance, hold_balance").eq("user_id", clean_code).execute()
-    if not ref_user_res.data:
-        return {"total_count": 0, "hold_balance": 0.0, "main_earned": 0.0, "users": []}
-
-    ref_user = ref_user_res.data[0]
-    referrer_id = ref_user["id"]
-
-    # ২. মোট রেফারের সংখ্যা
+    # মোট রেফারের সংখ্যা
     count_res = supabase.table("users").select("id", count="exact").eq("referred_by", clean_code).execute()
     total_count = count_res.count if count_res.count is not None else 0
 
-    # ৩. ডাটাবেসের held_referrals টেবিল থেকে লাইভ হোল্ড হিসেব করা
-    held_records_res = supabase.table("held_referrals")\
-        .select("friend_user_id, status, release_at, amount")\
-        .eq("user_id", referrer_id)\
-        .execute()
-    
-    held_records = held_records_res.data or []
-    held_map = {r["friend_user_id"]: r for r in held_records}
-
-    # বর্তমানে যতগুলো রেফারেল এখনো held অবস্থায় আছে তার নিখুঁত যোগফল
-    actual_hold_balance = sum(float(r["amount"]) for r in held_records if r.get("status") == "held")
-
-    # ডাটাবেসে ইউজারের hold_balance আপডেট রাখা
-    supabase.table("users").update({"hold_balance": actual_hold_balance}).eq("id", referrer_id).execute()
-
-    # ৪. পেজিনেশন সহ রেফার করা বন্ধুদের তালিকা
+    # ২০ জন করে পেজিনেশন
     start = (page - 1) * limit
     end = start + limit - 1
+
     users_res = supabase.table("users")\
         .select("id, name, user_id, created_at")\
         .eq("referred_by", clean_code)\
@@ -215,55 +194,14 @@ def get_user_referrals(user_code: str, page: int = 1, limit: int = 20):
         .range(start, end)\
         .execute()
 
-    now = datetime.utcnow()
-    user_list = []
-
-    for u in (users_res.data or []):
-        friend_id = u["id"]
-        held_info = held_map.get(friend_id)
-
-        # যদি ডাটাবেসের held টেবিলে স্ট্যাটাস 'held' থাকে, তবে এটি নিশ্চিত হোল্ড
-        if held_info and held_info.get("status") == "held":
-            is_held = True
-            time_left_str = "২ ঘণ্টা বাকি"
-            if held_info.get("release_at"):
-                try:
-                    rel_dt = datetime.fromisoformat(held_info["release_at"].replace("Z", "+00:00")).replace(tzinfo=None)
-                    rem_sec = (rel_dt - now).total_seconds()
-                    rem_hours = int(rem_sec / 3600)
-                    rem_mins = int((rem_sec % 3600) / 60)
-
-                    if rem_hours > 0:
-                        time_left_str = f"{rem_hours} ঘণ্টা বাকি"
-                    elif rem_mins > 0:
-                        time_left_str = f"{rem_mins} মিনিট বাকি"
-                    else:
-                        time_left_str = "শীঘ্রই রিলিজ হচ্ছে"
-                except:
-                    time_left_str = "২ ঘণ্টা বাকি"
-        else:
-            is_held = False
-            time_left_str = ""
-
-        user_list.append({
-            "id": u["id"],
-            "name": u["name"],
-            "user_id": u["user_id"],
-            "created_at": u["created_at"],
-            "is_held": is_held,
-            "remaining_time": time_left_str
-        })
-
     return {
         "total_count": total_count,
-        "hold_balance": actual_hold_balance,
-        "main_earned": max(0.0, (total_count * 20.0) - actual_hold_balance),
-        "total_earnings": total_count * 20.0,
+        "total_earnings": total_count * 10.00,  # প্রতি রেফারে ১০ টাকা সরাসরি
         "page": page,
         "limit": limit,
-        "users": user_list
+        "users": users_res.data or []
     }
-
+    
 
 # ================= ৫. CRON JOB: ২ ঘণ্টা / ৭২ ঘণ্টা পর অটো রিলিজ API ================= #
 @app.get("/api/cron/release-referrals")
