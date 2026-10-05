@@ -9,11 +9,20 @@
     <link rel="stylesheet" href="/assets/css/style.css">
     <script src="/assets/js/main.js"></script>
     <script src="/assets/js/layout.js"></script>
+
+    <!-- ইনস্ট্যান্ট অ্যাক্টিভেশন গার্ড (পেজ রেন্ডার হওয়ার আগেই ব্লক করবে) -->
+    <script>
+        checkAuth();
+        const initialUser = getUser();
+        if (!initialUser || !initialUser.is_activated) {
+            alert("⚠️ টাস্ক দেখার বা কাজ করার পূর্বে এককালীন ৪০ টাকা দিয়ে অ্যাকাউন্টটি অ্যাক্টিভ (Active) করে নিন!");
+            window.location.replace("/activate");
+        }
+    </script>
 </head>
 <body class="bg-gradient-to-br from-amber-50/30 via-white to-yellow-50/40 min-h-screen text-gray-800 pb-28 sm:pb-14 selection:bg-yellow-400">
-    <script>checkAuth();</script>
 
-    <!-- ব্যাকগ্রাউন্ড গ্লো -->
+    <!-- ব্যাকগ্রাউন্ড লাইট অ্যাম্বিয়েন্ট গ্লো -->
     <div class="fixed top-8 left-1/2 -translate-x-1/2 w-96 h-96 bg-yellow-400/15 rounded-full blur-3xl pointer-events-none"></div>
 
     <main class="max-w-5xl mx-auto p-4 sm:p-6 space-y-6 relative z-10">
@@ -30,7 +39,7 @@
                 <p class="text-xs text-gray-500 mt-0.5">সব ধরনের কাজ এক সাথে। যে কাজগুলো আপনি সম্পন্ন করেননি কেবল সেগুলোই এখানে দেখাবে।</p>
             </div>
             
-            <!-- মোট কাজ ও মোট টাকার ব্যাজ -->
+            <!-- মোট অবশিষ্ট কাজ ও মোট টাকার ব্যাজ -->
             <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                 <div class="bg-yellow-50 border border-yellow-200 px-4 py-2 rounded-2xl shadow-2xs flex items-center gap-2 flex-1 sm:flex-initial">
                     <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
@@ -90,6 +99,14 @@
 
             try {
                 const res = await fetch(`${API_URL}/tasks/v2?user_id=${user.id}&category=${category}`);
+                
+                // যদি ব্যাকএন্ড থেকেও অ্যাক্টিভেশন না পেয়ে ব্লক করে
+                if (res.status === 403) {
+                    alert("⚠️ কাজ করার পূর্বে অ্যাকাউন্টটি অ্যাক্টিভ (Active) করে নিন!");
+                    window.location.replace("/activate");
+                    return;
+                }
+
                 const data = await res.json();
 
                 // টপ ব্যানার কাউন্ট আপডেট
@@ -110,7 +127,7 @@
                                 আপনি এই ক্যাটাগরির সকল কাজ ইতিমধ্যে সম্পন্ন করেছেন। নতুন কাজ আসা পর্যন্ত অপেক্ষা করুন অথবা রেফার করে আয় করুন।
                             </p>
                             <a href="/refer" class="inline-flex items-center gap-2 px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-950 font-bold rounded-xl text-xs shadow-xs transition">
-                                <i class="fa-solid fa-gift"></i> বন্ধুদের রেফার করুন (২০৳)
+                                <i class="fa-solid fa-gift"></i> বন্ধুদের রেফার করুন (১০৳)
                             </a>
                         </div>
                     `;
@@ -173,7 +190,7 @@
                                 </div>
                             </div>
 
-                            <!-- Start Task বাটন (স্বয়ংক্রিয়ভাবে ক্যাটাগরির সঠিক ডিটেইলস পেজে নিয়ে যাবে) -->
+                            <!-- Start Task বাটন -->
                             <div class="pt-4 mt-3 border-t border-gray-100">
                                 <a href="${targetUrl}" class="w-full py-2.5 bg-yellow-400 hover:bg-yellow-500 font-black rounded-xl text-xs text-gray-950 flex items-center justify-center gap-2 shadow-xs transition hover:scale-[1.01]">
                                     Start Task (কাজ শুরু করুন) <i class="fa-solid fa-arrow-right text-[10px]"></i>
@@ -202,4 +219,4 @@
         loadUnifiedTasks("all");
     </script>
 </body>
-              </html>
+</html>
