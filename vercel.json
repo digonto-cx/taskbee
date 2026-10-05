@@ -24,14 +24,6 @@
       "dest": "/public/manifest.json"
     },
     {
-      "src": "/tasks/v2",
-      "dest": "/public/tasks/v2.html"
-    },
-    {
-      "src": "/task/v2",
-      "dest": "/public/tasks/v2.html"
-    },
-    {
       "src": "/sw.js",
       "dest": "/public/sw.js"
     },
@@ -74,6 +66,14 @@
     {
       "src": "/admin/(.*)",
       "dest": "/public/admin/$1"
+    },
+    {
+      "src": "/tasks/v2",
+      "dest": "/public/tasks/v2.html"
+    },
+    {
+      "src": "/task/v2",
+      "dest": "/public/tasks/v2.html"
     },
     {
       "src": "/tasks/micro-details",
@@ -122,6 +122,10 @@
     {
       "src": "/tasks",
       "dest": "/public/tasks.html"
+    },
+    {
+      "src": "/activate",
+      "dest": "/public/activate.html"
     },
     {
       "src": "/history",
