@@ -304,7 +304,6 @@ async def submit_google_search(
     return {"message": "স্ক্রিনশট সফলভাবে জমা হয়েছে! এডমিন শীঘ্রই ভেরিফাই করবে।"}
 
 # ================= 6. WITHDRAWAL APIs ================= #
-
 @app.post("/api/user/withdraw")
 def request_withdraw(data: WithdrawSchema):
     user_res = supabase.table("users").select("*").eq("id", data.user_id).single().execute()
@@ -314,25 +313,22 @@ def request_withdraw(data: WithdrawSchema):
     user = user_res.data
     user_balance = float(user["balance"])
 
-    # শর্ত ১: নূন্যতম ব্যালেন্স ৩৫০ টাকা
-    if data.amount < 350.00:
-        raise HTTPException(status_code=400, detail="নূন্যতম উত্তোলনের পরিমাণ ৩৫০ টাকা!")
+    # ১. অ্যাক্টিভেশন চেক
+    if not user.get("is_activated", False):
+        raise HTTPException(status_code=403, detail="টাকা তোলার জন্য আপনার অ্যাকাউন্টটি প্রথমে অ্যাক্টিভ (Active) করে নিন!")
+
+    # ২. অ্যাক্টিভেটেড মেম্বারদের জন্য নূন্যতম উত্তোলন মাত্র ১৫০ টাকা (কোনো রেফার লাগবে না)
+    if data.amount < 150.00:
+        raise HTTPException(status_code=400, detail="নূন্যতম উত্তোলনের পরিমাণ ১৫০ টাকা!")
 
     if user_balance < data.amount:
         raise HTTPException(status_code=400, detail="আপনার একাউন্টে পর্যাপ্ত ব্যালেন্স নেই!")
 
-    # শর্ত ২: কমপক্ষে ৫টি সফল রেফার
-    ref_res = supabase.table("users").select("id", count="exact").eq("referred_by", user["user_id"]).execute()
-    ref_count = ref_res.count if ref_res.count is not None else 0
-
-    if ref_count < 5:
-        raise HTTPException(status_code=400, detail=f"উত্তোলনের জন্য কমপক্ষে ৫টি সফল রেফার প্রয়োজন! আপনার বর্তমান রেফার: {ref_count}টি।")
-
-    # ব্যালেন্স থেকে কাটা
+    # ব্যালেন্স থেকে টাকা কাটা
     new_balance = user_balance - data.amount
     supabase.table("users").update({"balance": new_balance}).eq("id", user["id"]).execute()
 
-    # রিকোয়েস্ট তৈরি
+    # রিকোয়েস্ট জমা দেওয়া
     supabase.table("withdrawals").insert({
         "user_id": user["id"],
         "amount": data.amount,
@@ -341,16 +337,7 @@ def request_withdraw(data: WithdrawSchema):
         "status": "pending"
     }).execute()
 
-    return {"message": "উইথড্র রিকোয়েস্ট জমা হয়েছে! এডমিন দ্রুত পেমেন্ট পরিশোধ করবে।"}
-
-@app.get("/api/user/withdrawals")
-def get_user_withdrawals(user_id: int):
-    res = supabase.table("withdrawals")\
-        .select("*")\
-        .eq("user_id", user_id)\
-        .order("created_at", desc=True)\
-        .execute()
-    return res.data
+    return {"message": "উইথড্র রিকোয়েস্ট জমা হয়েছে! দ্রুততম সময়ে পেমেন্ট পরিশোধ করা হবে।"}
 
 # ================= 7. GLOBAL NOTICE APIs ================= #
 
@@ -447,15 +434,14 @@ def get_pending_submissions():
 
 # ----------------- ১. রিয়েল-টাইম লাইভ ব্যালেন্স সিঙ্ক API ----------------- #
 
+# /api/user/profile/{user_db_id} এন্ডপয়েন্টে is_activated যুক্ত করুন:
 @app.get("/api/user/profile/{user_db_id}")
 def get_user_live_profile(user_db_id: int):
-    # সরাসরি ডাটাবেস থেকে ইউজারের লেটেস্ট ব্যালেন্স আনা
-    u_res = supabase.table("users").select("id, user_id, name, email, balance, role, is_banned").eq("id", user_db_id).execute()
+    u_res = supabase.table("users").select("id, user_id, name, email, balance, hold_balance, role, is_banned, is_activated").eq("id", user_db_id).execute()
     if not u_res.data:
         raise HTTPException(status_code=404, detail="ইউজার পাওয়া যায়নি!")
     return u_res.data[0]
-
-
+    
 # ----------------- ২. ফিক্সড সিঙ্গেল টাস্ক অ্যাপ্রুভ অ্যাকশন ----------------- #
 
 @app.post("/api/admin/submissions/action")
@@ -1332,29 +1318,27 @@ def delete_task(task_id: int):
     return {"message": "টাস্কটি স্থায়ীভাবে মুছে ফেলা হয়েছে!"}
 
 # ================= UNIFIED ALL-IN-ONE TASK FEED API (/tasks/v2) ================= #
+# api/index.py এর /api/tasks/v2 এন্ডপয়েন্টে অ্যাক্টিভেশন ভ্যালিডেশন:
 
 @app.get("/api/tasks/v2")
 def get_unified_task_feed(user_id: Optional[int] = None, category: Optional[str] = "all"):
-    # ১. ডেটাবেস থেকে সব সক্রিয় টাস্ক আনা
+    # ১. ইউজার অ্যাক্টিভেটেড কিনা ডাটাবেসে চেক করা
+    if user_id:
+        u_check = supabase.table("users").select("is_activated").eq("id", user_id).execute()
+        if not u_check.data or not u_check.data[0].get("is_activated", False):
+            raise HTTPException(status_code=403, detail="টাস্ক ফিড দেখার জন্য প্রথমে আপনার অ্যাকাউন্ট অ্যাক্টিভ (Active) করুন!")
+
+    # ২. এরপর বাকি টাস্ক লোড হবে...
     query = supabase.table("tasks").select("*").eq("status", "active")
-    
     if category and category != "all":
         query = query.eq("task_type", category)
         
     res = query.order("created_at", desc=True).execute()
     tasks = res.data or []
 
-    # ২. ইউজারের পেন্ডিং ও অ্যাপ্রুভড কাজগুলো বাদ দেওয়া
     if user_id:
-        subs_res = supabase.table("task_submissions")\
-            .select("task_id, status")\
-            .eq("user_id", user_id)\
-            .in_("status", ["approved", "pending"])\
-            .execute()
-
+        subs_res = supabase.table("task_submissions").select("task_id, status").eq("user_id", user_id).in_("status", ["approved", "pending"]).execute()
         completed_task_ids = {s["task_id"] for s in (subs_res.data or [])}
-        
-        # শুধুমাত্র অবশিষ্ট ও রিজেক্ট হওয়া কাজগুলো ফিল্টার করা
         tasks = [t for t in tasks if t["id"] not in completed_task_ids]
 
     total_tasks = len(tasks)
@@ -1365,6 +1349,7 @@ def get_unified_task_feed(user_id: Optional[int] = None, category: Optional[str]
         "total_reward": total_reward,
         "tasks": tasks
     }
+    
 
 
 # ================= ACTIVATION SYSTEM APIs ================= #
