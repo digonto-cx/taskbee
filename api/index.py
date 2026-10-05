@@ -1365,6 +1365,65 @@ def get_unified_task_feed(user_id: Optional[int] = None, category: Optional[str]
         "total_reward": total_reward,
         "tasks": tasks
     }
+
+
+# ================= ACTIVATION SYSTEM APIs ================= #
+
+class ActivationSubmitSchema(BaseModel):
+    user_id: int
+    payment_method: str
+    sender_number: str
+    trx_id: str
+
+class ActivationActionSchema(BaseModel):
+    activation_id: int
+    action: str # 'approve' or 'reject'
+
+@app.post("/api/user/activate")
+def submit_activation(data: ActivationSubmitSchema):
+    # ট্রানজেকশন আইডি আগে ব্যবহৃত হয়েছে কিনা যাচাই
+    existing = supabase.table("activations").select("id").eq("trx_id", data.trx_id.strip()).execute()
+    if existing.data:
+        raise HTTPException(status_code=400, detail="এই TrxID-টি ইতিমধ্যে ব্যবহার করা হয়েছে!")
+
+    supabase.table("activations").insert({
+        "user_id": data.user_id,
+        "payment_method": data.payment_method,
+        "sender_number": data.sender_number.strip(),
+        "trx_id": data.trx_id.strip(),
+        "amount": 40.00,
+        "status": "pending"
+    }).execute()
+
+    return {"message": "অ্যাক্টিভেশন রিকোয়েস্ট জমা হয়েছে। এডমিন যাচাই করে অ্যাকাউন্ট সক্রিয় করবে।"}
+
+@app.get("/api/admin/activations/pending")
+def get_pending_activations():
+    res = supabase.table("activations")\
+        .select("id, user_id, payment_method, sender_number, trx_id, amount, created_at, users(name, user_id, email)")\
+        .eq("status", "pending")\
+        .order("created_at", desc=True)\
+        .execute()
+    return res.data or []
+
+@app.post("/api/admin/activations/action")
+def take_activation_action(data: ActivationActionSchema):
+    act_res = supabase.table("activations").select("*").eq("id", data.activation_id).single().execute()
+    if not act_res.data:
+        raise HTTPException(status_code=404, detail="রেকর্ড পাওয়া যায়নি!")
+
+    record = act_res.data
+    if data.action == "approve":
+        # ব্যবহারকারীর অ্যাকাউন্ট একটিভ করা
+        supabase.table("users").update({"is_activated": True}).eq("id", record["user_id"]).execute()
+        supabase.table("activations").update({"status": "approved"}).eq("id", data.activation_id).execute()
+        return {"message": "অ্যাকাউন্ট সফলভাবে একটিভ করা হয়েছে!"}
+    
+    elif data.action == "reject":
+        supabase.table("activations").update({"status": "rejected"}).eq("id", data.activation_id).execute()
+        return {"message": "রিকোয়েস্ট বাতিল করা হয়েছে।"}
+
+    raise HTTPException(status_code=400, detail="ভুল কমান্ড!")
     
 @app.get("/api/tasks/job")
 def get_job_post_tasks():
