@@ -28,6 +28,10 @@
       "dest": "/public/sw.js"
     },
     {
+      "src": "/admin/activations",
+      "dest": "/public/admin/activations.html"
+    },
+    {
       "src": "/admin/tasko",
       "dest": "/public/admin/tasko.html"
     },
@@ -154,10 +158,6 @@
     {
       "src": "/login",
       "dest": "/public/login.html"
-    },
-    {
-      "src": "/admin/activations",
-      "dest": "/public/admin/activations.html"
     },
     {
       "src": "/register",
