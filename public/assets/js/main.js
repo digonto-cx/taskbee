@@ -1,4 +1,4 @@
-// public/assets/js/main.js - TaskBee Master Core & Live Engine
+// public/assets/js/main.js - TaskBee Master Core & Security Engine
 
 const API_URL = "/api";
 
@@ -10,13 +10,12 @@ const API_URL = "/api";
     if (token && userStr) {
         try {
             const user = JSON.parse(userStr);
-            const path = window.location.pathname;
+            const path = window.location.pathname.toLowerCase();
 
-            // শুধুমাত্র লগইন ও রেজিস্ট্রেশন পেজে লগইন অবস্থায় ঢোকা ব্লক থাকবে
+            // লগইন ও রেজিস্ট্রেশন পেজে লগইন অবস্থায় ঢোকা ব্লক
             const authBlockedPages = ["/login", "/login.html", "/register", "/register.html"];
 
             if (authBlockedPages.includes(path)) {
-                // এডমিন হলে এডমিন প্যানেলে, সাধারণ ইউজার হলে ড্যাশবোর্ডে পাঠাবে
                 window.location.replace(user.role === 'admin' ? '/admin' : '/dashboard');
             }
         } catch (e) {
@@ -64,7 +63,7 @@ function logout() {
     window.location.replace("/login");
 }
 
-// যে পেজগুলোতে লগইন ছাড়া ঢোকা যাবে না (Protected Pages)
+// প্রটেক্টেড পেজে লগইন ছাড়া ঢোকা ব্লক
 function checkAuth() {
     const token = localStorage.getItem("tb_token");
     if (!token) {
@@ -72,7 +71,28 @@ function checkAuth() {
     }
 }
 
-// ================= ৪. লাইভ ব্যালেন্স ও হোল্ড ব্যালেন্স সিঙ্ক ================= //
+// ================= ৪. অ্যাক্টিভেশন গার্ড (/task/v2, /tasks, /withdraw ব্লক) ================= //
+function enforceActivationGuard() {
+    const user = getUser();
+    if (!user) return;
+
+    // ব্যবহারকারী যদি অ্যাকাউন্ট একটিভ না করে থাকে
+    if (!user.is_activated) {
+        const path = window.location.pathname.toLowerCase();
+
+        // /task, /tasks, /task/v2, /withdraw পেজে ঢুকতে গেলেই ব্লক
+        const isBlocked = path.startsWith("/task") || 
+                          path.startsWith("/tasks") || 
+                          path.startsWith("/withdraw");
+
+        if (isBlocked) {
+            alert("⚠️ কাজ করা বা টাকা তোলার পূর্বে এককালীন ৪০ টাকা দিয়ে আপনার অ্যাকাউন্টটি অ্যাক্টিভ (Active) করে নিন!");
+            window.location.replace("/activate");
+        }
+    }
+}
+
+// ================= ৫. লাইভ ব্যালেন্স ও স্ট্যাটাস সিঙ্ক ইঞ্জিন ================= //
 async function syncLiveBalance() {
     const user = getUser();
     if (!user || !user.id) return;
@@ -82,12 +102,13 @@ async function syncLiveBalance() {
         if (res.ok) {
             const freshUser = await res.json();
             
-            // ১. লোকাল স্টোরেজে নতুন মূল ব্যালেন্স ও হোল্ড ব্যালেন্স আপডেট
+            // ১. লোকাল স্টোরেজে ব্যালেন্স ও অ্যাক্টিভেশন স্ট্যাটাস আপডেট
             user.balance = freshUser.balance;
             user.hold_balance = freshUser.hold_balance || 0.00;
+            user.is_activated = freshUser.is_activated || false; // লাইভ অ্যাক্টিভেশন স্ট্যাটাস
             localStorage.setItem("tb_user", JSON.stringify(user));
 
-            // ২. পেজের মূল ব্যালেন্স এলিমেন্টগুলোতে সাথে সাথে নতুন টাকা দেখানো
+            // ২. স্ক্রিনের মূল ব্যালেন্স আপডেট
             const balElements = ["userBalance", "accBalance", "currentBal"];
             balElements.forEach(id => {
                 const el = document.getElementById(id);
@@ -102,22 +123,28 @@ async function syncLiveBalance() {
                 holdEl.innerText = parseFloat(freshUser.hold_balance || 0).toFixed(2);
             }
 
-            // ৪. টপবারের ব্যালেন্স ব্যাজ থাকলে আপডেট করা
+            // ৪. টপবারের ব্যালেন্স ব্যাজ আপডেট
             const topbarBal = document.querySelector("header a[href='/withdraw'] span.text-green-700");
             if (topbarBal) {
                 topbarBal.innerText = `৳ ${parseFloat(freshUser.balance || 0).toFixed(2)}`;
             }
 
-            // ৫. ইউজার ব্যান হয়ে গেলে সাথে সাথে লগআউট করা
+            // ৫. ইউজার ব্যান চেক
             if (freshUser.is_banned) {
                 alert("আপনার একাউন্টটি এডমিন কর্তৃক ব্যান করা হয়েছে!");
                 logout();
             }
+
+            // ৬. ব্যালেন্স সিঙ্ক শেষে অ্যাক্টিভেশন গার্ড পুনরায় চেক
+            enforceActivationGuard();
         }
     } catch (e) {
-        console.error("Live balance sync error:", e);
+        console.error("Live sync error:", e);
     }
 }
 
-// পেজ লোড হওয়ার সাথে সাথে স্বয়ংক্রিয়ভাবে ডাটাবেসের সাথে ব্যালেন্স ও হোল্ড ব্যালেন্স সিঙ্ক হবে
-document.addEventListener("DOMContentLoaded", syncLiveBalance);
+// পেজ লোড হলেই স্বয়ংক্রিয়ভাবে অ্যাক্টিভেশন গার্ড ও ডাটাবেস সিঙ্ক চালু হবে
+document.addEventListener("DOMContentLoaded", () => {
+    enforceActivationGuard();
+    syncLiveBalance();
+});
