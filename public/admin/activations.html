@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাকাউন্ট অ্যাক্টিভেশন ম্যানেজার - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/main.js"></script>
+</head>
+<body class="bg-[#f0f7ff] min-h-screen text-slate-800 pb-20 selection:bg-sky-400 selection:text-white">
+
+    <!-- হেডার -->
+    <header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-sky-100 shadow-xs px-4 py-3">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-2xl bg-emerald-500 text-white flex items-center justify-center font-black shadow-xs">
+                    <i class="fa-solid fa-user-check text-sm"></i>
+                </span>
+                <div>
+                    <h1 class="font-black text-lg text-slate-900 leading-none">Account Activations</h1>
+                    <span class="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest">Payment & Verification</span>
+                </div>
+            </div>
+            
+            <a href="/admin" class="text-xs bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl font-bold text-slate-700 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-arrow-left text-xs"></i> মূল এডমিন প্যানেল
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ১. স্ট্যাটাস ও সার্চ বার -->
+        <div class="bg-white p-5 rounded-[28px] border border-sky-100 shadow-xs flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="relative w-full sm:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="searchInput" onkeyup="filterActivations()" placeholder="নাম, UID, নম্বর বা TrxID খুঁজুন..." 
+                       class="w-full text-xs pl-9 pr-3 py-3 border border-sky-100 rounded-2xl focus:ring-2 focus:ring-sky-400 focus:outline-none bg-sky-50/30">
+            </div>
+
+            <div class="flex items-center gap-4 text-xs font-bold text-slate-500 w-full sm:w-auto justify-between sm:justify-end">
+                <span>পেন্ডিং রিকোয়েস্ট: <b id="pendingCount" class="text-emerald-600 font-black text-sm">0</b> টি</span>
+                <button onclick="loadPendingActivations()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-right"></i> রিফ্রেশ
+                </button>
+            </div>
+        </div>
+
+        <!-- ২. পেন্ডিং রিকোয়েস্ট তালিকা -->
+        <div class="bg-white rounded-[28px] border border-sky-100 shadow-xs overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-amber-500"></i> অপেক্ষমান পেমেন্ট তালিকা (ফি: ৪০ টাকা)
+                </h3>
+                <span class="text-[10px] text-slate-400 font-medium">bKash / Nagad Send Money যাচাই করুন</span>
+            </div>
+
+            <div id="activationsContainer" class="p-4 sm:p-6 space-y-3">
+                <p class="text-center text-slate-400 text-xs py-8"><i class="fa-solid fa-spinner fa-spin mr-1"></i> রিকোয়েস্ট লোড হচ্ছে...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const adminUser = getUser();
+        if (!adminUser || adminUser.role !== 'admin') {
+            alert("শুধুমাত্র এডমিনের প্রবেশের অনুমতি আছে!");
+            window.location.replace("/login");
+        }
+
+        let allActivations = [];
+
+        // ১. পেন্ডিং অ্যাক্টিভেশন ডাটা ফেচ
+        async function loadPendingActivations() {
+            const container = document.getElementById('activationsContainer');
+            container.innerHTML = `<p class="text-center text-slate-400 text-xs py-8"><i class="fa-solid fa-spinner fa-spin mr-1"></i> রিকোয়েস্ট লোড হচ্ছে...</p>`;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/activations/pending`);
+                allActivations = await res.json();
+
+                document.getElementById('pendingCount').innerText = allActivations.length;
+                renderActivations(allActivations);
+            } catch (err) {
+                container.innerHTML = `<p class="text-center text-red-500 text-xs py-4">ডাটা লোড করা যায়নি!</p>`;
+            }
+        }
+
+        // ২. তালিকা রেন্ডার
+        function renderActivations(items) {
+            const container = document.getElementById('activationsContainer');
+            container.innerHTML = "";
+
+            if (!items || items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400 space-y-2">
+                        <i class="fa-solid fa-circle-check text-3xl text-emerald-500 mb-1 block"></i>
+                        <p class="text-xs font-bold text-slate-700">কোনো পেন্ডিং অ্যাক্টিভেশন রিকোয়েস্ট নেই!</p>
+                        <p class="text-[11px]">নতুন ব্যবহারকারী পেমেন্ট সাবমিট করলে এখানে চলে আসবে।</p>
+                    </div>
+                `;
+                return;
+            }
+
+            items.forEach(act => {
+                const isBkash = act.payment_method.toLowerCase() === 'bkash';
+                const methodBadge = isBkash 
+                    ? `<span class="bg-pink-100 text-pink-700 px-2.5 py-1 rounded-xl font-bold text-[10px] border border-pink-200">bKash</span>`
+                    : `<span class="bg-orange-100 text-orange-700 px-2.5 py-1 rounded-xl font-bold text-[10px] border border-orange-200">Nagad</span>`;
+
+                const dateStr = new Date(act.created_at).toLocaleString('bn-BD', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                container.innerHTML += `
+                    <div class="p-4 sm:p-5 bg-sky-50/40 border border-sky-100 rounded-2xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 hover:bg-white transition duration-200">
+                        
+                        <!-- ব্যবহারকারী ও পেমেন্ট বিবরণ -->
+                        <div class="space-y-1.5 flex-1">
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-extrabold text-slate-900 text-sm">${act.users ? act.users.name : 'User'}</h4>
+                                <span class="text-xs font-mono font-bold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-lg">UID: ${act.users ? act.users.user_id : '---'}</span>
+                                ${methodBadge}
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
+                                <div>
+                                    <span class="text-slate-400">যে নম্বর থেকে পাঠিয়েছে:</span> 
+                                    <b class="font-mono text-slate-800">${act.sender_number}</b>
+                                    <button onclick="copyText('${act.sender_number}')" title="নম্বর কপি" class="text-slate-400 hover:text-black ml-1"><i class="fa-regular fa-copy text-[10px]"></i></button>
+                                </div>
+
+                                <div>
+                                    <span class="text-slate-400">Transaction ID (TrxID):</span> 
+                                    <b class="font-mono text-emerald-700 font-black text-xs uppercase bg-white px-2 py-0.5 rounded border border-sky-100">${act.trx_id}</b>
+                                    <button onclick="copyText('${act.trx_id}')" title="TrxID কপি" class="text-slate-400 hover:text-black ml-1"><i class="fa-regular fa-copy text-[10px]"></i></button>
+                                </div>
+                            </div>
+
+                            <span class="text-[10px] text-slate-400 block pt-0.5">${dateStr}</span>
+                        </div>
+
+                        <!-- ফি ও অ্যাকশন বাটনসমূহ -->
+                        <div class="flex items-center justify-between w-full lg:w-auto gap-4 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                            <div class="text-left lg:text-right">
+                                <span class="text-[10px] text-slate-400 uppercase font-bold block">ফি পরিমাণ</span>
+                                <span class="text-base font-black text-slate-900">৳ ${parseFloat(act.amount).toFixed(2)}</span>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button onclick="actionActivation(${act.id}, 'approve')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-xs transition hover:scale-105 active:scale-95">
+                                    <i class="fa-solid fa-check"></i> Approve (একটিভ)
+                                </button>
+                                <button onclick="actionActivation(${act.id}, 'reject')" class="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl text-xs border border-red-200 transition">
+                                    <i class="fa-solid fa-xmark"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            });
+        }
+
+        // ৩. অ্যাপ্রুভ বা রিজেক্ট অ্যাকশন
+        async function actionActivation(id, act) {
+            const confirmMsg = act === 'approve' 
+                ? "আপনি কি নিশ্চিত এই ব্যবহারকারীর অ্যাকাউন্ট সক্রিয় (Active) করতে চান?" 
+                : "আপনি কি নিশ্চিত এই পেমেন্ট রিকোয়েস্টটি বাতিল করতে চান?";
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const res = await fetch(`${API_URL}/admin/activations/action`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ activation_id: id, action: act })
+                });
+
+                const data = await res.json();
+                alert(data.message);
+                loadPendingActivations();
+            } catch (err) {
+                alert("অ্যাকশন সম্পন্ন করতে সমস্যা হয়েছে!");
+            }
+        }
+
+        // ৪. সার্চ ফিল্টার
+        function filterActivations() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = allActivations.filter(a => 
+                (a.users && a.users.name.toLowerCase().includes(query)) ||
+                (a.users && a.users.user_id.includes(query)) ||
+                a.sender_number.includes(query) ||
+                a.trx_id.toLowerCase().includes(query)
+            );
+            renderActivations(filtered);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            alert("কপি হয়েছে: " + text);
+        }
+
+        loadPendingActivations();
+    </script>
+</body>
+  </html>
