@@ -156,6 +156,10 @@
       "dest": "/public/login.html"
     },
     {
+      "src": "/admin/activations",
+      "dest": "/public/admin/activations.html"
+    },
+    {
       "src": "/register",
       "dest": "/public/register.html"
     },
